@@ -38,13 +38,11 @@ public class GetCustomerPurchasedTransactionHistoryQueryHandler(
             throw new NotFoundException(nameof(CustomerPurchased), request.CustomerPurchasedId);
         }
 
-        // Determine package name from the first OrderItem
         var firstOrderItem = customerPurchased.OrderItems.FirstOrDefault();
         var packageName = firstOrderItem?.FreelancePTPackage?.Name 
             ?? firstOrderItem?.GymCourse?.Name 
             ?? "Unknown Package";
 
-        // Initialize response DTO
         var response = new CustomerPurchasedTransactionHistoryDto
         {
             CustomerPurchasedId = customerPurchased.Id,
@@ -55,7 +53,6 @@ public class GetCustomerPurchasedTransactionHistoryQueryHandler(
             Transactions = new List<PurchaseTransactionDetailDto>()
         };
 
-        // Collect transactions from initial purchase (OrderItems)
         foreach (var orderItem in customerPurchased.OrderItems)
         {
             if (orderItem.Order?.Transactions != null)
@@ -87,7 +84,6 @@ public class GetCustomerPurchasedTransactionHistoryQueryHandler(
             }
         }
 
-        // Sort transactions by date (most recent first)
         response.Transactions = response.Transactions
             .OrderByDescending(t => t.TransactionDate)
             .ToList();
