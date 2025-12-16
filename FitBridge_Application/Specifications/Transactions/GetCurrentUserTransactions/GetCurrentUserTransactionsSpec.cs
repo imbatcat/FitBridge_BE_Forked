@@ -15,9 +15,9 @@ namespace FitBridge_Application.Specifications.Transactions.GetCurrentUserTransa
             x.IsEnabled
             && (userRole == ProjectConstant.UserRoles.Admin
                 || (userRole == ProjectConstant.UserRoles.GymOwner
-                    && x.Order.OrderItems.Any(oi => oi.GymCourse != null && oi.GymCourse.GymOwnerId == userId))
+                    && x.Order != null && x.Order.OrderItems.Any(oi => oi.GymCourse != null && oi.GymCourse.GymOwnerId == userId))
                 || (userRole == ProjectConstant.UserRoles.FreelancePT
-                    && x.Order.OrderItems.Any(oi => oi.FreelancePTPackage != null && oi.FreelancePTPackage.PtId == userId))
+                    && x.Order != null && x.Order.OrderItems.Any(oi => oi.FreelancePTPackage != null && oi.FreelancePTPackage.PtId == userId))
                 || (userRole == ProjectConstant.UserRoles.Customer
                     && x.Order != null && x.Order.AccountId == userId)))
         {
@@ -53,12 +53,19 @@ namespace FitBridge_Application.Specifications.Transactions.GetCurrentUserTransa
             {
                 AddPaging(parameters.Size * (parameters.Page - 1), parameters.Size);
             }
-            else
-            {
-                parameters.Size = -1;
-                parameters.Page = -1;
-            }
 
+            // Add necessary includes for transaction details
+            AddInclude(x => x.PaymentMethod);
+            AddInclude(x => x.OrderItem!);
+            AddInclude("Order.OrderItems");
+            AddInclude("Order.Account");
+            AddInclude("Order.Coupon");
+            AddInclude("Order.OrderItems.GymCourse");
+            AddInclude("Order.OrderItems.FreelancePTPackage");
+            AddInclude("Order.OrderItems.ProductDetail.Product");
+            AddInclude("Order.OrderItems.SubscriptionPlansInformation");
+            AddInclude("Order.OrderItems.CustomerPurchased");
+            
             if (includeOrder)
             {
                 AddInclude(x => x.Order!);
