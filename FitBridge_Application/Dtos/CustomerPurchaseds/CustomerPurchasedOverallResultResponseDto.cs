@@ -48,9 +48,11 @@ public class CustomerPurchasedOverallResultResponseDto
 
     public MuscleGroupInsightDto? LeastTrainedMuscleGroup { get; set; }
 
-    // Workout statistics
+    // Workout statisticso
     public WorkoutStatisticsDto WorkoutStatistics { get; set; } = new();
 
     // User goals
     public UserGoalsDto UserGoals { get; set; } = new();
+    public DateTime? FirstSessionStartTime { get; set; }
+    public DateTime? LatestSessionEndTime { get; set; }
 }

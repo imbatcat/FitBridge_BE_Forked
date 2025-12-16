@@ -27,7 +27,9 @@ public class SessionActivityConfiguration : IEntityTypeConfiguration<SessionActi
         builder.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.IsEnabled).HasDefaultValue(true);
         builder.Property(e => e.BookingId).IsRequired(true);
+        builder.Property(e => e.AssetId).IsRequired(false);
 
         builder.HasOne(e => e.Booking).WithMany(e => e.SessionActivities).HasForeignKey(e => e.BookingId);
+        builder.HasOne(e => e.Asset).WithOne(e => e.SessionActivity).HasForeignKey<SessionActivity>(e => e.AssetId).OnDelete(DeleteBehavior.SetNull);
     }
 }
