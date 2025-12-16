@@ -13,7 +13,7 @@ public class AssetMetadata : BaseEntity
     public string Description { get; set; }
     public List<string>? TargetMuscularGroups { get; set; } = new List<string>();
     public ICollection<GymAsset> GymAssets { get; set; } = new List<GymAsset>();
-    public SessionActivity SessionActivity { get; set; } = new SessionActivity();
+    public List<SessionActivity> SessionActivities { get; set; } = new List<SessionActivity>();
     public string MetadataImage { get; set; }
     public string? VietNameseName { get; set; }
     public string? VietnameseDescription { get; set; }
