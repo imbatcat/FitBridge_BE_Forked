@@ -23,6 +23,7 @@ public class UpdateSessionActivityCommandHandler(IUnitOfWork unitOfWork, IMapper
         {
             throw new BusinessException("Cannot change activity set type after activity sets are created");
         }
+        sessionActivity.AssetId = request.AssetId ?? sessionActivity.AssetId;
         sessionActivity.ActivityType = request.ActivityType;
         sessionActivity.ActivityName = request.ActivityName;
         sessionActivity.MuscleGroup = request.MuscleGroup;

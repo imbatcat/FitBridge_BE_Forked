@@ -10,5 +10,6 @@ public class GetSessionActivitiesByBookingIdSpecification : BaseSpecification<Se
     {
         AddInclude(x => x.ActivitySets);
         AddInclude(x => x.Booking);
+        AddInclude(x => x.Asset);
     }
 }

@@ -20,6 +20,8 @@ public class AssetMetadataConfiguration : IEntityTypeConfiguration<AssetMetadata
         builder.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.IsEnabled).HasDefaultValue(true);
+        builder.Property(e => e.MetadataImage).IsRequired(false);
+        builder.Property(e => e.VietNameseName).IsRequired(false);
+        builder.Property(e => e.VietnameseDescription).IsRequired(false);
     }
-
 }

@@ -36,6 +36,8 @@ public class GetCustomerPurchasedOverallTrainingResultsQueryHandler(
         var bookings = customerPurchased.Bookings.ToList();
         var userGoals = mapper.Map<UserGoalsDto?>(customerPurchased.UserGoal);
         var completedBookings = bookings.Where(b => b.SessionStatus == SessionStatus.Finished).ToList();
+        var firstSessionStartTime = bookings.Min(b => b.SessionStartTime);
+        var latestSessionEndTime = bookings.Max(b => b.SessionEndTime);
         var completedSessions = completedBookings.Count;
         var cancelledSessions = bookings.Count(b => b.SessionStatus == SessionStatus.Cancelled);
         var upcomingSessions = bookings.Count(b => b.SessionStatus == SessionStatus.Booked);
@@ -102,7 +104,9 @@ public class GetCustomerPurchasedOverallTrainingResultsQueryHandler(
             MostTrainedMuscleGroup = mostTrainedMuscleGroup,
             LeastTrainedMuscleGroup = leastTrainedMuscleGroup,
             WorkoutStatistics = workoutStats,
-            UserGoals = userGoals
+            UserGoals = userGoals,
+            FirstSessionStartTime = firstSessionStartTime,
+            LatestSessionEndTime = latestSessionEndTime
         };
     }
 

@@ -11,6 +11,7 @@ namespace FitBridge_Application.Features.SessionActivities;
 
 public class CreateSessionActivityCommand : IRequest<SessionActivityResponseDto>
 {
+    public Guid? AssetId { get; set; }
     public Guid BookingId { get; set; }
     public ActivityType ActivityType { get; set; }
     public ActivitySetType ActivitySetType { get; set; }

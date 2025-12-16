@@ -17,5 +17,12 @@ public class GymAssetMappingProfile : Profile
             .ForMember(dest => dest.TargetMuscularGroups, opt => opt.MapFrom(src => src.AssetMetadata.TargetMuscularGroups));
         CreateMap<AssetMetadata, AssetMetadataDto>();
         CreateProjection<AssetMetadata, AssetMetadataBrief>();
+        CreateMap<AssetMetadata, SessionActivityAssetDto>()
+        .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id))
+        .ForMember(dest => dest.VietNameseName, opt => opt.MapFrom(src => src.VietNameseName))
+        .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+        .ForMember(dest => dest.VietnameseDescription, opt => opt.MapFrom(src => src.VietnameseDescription))
+        .ForMember(dest => dest.TargetMuscularGroups, opt => opt.MapFrom(src => src.TargetMuscularGroups))
+        .ForMember(dest => dest.MetadataImage, opt => opt.MapFrom(src => src.MetadataImage));
     }
 }

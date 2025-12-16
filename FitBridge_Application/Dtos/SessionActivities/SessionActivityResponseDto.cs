@@ -11,10 +11,13 @@ public class SessionActivityResponseDto
     public Guid Id { get; set; }
     public ActivityType ActivityType { get; set; }
     public ActivitySetType ActivitySetType { get; set; }
-
+    public Guid? AssetId { get; set; }
     public string ActivityName { get; set; }
+    public string? AssetName { get; set; }
+    public string? VietnameseAssetName { get; set; }
+    public string? VietnameseAssetDescription { get; set; }
+    public string? AssetImage { get; set; }
     public MuscleGroupEnum MuscleGroup { get; set; }
-
     public Guid BookingId { get; set; }
     public ICollection<ActivitySetResponseDto> ActivitySets { get; set; } = new List<ActivitySetResponseDto>();
 }

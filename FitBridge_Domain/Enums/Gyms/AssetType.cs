@@ -6,5 +6,6 @@ namespace FitBridge_Domain.Enums.Gyms;
 public enum AssetType
 {
     Facility,
-    Equipment
+    Equipment,
+    NoneEquipment
 }

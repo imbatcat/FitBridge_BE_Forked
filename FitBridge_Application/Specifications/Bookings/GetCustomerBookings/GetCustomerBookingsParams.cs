@@ -8,4 +8,5 @@ public class GetCustomerBookingsParams : BaseParams
     public Guid CustomerId { get; set; }
     [Required]
     public DateOnly Date { get; set; }
+    public Guid? CustomerPurchasedId { get; set; }
 }

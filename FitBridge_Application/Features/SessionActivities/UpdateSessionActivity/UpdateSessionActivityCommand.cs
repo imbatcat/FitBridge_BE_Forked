@@ -12,6 +12,7 @@ public class UpdateSessionActivityCommand : IRequest<SessionActivityResponseDto>
 {
     public Guid SessionActivityId { get; set; }
     public ActivityType ActivityType { get; set; }
+    public Guid? AssetId { get; set; }
     public string ActivityName { get; set; }
     public ActivitySetType ActivitySetType { get; set; }
     public string? Note { get; set; }

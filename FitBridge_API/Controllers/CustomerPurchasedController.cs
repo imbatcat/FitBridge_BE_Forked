@@ -17,6 +17,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedOverallTrainingResults;
 using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedTrainingResultsDetails;
+using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedTransactionHistory;
 
 namespace FitBridge_API.Controllers;
 
@@ -179,6 +180,40 @@ public class CustomerPurchasedController(IMediator _mediator) : _BaseApiControll
         return Ok(new BaseResponse<CustomerPurchasedTrainingResultsDetailResponseDto>(
             StatusCodes.Status200OK.ToString(),
             "Daily training results retrieved successfully",
+            result));
+    }
+
+    /// <summary>
+    /// Get transaction history for a purchased package (for Freelance PT)
+    /// </summary>
+    /// <param name="customerPurchasedId">The ID of the purchased package</param>
+    /// <returns>Returns transaction history including initial purchase and all extensions</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /api/v1/customer-purchased/{customerPurchasedId}/transactions
+    ///
+    /// This endpoint retrieves all transaction information for a specific purchased package, including:
+    /// - Customer information
+    /// - Package details
+    /// - All transactions from initial purchase
+    /// - All transactions from package extensions
+    /// - Total amount and merchant profit for each transaction
+    /// - Payment method and transaction status
+    ///
+    /// Transactions are sorted by date (most recent first).
+    /// </remarks>
+    /// <response code="200">Transaction history retrieved successfully</response>
+    /// <response code="404">Customer purchased package not found</response>
+    [HttpGet("{customerPurchasedId}/transactions")]
+    [ProducesResponseType(typeof(BaseResponse<CustomerPurchasedTransactionHistoryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTransactionHistory([FromRoute] Guid customerPurchasedId)
+    {
+        var result = await _mediator.Send(new GetCustomerPurchasedTransactionHistoryQuery { CustomerPurchasedId = customerPurchasedId });
+        return Ok(new BaseResponse<CustomerPurchasedTransactionHistoryDto>(
+            StatusCodes.Status200OK.ToString(),
+            "Transaction history retrieved successfully",
             result));
     }
 }

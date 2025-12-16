@@ -1,6 +1,7 @@
 using FitBridge_Domain.Enums.Trainings;
 using FitBridge_Domain.Enums.SessionActivities;
 using FitBridge_Domain.Enums.ActivitySets;
+using FitBridge_Domain.Entities.Gyms;
 
 namespace FitBridge_Domain.Entities.Trainings;
 
@@ -12,8 +13,8 @@ public class SessionActivity : BaseEntity
     public MuscleGroupEnum MuscleGroup { get; set; }
     public ActivitySetType ActivitySetType { get; set; }
     public Guid BookingId { get; set; }
-
+    public Guid? AssetId { get; set; }
     public Booking Booking { get; set; }
-
+    public AssetMetadata? Asset { get; set; }
     public ICollection<ActivitySet> ActivitySets { get; set; } = new List<ActivitySet>();
 }

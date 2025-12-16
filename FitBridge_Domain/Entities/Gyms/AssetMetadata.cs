@@ -1,4 +1,5 @@
 using System;
+using FitBridge_Domain.Entities.Trainings;
 using FitBridge_Domain.Enums.Gyms;
 using FitBridge_Domain.Enums.SessionActivities;
 
@@ -12,4 +13,8 @@ public class AssetMetadata : BaseEntity
     public string Description { get; set; }
     public List<string>? TargetMuscularGroups { get; set; } = new List<string>();
     public ICollection<GymAsset> GymAssets { get; set; } = new List<GymAsset>();
+    public SessionActivity SessionActivity { get; set; } = new SessionActivity();
+    public string MetadataImage { get; set; }
+    public string? VietNameseName { get; set; }
+    public string? VietnameseDescription { get; set; }
 }

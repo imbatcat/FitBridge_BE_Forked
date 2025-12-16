@@ -5,9 +5,11 @@ using FitBridge_Application.Dtos;
 using FitBridge_Application.Dtos.GymAssets;
 using FitBridge_Application.Features.GymAssets.CreateGymAsset;
 using FitBridge_Application.Features.GymAssets.DeleteGymAsset;
+using FitBridge_Application.Features.GymAssets.GetAssetMetadatForSessionActivity;
 using FitBridge_Application.Features.GymAssets.GetGymAssetMetadata;
 using FitBridge_Application.Features.GymAssets.GetGymAssets;
 using FitBridge_Application.Features.GymAssets.UpdateGymAsset;
+using FitBridge_Application.Specifications.GymAssets.GetAssetMetadatForSessionActivity;
 using FitBridge_Application.Specifications.GymAssets.GetGymAssetMetadata;
 using FitBridge_Application.Specifications.GymAssets.GetGymAssets;
 using MediatR;
@@ -168,7 +170,7 @@ public class GymAssetsController(IMediator mediator) : _BaseApiController
             "Gym asset deleted successfully",
             result));
     }
-    
+
     [HttpGet("metadata")]
     public async Task<IActionResult> GetGymAssetMetadata([FromQuery] GetGymAssetMetadataParams metadataParams)
     {
@@ -178,5 +180,17 @@ public class GymAssetsController(IMediator mediator) : _BaseApiController
             StatusCodes.Status200OK.ToString(),
             "Gym asset metadata retrieved successfully",
             pagination));
+    }
+
+    /// <summary>
+    /// This api use for get asset metadata for session activity, only use Equipment, NoneEquipment to get the correct asset
+    /// </summary>
+    /// <param name="activityParams"></param>
+    /// <returns></returns>
+    [HttpGet("session-activity")]
+    public async Task<IActionResult> GetAssetMetadatForSessionActivity([FromQuery] GetAssetMetadatForSessionActivityParams activityParams)
+    {
+        var result = await mediator.Send(new GetAssetMetadatForSessionActivityQuery(activityParams));
+        return Ok(new BaseResponse<List<SessionActivityAssetDto>>(StatusCodes.Status200OK.ToString(), "Gym asset metadata retrieved successfully", result));
     }
 }

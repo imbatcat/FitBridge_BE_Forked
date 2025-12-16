@@ -10,5 +10,6 @@ public class AssetMetadataDto
     public AssetType AssetType { get; set; }
     public EquipmentCategoryType EquipmentCategoryType { get; set; }
     public string Description { get; set; }
+    public string MetadataImage { get; set; }
     public List<string> TargetMuscularGroups { get; set; } = new List<string>();
 }

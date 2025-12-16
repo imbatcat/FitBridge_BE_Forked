@@ -19,4 +19,9 @@ public class SessionActivityListDto
     public double TotalPlannedPracticeTime { get; set; }
     public int? TotalPlannedDistance { get; set; }
     public bool IsCompleted { get; set; }
+    public Guid? AssetId { get; set; }
+    public string? AssetName { get; set; }
+    public string? VietnameseAssetName { get; set; }
+    public string? VietnameseAssetDescription { get; set; }
+    public string? AssetImage { get; set; }
 }

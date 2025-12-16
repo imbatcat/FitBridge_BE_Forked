@@ -33,6 +33,11 @@ public class SessionPracticeContentCommandHandler(IUnitOfWork _unitOfWork) : IRe
                 TotalPlannedPracticeTime = sessionActivity.ActivitySets.Sum(x => x.PlannedPracticeTime ?? 0),
                 TotalPlannedDistance = sessionActivity.ActivitySets.Sum(x => x.PlannedDistance ?? 0),
                 IsCompleted = sessionActivity.ActivitySets.All(x => x.IsCompleted),
+                AssetId = sessionActivity.AssetId,
+                AssetName = sessionActivity.Asset != null ? sessionActivity.Asset.Name : null,
+                VietnameseAssetName = sessionActivity.Asset != null ? sessionActivity.Asset.VietNameseName : null,
+                VietnameseAssetDescription = sessionActivity.Asset != null ? sessionActivity.Asset.VietnameseDescription : null,
+                AssetImage = sessionActivity.Asset != null ? sessionActivity.Asset.MetadataImage : null,
             };
             sessionActivitiesDtos.Add(sessionActivityDto);
         }
