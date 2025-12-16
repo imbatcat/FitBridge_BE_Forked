@@ -1,5 +1,6 @@
 using System;
 using FitBridge_Domain.Enums.ActivitySets;
+using FitBridge_Domain.Enums.Gyms;
 using FitBridge_Domain.Enums.SessionActivities;
 using FitBridge_Domain.Enums.Trainings;
 
@@ -20,6 +21,7 @@ public class SessionActivityListDto
     public int? TotalPlannedDistance { get; set; }
     public bool IsCompleted { get; set; }
     public Guid? AssetId { get; set; }
+    public AssetType? AssetType { get; set; }
     public string? AssetName { get; set; }
     public string? VietnameseAssetName { get; set; }
     public string? VietnameseAssetDescription { get; set; }

@@ -3,6 +3,7 @@ using FitBridge_Application.Dtos.SessionActivities;
 using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Application.Specifications.SessionActivities.GetSessionActivitiesByBookingId;
 using FitBridge_Domain.Entities.Trainings;
+using FitBridge_Domain.Enums.Gyms;
 using MediatR;
 
 namespace FitBridge_Application.Features.SessionActivities.SessionPracticeContent;
@@ -34,6 +35,7 @@ public class SessionPracticeContentCommandHandler(IUnitOfWork _unitOfWork) : IRe
                 TotalPlannedDistance = sessionActivity.ActivitySets.Sum(x => x.PlannedDistance ?? 0),
                 IsCompleted = sessionActivity.ActivitySets.All(x => x.IsCompleted),
                 AssetId = sessionActivity.AssetId,
+                AssetType = sessionActivity.Asset != null ? sessionActivity.Asset.AssetType : null,
                 AssetName = sessionActivity.Asset != null ? sessionActivity.Asset.Name : null,
                 VietnameseAssetName = sessionActivity.Asset != null ? sessionActivity.Asset.VietNameseName : null,
                 VietnameseAssetDescription = sessionActivity.Asset != null ? sessionActivity.Asset.VietnameseDescription : null,
