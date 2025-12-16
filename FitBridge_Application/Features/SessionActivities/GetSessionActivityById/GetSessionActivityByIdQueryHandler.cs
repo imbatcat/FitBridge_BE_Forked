@@ -12,7 +12,7 @@ public class GetSessionActivityByIdQueryHandler(IUnitOfWork _unitOfWork, IMapper
 {
     public async Task<SessionActivityResponseDto> Handle(GetSessionActivityByIdQuery request, CancellationToken cancellationToken)
     {
-        var sessionActivity = await _unitOfWork.Repository<SessionActivity>().GetByIdAsync(request.Id, includes: new List<string> { nameof(SessionActivity.ActivitySets), "sessionActivity.Asset" });
+        var sessionActivity = await _unitOfWork.Repository<SessionActivity>().GetByIdAsync(request.Id, includes: new List<string> { nameof(SessionActivity.ActivitySets), "Asset" });
         if (sessionActivity == null)
         {
             throw new NotFoundException("Session activity not found");
