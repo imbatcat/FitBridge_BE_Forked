@@ -92,6 +92,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         customerPurchasedToExtend.ExpirationDate = customerPurchasedToExtend.ExpirationDate.AddDays(orderItemToExtend.GymCourse.Duration * orderItemToExtend.Quantity);
         var profitDistributionDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(defaultProfitDistributionDays); // Profit distribute planned date is the day after the expiration date
         orderItemToExtend.ProfitDistributePlannedDate = profitDistributionDate;
+        orderItemToExtend.UpdatedAt = DateTime.UtcNow;
         transactionToExtend.Order.Status = OrderStatus.Finished;
         var walletToUpdate = await _unitOfWork.Repository<Wallet>().GetByIdAsync(orderItemToExtend.GymCourse.GymOwnerId);
         if (walletToUpdate == null)
@@ -276,6 +277,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                 AvailableSessions = orderItem.Quantity * numOfSession,
                 ExpirationDate = expirationDate,
             };
+            orderItem.UpdatedAt = DateTime.UtcNow;
             var walletToUpdate = await _unitOfWork.Repository<Wallet>().GetByIdAsync(orderItem.FreelancePTPackage.PtId);
             if (walletToUpdate == null)
             {
@@ -369,6 +371,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                     AvailableSessions = orderItem.Quantity * numOfSession,
                     ExpirationDate = expirationDate,
                 };
+                orderItem.UpdatedAt = DateTime.UtcNow;
                 if (orderItem.GymPtId != null)
                 {
                     await _scheduleJobServices.ScheduleAutoUpdatePTCurrentCourseJob(orderItem.Id, expirationDate);
@@ -413,6 +416,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         var orderItemToExtend = transactionToExtend.Order.OrderItems.First();
         var customerPurchasedToExtend = transactionToExtend.Order.CustomerPurchasedToExtend;
         orderItemToExtend.CustomerPurchasedId = customerPurchasedToExtend.Id;
+        orderItemToExtend.UpdatedAt = DateTime.UtcNow;
 
         var numOfSession = orderItemToExtend.FreelancePTPackage.NumOfSessions;
         customerPurchasedToExtend.AvailableSessions += orderItemToExtend.Quantity * numOfSession;

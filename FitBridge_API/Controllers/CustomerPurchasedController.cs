@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedOverallTrainingResults;
 using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedTrainingResultsDetails;
 using FitBridge_Application.Features.CustomerPurchaseds.GetCustomerPurchasedTransactionHistory;
+using FitBridge_Application.Features.CustomerPurchaseds.GetFreelancePtDashboard;
 
 namespace FitBridge_API.Controllers;
 
@@ -214,6 +215,54 @@ public class CustomerPurchasedController(IMediator _mediator) : _BaseApiControll
         return Ok(new BaseResponse<CustomerPurchasedTransactionHistoryDto>(
             StatusCodes.Status200OK.ToString(),
             "Transaction history retrieved successfully",
+            result));
+    }
+
+    /// <summary>
+    /// Get dashboard statistics for Freelance PT
+    /// </summary>
+    /// <returns>Returns comprehensive dashboard statistics including package sales, revenue, and comparisons</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /api/v1/customer-purchased/freelance-pt/dashboard
+    ///
+    /// This endpoint provides a comprehensive view of Freelance PT business performance:
+    ///
+    /// **Current Month Statistics:**
+    /// - Total packages sold (new purchases only)
+    /// - Total package extensions
+    /// - Total revenue and profit
+    /// - Number of new customers
+    /// - Number of active customers
+    /// - Number of expired packages
+    ///
+    /// **Previous Month Statistics:**
+    /// - Same metrics as current month for comparison
+    ///
+    /// **Most Popular Packages:**
+    /// - Top 5 packages by total sales (all-time)
+    /// - Includes sales count, extensions, revenue, and profit per package
+    ///
+    /// **Package Revenue Breakdown:**
+    /// - Current month revenue breakdown by package
+    /// - Includes revenue percentage for each package
+    ///
+    /// The endpoint automatically identifies the PT from the authentication token.
+    /// </remarks>
+    /// <response code="200">Dashboard statistics retrieved successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">PT not found</response>
+    [HttpGet("freelance-pt/dashboard")]
+    [ProducesResponseType(typeof(BaseResponse<FreelancePtDashboardDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFreelancePtDashboard()
+    {
+        var result = await _mediator.Send(new GetFreelancePtDashboardQuery());
+        return Ok(new BaseResponse<FreelancePtDashboardDto>(
+            StatusCodes.Status200OK.ToString(),
+            "Dashboard statistics retrieved successfully",
             result));
     }
 }
