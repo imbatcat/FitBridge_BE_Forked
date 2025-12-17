@@ -10,7 +10,7 @@ public class GetCustomerBookingByCustomerIdSpecification : BaseSpecification<Boo
     public GetCustomerBookingByCustomerIdSpecification(GetCustomerBookingsParams parameters) : base(x => x.CustomerId == parameters.CustomerId
     && x.IsEnabled
     && x.SessionStatus != SessionStatus.Cancelled
-    && x.BookingDate == parameters.Date
+    && (parameters.Date == null || x.BookingDate == parameters.Date)
     && (parameters.CustomerPurchasedId == null || x.CustomerPurchasedId == parameters.CustomerPurchasedId))
     {
         AddInclude(x => x.PTGymSlot);
