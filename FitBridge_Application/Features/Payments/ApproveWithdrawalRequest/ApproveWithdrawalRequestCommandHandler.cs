@@ -53,7 +53,7 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
 
         private async Task InsertTransactionAsync(WithdrawalRequest withdrawalRequest, Wallet updatedWallet)
         {
-            var transaction = new Transaction
+            var withdrawTransaction = new Transaction
             {
                 Status = TransactionStatus.Success,
                 Amount = withdrawalRequest.Amount,
@@ -64,8 +64,20 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
                 WithdrawalRequestId = withdrawalRequest.Id,
                 PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, unitOfWork)
             };
+            var disbursementTransaction = new Transaction
+            {
+                Status = TransactionStatus.Success,
+                Amount = withdrawalRequest.Amount,
+                OrderCode = GenerateOrderCode(),
+                Description = $"Disbursement completed - Amount: {withdrawalRequest.Amount}",
+                TransactionType = TransactionType.Disbursement,
+                WalletId = updatedWallet.Id,
+                WithdrawalRequestId = withdrawalRequest.Id,
+                PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, unitOfWork)
+            };
 
-            unitOfWork.Repository<Transaction>().Insert(transaction);
+            unitOfWork.Repository<Transaction>().Insert(withdrawTransaction);
+            unitOfWork.Repository<Transaction>().Insert(disbursementTransaction);
         }
 
         private async Task SendNotification(WithdrawalRequest withdrawalRequest)
