@@ -42,11 +42,13 @@ namespace FitBridge_Application.Features.Dashboards.GetAvailableBalanceDetail
             {
                 // handle withdraw & profit distribution transactions
                 var isWithdrawal = transaction.TransactionType == TransactionType.Withdraw;
+                var isDisbursement = transaction.TransactionType == TransactionType.Disbursement;
+                var isWithdrawalRelated = isWithdrawal || isDisbursement;
                 var isGymOwner = accountRole == ProjectConstant.UserRoles.GymOwner;
 
                 string? GetCourseName()
                 {
-                    if (isWithdrawal) return null;
+                    if (isWithdrawalRelated) return null;
 
                     if (isGymOwner)
                     {
@@ -60,14 +62,16 @@ namespace FitBridge_Application.Features.Dashboards.GetAvailableBalanceDetail
 
                 return new AvailableBalanceTransactionDto
                 {
-                    OrderItemId = isWithdrawal ? null : transaction.OrderItemId!.Value,
+                    OrderItemId = isWithdrawalRelated ? null : transaction.OrderItemId!.Value,
                     CourseName = GetCourseName(),
                     TransactionId = transaction.Id,
                     TotalProfit = isWithdrawal ? transaction.Amount * -1 : transaction.Amount,
                     TransactionType = transaction.TransactionType.ToString(),
-                    ActualDistributionDate = isWithdrawal ? null : transaction.OrderItem!.ProfitDistributeActualDate,
-                    WithdrawDate = isWithdrawal && transaction.WithdrawalRequest != null ? transaction.WithdrawalRequest.CreatedAt : null, // by the time admin approved
-                    WithdrawalRequestId = isWithdrawal ? transaction.WithdrawalRequestId : null,
+                    ActualDistributionDate = isWithdrawalRelated ? null : transaction.OrderItem!.ProfitDistributeActualDate,
+                    WithdrawDate = isWithdrawalRelated
+                                   && transaction.WithdrawalRequest == null
+                                   ? transaction.CreatedAt : null, // by the time admin approved
+                    WithdrawalRequestId = isWithdrawalRelated ? transaction.WithdrawalRequestId : null,
                     Description = transaction.Description
                 };
             }).ToList();
