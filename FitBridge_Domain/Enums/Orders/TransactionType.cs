@@ -6,14 +6,22 @@
 
         GymCourse,
 
+        Disbursement,
+
         Withdraw,
+
         FreelancePTPackage,
 
         SubscriptionPlansOrder,
+
         AssignPt,
+
         ExtendCourse,
+
         ExtendFreelancePTPackage,
+
         DistributeProfit,
+
         PurchasePremiumService,
         PendingDeduction,
     }

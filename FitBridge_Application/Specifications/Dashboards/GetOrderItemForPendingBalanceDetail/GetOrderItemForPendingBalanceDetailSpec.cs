@@ -23,10 +23,9 @@ namespace FitBridge_Application.Specifications.Dashboards.GetOrderItemForPending
         {
             AddInclude(x => x.Order.Coupon);
             AddInclude(x => x.Order.Account);
-            AddInclude("Order.Coupon");
-            AddInclude("Order.Transactions");
+            AddInclude("Order.Transactions"); // distributed transaction
             AddInclude("Order.Transactions.PaymentMethod");
-            AddInclude("Transactions");
+            AddInclude("Transactions"); // withdrawn transaction
             AddInclude("Transactions.PaymentMethod");
 
             if (userRole == ProjectConstant.UserRoles.FreelancePT)
