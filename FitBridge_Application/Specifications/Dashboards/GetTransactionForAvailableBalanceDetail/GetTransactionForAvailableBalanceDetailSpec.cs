@@ -6,8 +6,7 @@ namespace FitBridge_Application.Specifications.Dashboards.GetTransactionForAvail
     public class GetTransactionForAvailableBalanceDetailSpec : BaseSpecification<Transaction>
     {
         public GetTransactionForAvailableBalanceDetailSpec(Guid userId, GetAvailableBalanceDetailParams parameters) : base(x =>
-            (x.TransactionType == TransactionType.DistributeProfit || x.TransactionType == TransactionType.Withdraw
-                || x.TransactionType == TransactionType.Disbursement)
+            (x.TransactionType == TransactionType.DistributeProfit || x.TransactionType == TransactionType.Withdraw)
             && x.WalletId == userId
             // Filter by transaction type if specified
             && (!parameters.TransactionType.HasValue || x.TransactionType == parameters.TransactionType.Value)
