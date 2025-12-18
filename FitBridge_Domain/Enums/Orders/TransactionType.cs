@@ -23,5 +23,6 @@
         DistributeProfit,
 
         PurchasePremiumService,
+        PendingDeduction,
     }
 }

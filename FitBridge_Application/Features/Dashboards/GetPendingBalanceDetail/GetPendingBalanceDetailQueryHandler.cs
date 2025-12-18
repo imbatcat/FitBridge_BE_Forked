@@ -34,7 +34,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
             var countSpec = new GetOrderItemForPendingBalanceDetailSpec(accountId, accountRole, request.Params);
             var totalCount = await unitOfWork.Repository<OrderItem>()
                 .CountAsync(countSpec);
-
+            var pendingDeductionTransactionList = new List<PendingBalanceOrderItemDto>();
             var tasks = orderItems.Select(async oi =>
             {
                 var isGymOwner = accountRole == ProjectConstant.UserRoles.GymOwner;
@@ -42,7 +42,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
 
                 // Get the related transaction for this order item
                 var relatedTransaction = oi.Order.Transactions
-                    .FirstOrDefault(t => t.Status == TransactionStatus.Success && t.OrderId == oi.OrderId);
+                    .FirstOrDefault(t => t.Status == TransactionStatus.Success && t.OrderId == oi.OrderId && t.TransactionType != TransactionType.PendingDeduction && t.TransactionType != TransactionType.DistributeProfit);
 
                 TransactionDetailDto? transactionDetail = null;
                 if (relatedTransaction != null)
@@ -57,7 +57,27 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                         Description = relatedTransaction.Description
                     };
                 }
-
+                if (oi.Transactions.Any(t => t.TransactionType == TransactionType.PendingDeduction))
+                {
+                    pendingDeductionTransactionList.Add(new PendingBalanceOrderItemDto
+                    {
+                        OrderItemId = oi.Id,
+                        Quantity = oi.Quantity,
+                        Price = oi.Price,
+                        SubTotal = oi.Price * oi.Quantity,
+                        TotalProfit = oi.Transactions.FirstOrDefault(t => t.TransactionType == TransactionType.PendingDeduction)?.Amount ?? 0,
+                        CouponCode = oi.Order.Coupon?.CouponCode,
+                        CouponDiscountPercent = oi.Order.Coupon?.DiscountPercent,
+                        CouponId = oi.Order.CouponId,
+                        CourseId = isGymOwner ? oi.GymCourseId!.Value : oi.FreelancePTPackageId!.Value,
+                        CourseName = isGymOwner ? oi.GymCourse!.Name : oi.FreelancePTPackage!.Name,
+                        CustomerId = oi.Order.AccountId,
+                        CustomerFullName = oi.Order.Account.FullName,
+                        PlannedDistributionDate = oi.ProfitDistributePlannedDate,
+                        TransactionDetail = null,
+                        TransactionType = TransactionType.PendingDeduction
+                    });
+                }
                 return new PendingBalanceOrderItemDto
                 {
                     OrderItemId = oi.Id,
@@ -73,14 +93,17 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                     CustomerId = oi.Order.AccountId,
                     CustomerFullName = oi.Order.Account.FullName,
                     PlannedDistributionDate = oi.ProfitDistributePlannedDate,
-                    TransactionDetail = transactionDetail
+                    TransactionDetail = transactionDetail,
+                    TransactionType = relatedTransaction?.TransactionType
                 };
             });
 
             var mappedOrderItems = await Task.WhenAll(tasks);
-            var totalProfitSum = mappedOrderItems.Sum(oi => oi.TotalProfit);
+            var mappedOrderItemsList = mappedOrderItems.ToList();
+            mappedOrderItemsList.AddRange(pendingDeductionTransactionList);
+            var totalProfitSum = mappedOrderItemsList.Sum(oi => oi.TotalProfit);
 
-            return new DashboardPagingResultDto<PendingBalanceOrderItemDto>(totalCount, mappedOrderItems.ToList(), totalProfitSum);
+            return new DashboardPagingResultDto<PendingBalanceOrderItemDto>(totalCount, mappedOrderItemsList, totalProfitSum);
         }
     }
 }

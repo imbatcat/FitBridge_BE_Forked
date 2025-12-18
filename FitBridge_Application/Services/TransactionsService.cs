@@ -188,7 +188,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             throw new NotFoundException($"{nameof(orderItem)} with Id {orderItemId} not found");
         }
         var profit = await CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
-
+        var orderCode = GenerateOrderCode();
         var DistributeProfTransaction = new Transaction
         {
             Amount = profit,
@@ -198,11 +198,23 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             TransactionType = TransactionType.DistributeProfit,
             Status = TransactionStatus.Success,
             Description = $"Profit distribution for completed course - OrderItem: {orderItemId}",
-            OrderCode = GenerateOrderCode(),
+            OrderCode = orderCode,
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
         _unitOfWork.Repository<Transaction>().Insert(DistributeProfTransaction);
-
+        var pendingDeductionTransaction = new Transaction
+        {
+            Amount = -profit,
+            WalletId = orderItem.GymCourseId != null ? orderItem.GymCourse.GymOwnerId : orderItem.FreelancePTPackage.PtId,
+            OrderId = orderItem.OrderId,
+            OrderItemId = orderItemId,
+            OrderCode = orderCode,
+            TransactionType = TransactionType.PendingDeduction,
+            Status = TransactionStatus.Success,
+            Description = $"Pending deduction for completed course - OrderItem: {orderItemId}",
+            PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
+        };
+        _unitOfWork.Repository<Transaction>().Insert(pendingDeductionTransaction);
         Wallet wallet = null;
         if (orderItem.FreelancePTPackageId != null)
         {

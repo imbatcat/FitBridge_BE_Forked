@@ -16,6 +16,14 @@ public class GetCustomerBookingByCustomerIdSpecification : BaseSpecification<Boo
         AddInclude(x => x.PTGymSlot);
         AddInclude(x => x.PTGymSlot.GymSlot);
         AddInclude(x => x.PTGymSlot.PT);
+        if (parameters.SortOrder == "desc" || parameters.SortOrder == "dsc")
+        {
+            AddOrderByDesc(x => x.BookingDate);
+        }
+        else
+        {
+            AddOrderBy(x => x.BookingDate);
+        }
         if (parameters.DoApplyPaging)
         {
             AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);

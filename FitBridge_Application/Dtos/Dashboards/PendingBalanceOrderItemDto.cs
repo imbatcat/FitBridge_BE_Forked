@@ -1,4 +1,6 @@
-﻿namespace FitBridge_Application.Dtos.Dashboards
+﻿using FitBridge_Domain.Enums.Orders;
+
+namespace FitBridge_Application.Dtos.Dashboards
 {
     public class PendingBalanceOrderItemDto
     {
@@ -27,7 +29,7 @@
         public Guid CourseId { get; set; }
 
         public decimal TotalProfit { get; set; }
-
+        public TransactionType? TransactionType { get; set; }
         public TransactionDetailDto? TransactionDetail { get; set; }
     }
 }

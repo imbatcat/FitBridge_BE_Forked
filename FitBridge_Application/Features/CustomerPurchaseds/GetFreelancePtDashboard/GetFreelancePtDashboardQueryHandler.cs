@@ -74,7 +74,7 @@ namespace FitBridge_Application.Features.CustomerPurchaseds.GetFreelancePtDashbo
                 previousMonthEnd,
                 ptId.Value);
 
-            // Get most popular packages (all-time, top 5)
+            // Get most popular packages (all-time, top 3)
             var mostPopularPackages = await GetMostPopularPackages(allOrderItems.ToList(), ptId.Value);
 
             // Get package revenue breakdown (current month)
@@ -246,4 +246,5 @@ namespace FitBridge_Application.Features.CustomerPurchaseds.GetFreelancePtDashbo
         }
     }
 }
+
 
