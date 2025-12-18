@@ -59,13 +59,24 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                 }
                 if (oi.Transactions.Any(t => t.TransactionType == TransactionType.PendingDeduction))
                 {
+                    var pendingDeductionTransaction = oi.Transactions.FirstOrDefault(t => t.TransactionType == TransactionType.PendingDeduction);
+                    transactionDetail = new TransactionDetailDto
+                    {
+                        TransactionId = pendingDeductionTransaction.Id,
+                        OrderCode = pendingDeductionTransaction.OrderCode,
+                        TransactionDate = pendingDeductionTransaction.CreatedAt,
+                        PaymentMethod = pendingDeductionTransaction.PaymentMethod.MethodType.ToString(),
+                        Amount = pendingDeductionTransaction.Amount,
+                        Description = pendingDeductionTransaction.Description
+                    };
+
                     pendingDeductionTransactionList.Add(new PendingBalanceOrderItemDto
                     {
                         OrderItemId = oi.Id,
                         Quantity = oi.Quantity,
                         Price = oi.Price,
                         SubTotal = oi.Price * oi.Quantity,
-                        TotalProfit = oi.Transactions.FirstOrDefault(t => t.TransactionType == TransactionType.PendingDeduction)?.Amount ?? 0,
+                        TotalProfit = pendingDeductionTransaction.Amount,
                         CouponCode = oi.Order.Coupon?.CouponCode,
                         CouponDiscountPercent = oi.Order.Coupon?.DiscountPercent,
                         CouponId = oi.Order.CouponId,
@@ -74,7 +85,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                         CustomerId = oi.Order.AccountId,
                         CustomerFullName = oi.Order.Account.FullName,
                         PlannedDistributionDate = oi.ProfitDistributePlannedDate,
-                        TransactionDetail = null,
+                        TransactionDetail = transactionDetail,
                         TransactionType = TransactionType.PendingDeduction
                     });
                 }
