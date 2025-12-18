@@ -2,9 +2,11 @@ using FitBridge_API.Helpers.RequestHelpers;
 using FitBridge_Application.Commons.Constants;
 using FitBridge_Application.Dtos.Dashboards;
 using FitBridge_Application.Features.Dashboards.GetAvailableBalanceDetail;
+using FitBridge_Application.Features.Dashboards.GetDisbursementDetail;
 using FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail;
 using FitBridge_Application.Features.Dashboards.GetRevenueDetail;
 using FitBridge_Application.Features.Dashboards.GetWalletBalance;
+using FitBridge_Application.Specifications.Dashboards.GetDisbursementDetail;
 using FitBridge_Application.Specifications.Dashboards.GetPendingBalanceDetail;
 using FitBridge_Application.Specifications.Dashboards.GetOrderItemForRevenueDetail;
 using MediatR;
@@ -198,6 +200,51 @@ namespace FitBridge_API.Controllers
                 new BaseResponse<DashboardPagingResultDto<RevenueOrderItemDto>>(
                     StatusCodes.Status200OK.ToString(),
                     "Get revenue detail success",
+                    response));
+        }
+
+        /// <summary>
+        /// Retrieves detailed disbursement transactions with pagination and filtering support.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint returns only Disbursement type transactions.
+        /// Disbursements are related to withdrawal requests being approved and processed.
+        /// 
+        /// Paging is enabled by default. Use the 'DoApplyPaging' parameter to disable it.
+        /// With paging enabled, page size = 10 by default, page number starts at 1.
+        ///
+        /// Filter options:
+        /// - From: filter transactions created on or after this date (inclusive).
+        /// - To: filter transactions created on or before this date (inclusive, includes entire day).
+        ///
+        /// Date range examples:
+        /// - Single day: From=2024-01-15&amp;To=2024-01-15
+        /// - Date range: From=2024-01-01&amp;To=2024-01-31
+        /// - From date only: From=2024-01-01 (all transactions from this date onwards)
+        /// - To date only: To=2024-01-31 (all transactions up to and including this date)
+        /// 
+        /// The response includes TotalProfitSum which is the sum of all TotalProfit values in the result set.
+        /// </remarks>
+        /// <param name="parameters">Query parameters for paging and filtering. Includes: Page, Size, DoApplyPaging, From, To.</param>
+        /// <returns>
+        /// A <see cref="BaseResponse{DashboardPagingResultDto{AvailableBalanceTransactionDto}}"/> containing paginated disbursement transactions with profit sum.
+        /// Returns HTTP 200 with the paginated result.
+        /// </returns>
+        /// <response code="200">Disbursement details retrieved successfully</response>
+        /// <response code="401">Unauthorized - User must be authenticated</response>
+        /// <response code="403">Forbidden - Only GymOwner and FreelancePT can access</response>
+        [HttpGet("disbursement-detail")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<DashboardPagingResultDto<AvailableBalanceTransactionDto>>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<DashboardPagingResultDto<AvailableBalanceTransactionDto>>> GetDisbursementDetail([FromQuery] GetDisbursementDetailParams parameters)
+        {
+            var response = await mediator.Send(new GetDisbursementDetailQuery(parameters));
+
+            return Ok(
+                new BaseResponse<DashboardPagingResultDto<AvailableBalanceTransactionDto>>(
+                    StatusCodes.Status200OK.ToString(),
+                    "Get disbursement detail success",
                     response));
         }
     }
