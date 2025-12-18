@@ -9,9 +9,8 @@ namespace FitBridge_Application.Specifications.Dashboards.GetOrderItemForPending
     {
         public GetOrderItemForPendingBalanceDetailSpec(Guid userId, string userRole, GetPendingBalanceDetailParams parameters) : base(x =>
             // Filter by user - either FreelancePT or GymOwner
-            ((x.FreelancePTPackage != null && x.FreelancePTPackageId == userId) ||
-            (x.GymPt != null && x.GymPt.GymOwnerId == userId))
-            && x.ProfitDistributeActualDate == null
+            ((x.FreelancePTPackage != null && x.FreelancePTPackage.PtId == userId) ||
+            (x.GymCourse != null && x.GymCourse.GymOwnerId == userId))
             && x.Order.Transactions.Any(t => t.Status == TransactionStatus.Success) // check order's transactions
                                                                                     // Filter by date range - From date
             && (!parameters.From.HasValue || x.CreatedAt >= parameters.From.Value)
@@ -42,15 +41,15 @@ namespace FitBridge_Application.Specifications.Dashboards.GetOrderItemForPending
 
             AddOrderBy(x => x.CreatedAt);
 
-            if (parameters.DoApplyPaging)
-            {
-                AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);
-            }
-            else
-            {
-                parameters.Size = -1;
-                parameters.Page = -1;
-            }
+            // if (parameters.DoApplyPaging)
+            // {
+            //     AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);
+            // }
+            // else
+            // {
+            //     parameters.Size = -1;
+            //     parameters.Page = -1;
+            // }
         }
     }
 }

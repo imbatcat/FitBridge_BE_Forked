@@ -27,15 +27,15 @@ namespace FitBridge_Application.Specifications.Dashboards.GetTransactionForAvail
 
             AddOrderBy(x => x.CreatedAt);
 
-            if (parameters.DoApplyPaging)
-            {
-                AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);
-            }
-            else
-            {
-                parameters.Size = -1;
-                parameters.Page = -1;
-            }
+            // if (parameters.DoApplyPaging)
+            // {
+            //     AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);
+            // }
+            // else
+            // {
+            //     parameters.Size = -1;
+            //     parameters.Page = -1;
+            // }
         }
     }
 }
