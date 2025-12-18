@@ -2,6 +2,7 @@
 using FitBridge_Application.Commons.Utils;
 using FitBridge_Application.Dtos.Transactions;
 using FitBridge_Domain.Entities.Orders;
+using FitBridge_Domain.Enums.Orders;
 
 namespace FitBridge_Application.Specifications.Transactions.GetCurrentUserTransactions
 {
@@ -13,6 +14,7 @@ namespace FitBridge_Application.Specifications.Transactions.GetCurrentUserTransa
             string userRole,
             bool includeOrder = false) : base(x =>
             x.IsEnabled
+            && x.TransactionType != TransactionType.PendingDeduction && x.TransactionType != TransactionType.DistributeProfit
             && (userRole == ProjectConstant.UserRoles.Admin
                 || (userRole == ProjectConstant.UserRoles.GymOwner
                     && x.Order != null && x.Order.OrderItems.Any(oi => oi.GymCourse != null && oi.GymCourse.GymOwnerId == userId))

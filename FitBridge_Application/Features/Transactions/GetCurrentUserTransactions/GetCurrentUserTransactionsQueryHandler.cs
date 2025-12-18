@@ -36,18 +36,13 @@ namespace FitBridge_Application.Features.Transactions.GetCurrentUserTransactions
             var totalCount = await unitOfWork.Repository<Transaction>()
                 .CountAsync(spec);
 
-            // Filter out DistributeProfit transactions
-            var filteredTransactions = transactions
-                .Where(t => t.TransactionType != TransactionType.DistributeProfit && t.TransactionType != TransactionType.PendingDeduction)
-                .ToList();
-
             // Map using AutoMapper
-            var transactionDtos = mapper.Map<List<GetTransactionsDto>>(filteredTransactions);
+            var transactionDtos = mapper.Map<List<GetTransactionsDto>>(transactions);
             
             // Populate role-specific fields for each transaction
             foreach (var dto in transactionDtos)
             {
-                var transaction = filteredTransactions.FirstOrDefault(t => t.Id == dto.Id);
+                var transaction = transactions.FirstOrDefault(t => t.Id == dto.Id);
                 if (transaction?.Order != null)
                 {
                     OrderItem? orderItem = null;
