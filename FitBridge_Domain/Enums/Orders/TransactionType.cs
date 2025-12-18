@@ -15,5 +15,6 @@
         ExtendFreelancePTPackage,
         DistributeProfit,
         PurchasePremiumService,
+        PendingDeduction,
     }
 }

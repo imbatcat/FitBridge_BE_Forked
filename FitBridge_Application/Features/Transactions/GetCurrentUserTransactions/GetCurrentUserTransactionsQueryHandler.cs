@@ -38,7 +38,7 @@ namespace FitBridge_Application.Features.Transactions.GetCurrentUserTransactions
 
             // Filter out DistributeProfit transactions
             var filteredTransactions = transactions
-                .Where(t => t.TransactionType != TransactionType.DistributeProfit)
+                .Where(t => t.TransactionType != TransactionType.DistributeProfit && t.TransactionType != TransactionType.PendingDeduction)
                 .ToList();
 
             // Map using AutoMapper
