@@ -28,7 +28,7 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
                     $"{withdrawalRequest.Status}. Only pending requests can be approved.");
             }
 
-            UpdateWithdrawalRequest(withdrawalRequest);
+            UpdateWithdrawalRequest(withdrawalRequest, request.ImageUrl);
 
             var updatedWallet = await UpdateUserWallet(withdrawalRequest);
             await InsertTransactionAsync(withdrawalRequest, updatedWallet);
@@ -95,9 +95,10 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
             await notificationService.NotifyUsers(message);
         }
 
-        private void UpdateWithdrawalRequest(WithdrawalRequest withdrawalRequest)
+        private void UpdateWithdrawalRequest(WithdrawalRequest withdrawalRequest, string imgUrls)
         {
             withdrawalRequest.Status = WithdrawalRequestStatus.AdminApproved;
+            withdrawalRequest.ImageUrl = imgUrls;
             withdrawalRequest.IsUserApproved = false;
             withdrawalRequest.UpdatedAt = DateTime.UtcNow;
             unitOfWork.Repository<WithdrawalRequest>().Update(withdrawalRequest);
