@@ -39,6 +39,10 @@ public class RejectBookingRequestCommandHandler(
         }
         bookingRequest.RequestStatus = BookingRequestStatus.Rejected;
         bookingRequest.UpdatedAt = DateTime.UtcNow;
+        if(bookingRequest.TargetBooking != null)
+        {
+            bookingRequest.TargetBooking.SessionStatus = SessionStatus.Booked;
+        }
 
         var userId = userUtil.GetAccountId(httpContextAccessor.HttpContext)
                 ?? throw new NotFoundException(nameof(ApplicationUser));
