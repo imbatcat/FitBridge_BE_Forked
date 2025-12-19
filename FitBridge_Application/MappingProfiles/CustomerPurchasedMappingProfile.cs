@@ -5,6 +5,7 @@ using FitBridge_Application.Dtos.GymCourses;
 using FitBridge_Application.Dtos.CustomerPurchaseds;
 using FitBridge_Domain.Enums.GymCourses;
 using FitBridge_Application.Dtos.FreelancePTPackages;
+using FitBridge_Domain.Enums.Trainings;
 
 namespace FitBridge_Application.MappingProfiles;
 
@@ -64,6 +65,7 @@ public class CustomerPurchasedMappingProfile : Profile
             .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.FullName))
             .ForMember(dest => dest.CustomerImageUrl, opt => opt.MapFrom(src => src.Customer.AvatarUrl))
-            .ForMember(dest => dest.sessionDurationInMinutes, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackage.SessionDurationInMinutes));
+            .ForMember(dest => dest.sessionDurationInMinutes, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackage.SessionDurationInMinutes))
+            .ForMember(dest => dest.TotalAwaitingBookingRequests, opt => opt.MapFrom(src => src.BookingRequests.Count(x => x.RequestStatus == BookingRequestStatus.Pending)));
     }
 }

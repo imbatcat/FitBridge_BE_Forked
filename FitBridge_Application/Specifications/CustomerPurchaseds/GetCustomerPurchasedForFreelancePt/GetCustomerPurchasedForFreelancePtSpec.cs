@@ -12,6 +12,7 @@ public class GetCustomerPurchasedForFreelancePtSpec : BaseSpecification<Customer
     && x.OrderItems.Any(x => x.FreelancePTPackage != null && x.FreelancePTPackage.PtId == freelancePtId)
     && x.IsEnabled)
     {
+        AddInclude(x => x.BookingRequests);
         if (parameters.DoApplyPaging)
         {
             AddPaging((parameters.Page - 1) * parameters.Size, parameters.Size);
