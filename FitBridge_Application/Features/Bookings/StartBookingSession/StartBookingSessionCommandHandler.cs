@@ -6,10 +6,12 @@ using FitBridge_Domain.Enums.Trainings;
 using MediatR;
 using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Dtos.Jobs;
+using FitBridge_Application.Services;
+using FitBridge_Application.Commons.Constants;
 
 namespace FitBridge_Application.Features.Bookings.StartBookingSession;
 
-public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, IScheduleJobServices _scheduleJobServices) : IRequestHandler<StartBookingSessionCommand, DateTime>
+public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, IScheduleJobServices _scheduleJobServices, SystemConfigurationService systemConfigurationService) : IRequestHandler<StartBookingSessionCommand, DateTime>
 {
     public async Task<DateTime> Handle(StartBookingSessionCommand request, CancellationToken cancellationToken)
     {
@@ -22,7 +24,11 @@ public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, ISchedul
         {
             throw new BusinessException("Booking session already started");
         }
-        booking.SessionStartTime = DateTime.UtcNow;
+        var earlyStartSessionBeforeMinutes = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.EarlyStartSessionBeforeMinutes);
+        if (TimeOnly.FromDateTime(DateTime.UtcNow.AddMinutes(earlyStartSessionBeforeMinutes)) < booking.PtFreelanceStartTime)
+        {
+            throw new BusinessException($"Không thể bắt đầu sớm trước thời gian bắt đầu buổi tập quá {earlyStartSessionBeforeMinutes} phút");
+        }
         booking.UpdatedAt = DateTime.UtcNow;
         _unitOfWork.Repository<Booking>().Update(booking);
         await ScheduleFinishedBookingSession(booking);
