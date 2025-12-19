@@ -33,6 +33,8 @@ namespace FitBridge_Application.Specifications
         public List<Expression<Func<T, object>>> Includes { get; } = [];
 
         public List<string> IncludeStrings { get; } = [];
+        public List<(Expression<Func<T, object>> Expression, bool IsDescending)> ThenByExpressions { get; } = new();
+
 
         // =====================================
         // === Constructors
@@ -153,6 +155,16 @@ namespace FitBridge_Application.Specifications
         protected void AddSelect(Expression<Func<IGrouping<object, T>, T>> selectExpression)
         {
             Select = selectExpression;
+        }
+
+        protected void AddThenBy(Expression<Func<T, object>> thenByExpression)
+        {
+            ThenByExpressions.Add((thenByExpression, false));  // ASC
+        }
+
+        protected void AddThenByDesc(Expression<Func<T, object>> thenByExpression)
+        {
+            ThenByExpressions.Add((thenByExpression, true));   // DESC
         }
     }
 }
