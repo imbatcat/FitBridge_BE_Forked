@@ -17,6 +17,7 @@ public class GetCustomerPurchasedByCustomerIdSpec : BaseSpecification<CustomerPu
             (parameters.IsOngoingOnly && x.ExpirationDate > DateOnly.FromDateTime(DateTime.UtcNow)))
         )
     {
+        AddInclude(x => x.BookingRequests);
         AddInclude(x => x.OrderItems);
         if (isGymCourse)
         {

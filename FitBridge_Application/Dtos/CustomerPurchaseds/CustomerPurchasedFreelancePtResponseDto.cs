@@ -18,4 +18,5 @@ public class CustomerPurchasedFreelancePtResponseDto
     public string? PtName { get; set; }
     public string? PtImageUrl { get; set; }
     public DateTime PurchaseDate { get; set; }
+    public int TotalAwaitingBookingRequests { get; set; }
 }
