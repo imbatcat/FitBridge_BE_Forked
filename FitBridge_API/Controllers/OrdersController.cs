@@ -7,6 +7,7 @@ using FitBridge_Application.Features.Orders.CreateOrders;
 using FitBridge_Application.Features.Orders.CreateShippingOrder;
 using FitBridge_Application.Features.Orders.GetAllProductOrder;
 using FitBridge_Application.Features.Orders.GetCourseOrders;
+using FitBridge_Application.Features.Orders.GetCustomerOrderHistory;
 using FitBridge_Application.Features.Orders.GetOrderByCustomerPurchasedId;
 using FitBridge_Application.Features.Orders.GetShippingPrice;
 using FitBridge_Application.Features.Orders.ProcessAhamoveWebhook;
@@ -14,6 +15,7 @@ using FitBridge_Application.Features.Orders.UpdateOrderStatus;
 using FitBridge_Application.Features.Reviews.GetCustomerReviews;
 using FitBridge_Application.Specifications.Orders.GetAllProductOrders;
 using FitBridge_Application.Specifications.Orders.GetCourseOrders;
+using FitBridge_Application.Specifications.Orders.GetCustomerOrderHistory;
 using FitBridge_Application.Specifications.Reviews.GetAllReviewForCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -141,6 +143,57 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
         var result = await _mediator.Send(new GetCourseOrderQuery(parameters));
         var pagination = ResultWithPagination(result.Items, result.Total, parameters.Page, parameters.Size);
         return Ok(new BaseResponse<Pagination<CourseOrderResponseDto>>(StatusCodes.Status200OK.ToString(), "Course orders retrieved successfully", pagination));
+    }
+
+    /// <summary>
+    /// Get customer order transaction history for training packages
+    /// </summary>
+    /// <param name="parameters">Query parameters for filtering and pagination</param>
+    /// <returns>Returns paginated list of orders with their items and related transactions</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /api/v1/orders/customer/history?page=1&amp;size=10&amp;sortBy=CreatedAt&amp;sortOrder=desc
+    ///     GET /api/v1/orders/customer/history?orderId=3fa85f64-5717-4562-b3fc-2c963f66afa6
+    ///     GET /api/v1/orders/customer/history?orderStatus=Finished
+    ///
+    /// This endpoint retrieves all orders made by the authenticated customer that contain
+    /// training package purchases (Gym Courses or Freelance PT Packages), including:
+    /// - Initial package purchases (GymCourse, FreelancePTPackage)
+    /// - Package extensions (ExtendCourse, ExtendFreelancePTPackage)
+    ///
+    /// **Query Parameters:**
+    /// - `orderId` (optional): Filter by specific order ID
+    /// - `orderStatus` (optional): Filter by order status (Created, Pending, Finished, Cancelled, etc.)
+    /// - `sortBy` (optional): Sort by field (CreatedAt, TotalAmount, OrderStatus). Default: CreatedAt
+    /// - `sortOrder` (optional): Sort order (asc, desc). Default: desc
+    /// - `page` (optional): Page number. Default: 1
+    /// - `size` (optional): Page size. Default: 10
+    ///
+    /// Each order includes:
+    /// - Order summary information (status, total amount, creation date)
+    /// - List of purchased items (package name, image, price, quantity)
+    /// - List of related transactions (payment details, status, transaction date)
+    ///
+    /// Transactions are filtered to show only training package-related transactions,
+    /// excluding internal system transactions like profit distributions.
+    /// </remarks>
+    /// <response code="200">Order history retrieved successfully</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="404">User not found</response>
+    [HttpGet("customer/history")]
+    [ProducesResponseType(typeof(BaseResponse<Pagination<CustomerOrderHistoryDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCustomerOrderHistory([FromQuery] GetCustomerOrderHistoryParams parameters)
+    {
+        var query = new GetCustomerOrderHistoryQuery(parameters);
+        var result = await _mediator.Send(query);
+        var pagination = ResultWithPagination(result.Items, result.Total, parameters.Page, parameters.Size);
+        return Ok(new BaseResponse<Pagination<CustomerOrderHistoryDto>>(
+            StatusCodes.Status200OK.ToString(),
+            "Customer order history retrieved successfully",
+            pagination));
     }
     
 
