@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FitBridge_Application.Dtos.Orders;
 using FitBridge_Application.Dtos.Transactions;
 using FitBridge_Domain.Entities.Orders;
 using FitBridge_Domain.Enums.Orders;
@@ -30,6 +31,15 @@ namespace FitBridge_Application.MappingProfiles
                 .ForMember(x => x.OrderId, opt => opt.MapFrom(y => y.OrderId))
                 .ForMember(x => x.WalletId, opt => opt.MapFrom(y => y.WalletId))
                 .ForMember(x => x.WithdrawalRequestId, opt => opt.MapFrom(y => y.WithdrawalRequestId));
+            CreateMap<Transaction, CustomerTransactionDetailDto>()
+                .ForMember(dest => dest.TransactionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.OrderCode, opt => opt.MapFrom(src => src.OrderCode))
+                .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.PaymentMethodName, opt => opt.MapFrom(src => src.PaymentMethod.MethodType.ToString()))
+                .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.CreatedAt));
         }
     }
 }
