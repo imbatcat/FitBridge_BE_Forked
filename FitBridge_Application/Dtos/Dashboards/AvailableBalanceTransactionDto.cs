@@ -8,7 +8,7 @@
 
         public DateOnly? ActualDistributionDate { get; set; }
 
-        public DateTime? WithdrawDate { get; set; }
+        public DateTime? TransactionDate { get; set; }
 
         public string TransactionType { get; set; }
 
