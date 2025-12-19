@@ -26,7 +26,6 @@ public class SystemConfigurationsController(IMediator _mediator) : _BaseApiContr
     }
 
     [HttpGet("{key}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetSystemConfiguration([FromRoute] string key)
     {
         var result = await _mediator.Send(new GetSystemConfigQuery { Key = key });
