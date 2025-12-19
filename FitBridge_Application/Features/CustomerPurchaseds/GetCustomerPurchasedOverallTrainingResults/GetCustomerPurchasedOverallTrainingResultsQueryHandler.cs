@@ -40,7 +40,7 @@ public class GetCustomerPurchasedOverallTrainingResultsQueryHandler(
         var latestSessionEndTime = bookings.Max(b => b.SessionEndTime);
         var completedSessions = completedBookings.Count;
         var cancelledSessions = bookings.Count(b => b.SessionStatus == SessionStatus.Cancelled);
-        var upcomingSessions = bookings.Count(b => b.SessionStatus == SessionStatus.Booked);
+        var upcomingSessions = bookings.Count(b => b.SessionStatus == SessionStatus.Booked || b.SessionStatus == SessionStatus.WaitingForEdit);
 
         // Get all activities and sets
         var allActivities = completedBookings

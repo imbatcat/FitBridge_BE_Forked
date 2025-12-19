@@ -60,13 +60,9 @@ public class GetCustomerPurchasedTransactionHistoryQueryHandler(
                 var merchantProfit = await _transactionService.CalculateMerchantProfit(
                     orderItem,
                     orderItem.Order.Coupon);
-
-                foreach (var transaction in orderItem.Order.Transactions)
+                var relatedTransaction = orderItem.Order.Transactions.Where(t => t.TransactionType != TransactionType.DistributeProfit && t.TransactionType != TransactionType.PendingDeduction && t.Status == TransactionStatus.Success).ToList();
+                foreach (var transaction in relatedTransaction)
                 {
-                    if (transaction.TransactionType == TransactionType.DistributeProfit)
-                    {
-                        continue;
-                    }
                     response.Transactions.Add(new PurchaseTransactionDetailDto
                     {
                         TransactionId = transaction.Id,
