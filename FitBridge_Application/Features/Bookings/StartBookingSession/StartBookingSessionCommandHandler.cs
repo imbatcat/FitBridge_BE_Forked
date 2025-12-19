@@ -8,6 +8,7 @@ using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Dtos.Jobs;
 using FitBridge_Application.Services;
 using FitBridge_Application.Commons.Constants;
+using FitBridge_Application.Specifications.Bookings.GetDuplicateStartBookingSession;
 
 namespace FitBridge_Application.Features.Bookings.StartBookingSession;
 
@@ -15,7 +16,7 @@ public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, ISchedul
 {
     public async Task<DateTime> Handle(StartBookingSessionCommand request, CancellationToken cancellationToken)
     {
-        var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(request.BookingId, includes: new List<string> { nameof(Booking.CustomerPurchased), "CustomerPurchased.OrderItems", "CustomerPurchased.OrderItems.FreelancePTPackage" });
+        var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(request.BookingId, includes: new List<string> { nameof(Booking.CustomerPurchased), "CustomerPurchased.OrderItems", "CustomerPurchased.OrderItems.FreelancePTPackage", "SessionActivities" });
         if (booking == null)
         {
             throw new NotFoundException("Booking not found");
@@ -24,11 +25,19 @@ public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, ISchedul
         {
             throw new BusinessException("Booking session already started");
         }
+        if(booking.SessionActivities == null || booking.SessionActivities.Count == 0)
+        {
+            throw new BusinessException("Không thể bắt đầu buổi tập không có hoạt động, vui lòng liên hệ huấn luyện viên của bạn");
+        }
+        var currentDate = DateTime.UtcNow;
+        await CheckSessionStart(booking);
         var earlyStartSessionBeforeMinutes = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.EarlyStartSessionBeforeMinutes);
-        if (TimeOnly.FromDateTime(DateTime.UtcNow.AddMinutes(earlyStartSessionBeforeMinutes)) < booking.PtFreelanceStartTime)
+        var earliestStartSessionTime = booking.BookingDate.ToDateTime(booking.PtFreelanceStartTime.Value, DateTimeKind.Utc).AddMinutes(-earlyStartSessionBeforeMinutes);
+        if (earliestStartSessionTime > currentDate)
         {
             throw new BusinessException($"Không thể bắt đầu sớm trước thời gian bắt đầu buổi tập quá {earlyStartSessionBeforeMinutes} phút");
         }
+        booking.SessionStartTime = currentDate;
         booking.UpdatedAt = DateTime.UtcNow;
         _unitOfWork.Repository<Booking>().Update(booking);
         await ScheduleFinishedBookingSession(booking);
@@ -50,5 +59,15 @@ public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, ISchedul
     public async Task CancelAutoCancelBookingJob(Booking booking)
     {
         await _scheduleJobServices.CancelScheduleJob($"AutoCancelBooking_{booking.Id}", "AutoCancelBooking");
+    }
+
+    public async Task CheckSessionStart(Booking booking)
+    {
+        var concurrentBookingSpec = new GetDuplicateStartBookingSessionSpec(booking.Id, booking.CustomerId);
+        var concurrentBooking = await _unitOfWork.Repository<Booking>().GetBySpecificationAsync(concurrentBookingSpec);
+        if (concurrentBooking != null)
+        {
+            throw new BusinessException($"Khách hàng đã có buổi tập khác được bắt đầu vào lúc {concurrentBooking.PtFreelanceStartTime}, ngày {concurrentBooking.BookingDate} và vẫn chưa kết thúc");
+        }
     }
 }

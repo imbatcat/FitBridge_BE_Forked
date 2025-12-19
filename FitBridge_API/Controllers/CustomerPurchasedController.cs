@@ -217,6 +217,4 @@ public class CustomerPurchasedController(IMediator _mediator) : _BaseApiControll
             "Transaction history retrieved successfully",
             result));
     }
-
-
 }

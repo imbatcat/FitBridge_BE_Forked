@@ -19,10 +19,12 @@ public class GetCustomerBookingByCustomerIdSpecification : BaseSpecification<Boo
         if (parameters.SortOrder == "desc" || parameters.SortOrder == "dsc")
         {
             AddOrderByDesc(x => x.BookingDate);
+            AddThenBy(x => x.PtFreelanceStartTime);
         }
         else
         {
             AddOrderBy(x => x.BookingDate);
+            AddThenBy(x => x.PtFreelanceStartTime);
         }
         if (parameters.DoApplyPaging)
         {
