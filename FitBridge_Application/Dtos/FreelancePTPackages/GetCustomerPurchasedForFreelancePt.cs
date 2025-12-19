@@ -14,4 +14,5 @@ public class GetCustomerPurchasedForFreelancePt
     public int sessionDurationInMinutes { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string CustomerImageUrl { get; set; } = string.Empty;
+    public int TotalAwaitingBookingRequests { get; set; }
 }
