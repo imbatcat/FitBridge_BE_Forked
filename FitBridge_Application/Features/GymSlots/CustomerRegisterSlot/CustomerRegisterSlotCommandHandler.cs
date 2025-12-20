@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Http;
 using FitBridge_Application.Specifications.Bookings;
 using FitBridge_Domain.Entities.Trainings;
 using FitBridge_Domain.Enums.Trainings;
+using FitBridge_Application.Interfaces.Services;
+using FitBridge_Application.Dtos.Jobs;
 
 namespace FitBridge_Application.Features.GymSlots.CustomerRegisterSlot;
 
-public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor) : IRequestHandler<CustomerRegisterSlotCommand, bool>
+public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor, IScheduleJobServices _scheduleJobServices) : IRequestHandler<CustomerRegisterSlotCommand, bool>
 {
     public async Task<bool> Handle(CustomerRegisterSlotCommand request, CancellationToken cancellationToken)
     {
@@ -32,7 +34,7 @@ public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUt
         {
             throw new DuplicateException("Slot overlapped by freelance pt course");
         }
-        var customerPurchased = await _unitOfWork.Repository<CustomerPurchased>().GetByIdAsync(request.CustomerPurchasedId, false);
+        var customerPurchased = await _unitOfWork.Repository<CustomerPurchased>().GetByIdAsync(request.CustomerPurchasedId, false, new List<string> { "OrderItems" });
         if (customerPurchased == null)
         {
             throw new NotFoundException("Customer purchased not found");
@@ -54,6 +56,11 @@ public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUt
         };
         _unitOfWork.Repository<Booking>().Insert(insertBooking);
         await _unitOfWork.CommitAsync();
+        await _scheduleJobServices.ScheduleFinishedBookingSession(new FinishedBookingSessionJobScheduleDto
+        {
+            BookingId = insertBooking.Id,
+            TriggerTime = ptGymSlot.RegisterDate.ToDateTime(ptGymSlot.GymSlot.EndTime, DateTimeKind.Utc)
+        });
         return true;
     }
 }
