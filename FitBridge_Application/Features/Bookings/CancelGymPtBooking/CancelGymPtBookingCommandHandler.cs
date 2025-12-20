@@ -6,10 +6,11 @@ using FitBridge_Domain.Exceptions;
 using FitBridge_Application.Commons.Constants;
 using FitBridge_Domain.Enums.Trainings;
 using FitBridge_Application.Services;
+using FitBridge_Application.Interfaces.Services;
 
 namespace FitBridge_Application.Features.Bookings.CancelGymPtBooking;
 
-public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemConfigurationService systemConfigurationService) : IRequestHandler<CancelGymPtBookingCommand, bool>
+public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemConfigurationService systemConfigurationService, IScheduleJobServices _scheduleJobServices) : IRequestHandler<CancelGymPtBookingCommand, bool>
 {
     public async Task<bool> Handle(CancelGymPtBookingCommand request, CancellationToken cancellationToken)
     {
@@ -46,6 +47,7 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
         }
         _unitOfWork.Repository<Booking>().Delete(booking);
         await _unitOfWork.CommitAsync();
+        await _scheduleJobServices.CancelScheduleJob($"FinishedBookingSession_{booking.Id}", "FinishedBookingSession");
         return true;
     }
 

@@ -14,7 +14,7 @@ ILogger<EndBookingSessionCommandHandler> _logger) : IRequestHandler<EndBookingSe
 {
     public async Task<DateTime> Handle(EndBookingSessionCommand request, CancellationToken cancellationToken)
     {
-        var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(request.BookingId);
+        var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(request.BookingId, includes: new List<string> { "PTGymSlot", "PTGymSlot.GymSlot" });
         if (booking == null)
         {
             throw new NotFoundException("Booking not found");
@@ -28,15 +28,21 @@ ILogger<EndBookingSessionCommandHandler> _logger) : IRequestHandler<EndBookingSe
             throw new BusinessException("Booking session already ended");
         }
         booking.SessionEndTime = DateTime.UtcNow;
+        if(booking.PTGymSlot != null) {
+            booking.SessionStartTime = booking.PTGymSlot.RegisterDate.ToDateTime(booking.PTGymSlot.GymSlot.StartTime, DateTimeKind.Utc);
+        }
         booking.SessionStatus = SessionStatus.Finished;
         booking.UpdatedAt = DateTime.UtcNow;
         _unitOfWork.Repository<Booking>().Update(booking);
         await _unitOfWork.CommitAsync();
         await _scheduleJobServices.CancelScheduleJob($"FinishedBookingSession_{request.BookingId}", "FinishedBookingSession");
-        var distributePendingProfitResult = await _transactionService.DistributePendingProfit(booking.CustomerPurchasedId);
-        if (!distributePendingProfitResult)
+        if (booking.PTGymSlotId == null)
         {
-            _logger.LogError($"Failed to distribute pending profit for customer purchased {booking.CustomerPurchasedId}");
+            var distributePendingProfitResult = await _transactionService.DistributePendingProfit(booking.CustomerPurchasedId);
+            if (!distributePendingProfitResult)
+            {
+                _logger.LogError($"Failed to distribute pending profit for customer purchased {booking.CustomerPurchasedId}");
+            }
         }
         return booking.SessionEndTime.Value;
     }
