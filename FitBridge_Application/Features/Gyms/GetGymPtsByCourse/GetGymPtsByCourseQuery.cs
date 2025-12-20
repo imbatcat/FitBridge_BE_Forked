@@ -5,9 +5,9 @@ using MediatR;
 
 namespace FitBridge_Application.Features.Gyms.GetGymPtsByCourse
 {
-    public class GetGymPtsByCourseQuery(GetGymPtsByGymCourseParams getGymPtsByGymCourseParams, Guid gymId) : IRequest<PagingResultDto<GetGymPtsDto>>
+    public class GetGymPtsByCourseQuery(GetGymPtsByGymCourseParams getGymPtsByGymCourseParams, Guid gymCourseId) : IRequest<PagingResultDto<GetGymPtsDto>>
     {
-        public Guid GymId { get; set; } = gymId;
+        public Guid GymCourseId { get; set; } = gymCourseId;
 
         public GetGymPtsByGymCourseParams GetGymPtsByCourseParams { get; set; } = getGymPtsByGymCourseParams;
     }

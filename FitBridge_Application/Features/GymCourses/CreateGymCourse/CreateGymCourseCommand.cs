@@ -22,5 +22,6 @@ namespace FitBridge_Application.Features.GymCourses.CreateGymCourse
         public string Description { get; set; }
 
         public string ImageUrl { get; set; }
+        public decimal PtPrice { get; set; }
     }
 }

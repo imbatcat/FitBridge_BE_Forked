@@ -18,5 +18,6 @@ namespace FitBridge_Application.Dtos.GymCourses
         public string ImageUrl { get; set; }
 
         public Guid GymOwnerId { get; set; }
+        public decimal PtPrice { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using FitBridge_Application.Dtos.Payments;
 using FitBridge_Application.Features.GymCourses.AssignPtToCourse;
 using FitBridge_Application.Features.GymCourses.CreateGymCourse;
 using FitBridge_Application.Features.GymCourses.DeleteGymCourseById;
+using FitBridge_Application.Features.GymCourses.DeletePtFromCourse;
 using FitBridge_Application.Features.GymCourses.ExtendGymCourse;
 using FitBridge_Application.Features.GymCourses.GetGymCoursesByGymId;
 using FitBridge_Application.Features.GymCourses.PurchasePt;
@@ -192,6 +193,17 @@ namespace FitBridge_API.Controllers
                     StatusCodes.Status200OK.ToString(),
                     "Purchase pt success",
                     response));
+        }
+
+        [HttpDelete("delete-pt-from-course")]
+        public async Task<ActionResult> DeletePtFromCourse([FromBody] DeletePtFromCourseCommand command)
+        {
+            var response = await mediator.Send(command);
+            return Ok(
+                new BaseResponse<EmptyResult>(
+                    StatusCodes.Status200OK.ToString(),
+                    "Delete pt from course success",
+                    Empty));
         }
     }
 }

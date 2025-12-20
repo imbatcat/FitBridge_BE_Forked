@@ -23,7 +23,8 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
             gymCourse.Price = request.Price ?? gymCourse.Price;
             gymCourse.Duration = request.Duration ?? gymCourse.Duration;
             gymCourse.Description = request.Description ?? gymCourse.Description;
-
+            gymCourse.PtPrice = request.PtPrice ?? gymCourse.PtPrice;
+            gymCourse.ImageUrl = request.ImageUrl ?? gymCourse.ImageUrl;
             unitOfWork.Repository<GymCourse>().Update(gymCourse);
             await unitOfWork.CommitAsync();
 
@@ -35,7 +36,8 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
                 Type = gymCourse.Type,
                 Description = gymCourse.Description,
                 ImageUrl = gymCourse.ImageUrl,
-                GymOwnerId = gymCourse.GymOwnerId
+                GymOwnerId = gymCourse.GymOwnerId,
+                PtPrice = gymCourse.PtPrice
             };
         }
     }
