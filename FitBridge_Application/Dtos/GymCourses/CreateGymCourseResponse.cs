@@ -6,6 +6,7 @@ namespace FitBridge_Application.Dtos.GymCourses;
 
 public class CreateGymCourseResponse
 {
+    public Guid Id { get; set; }
     public string? Name { get; set; }
 
     public decimal Price { get; set; }
@@ -19,4 +20,5 @@ public class CreateGymCourseResponse
     public string? ImageUrl { get; set; }
 
     public Guid GymOwnerId { get; set; }
+    public decimal PtPrice { get; set; }
 }

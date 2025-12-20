@@ -11,12 +11,14 @@ public class GymCoursesProfiles : Profile
 {
     public GymCoursesProfiles()
     {
-        CreateMap<CreateGymCourseCommand, GymCourse>();
+        CreateMap<CreateGymCourseCommand, GymCourse>()
+        .ForMember(dest => dest.PtPrice, opt => opt.MapFrom(src => src.PtPrice));
 
         CreateMap<AssignPtToCourseCommand, GymCoursePT>();
 
         CreateProjection<GymCourse, GetGymCourseDto>()
             .ForMember(dest => dest.Image, opt => opt.MapFrom(
-                src => src.ImageUrl));
+                src => src.ImageUrl))
+            .ForMember(dest => dest.PtPrice, opt => opt.MapFrom(src => src.PtPrice));
     }
 }

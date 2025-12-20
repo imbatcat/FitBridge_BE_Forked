@@ -18,5 +18,6 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
         public string? Description { get; set; }
 
         public string? ImageUrl { get; set; }
+        public decimal? PtPrice { get; set; }
     }
 }
