@@ -45,7 +45,8 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
             }
             booking.CustomerPurchased.AvailableSessions++;
         }
-        _unitOfWork.Repository<Booking>().Delete(booking);
+        booking.SessionStatus = SessionStatus.Cancelled;
+        booking.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.CommitAsync();
         await _scheduleJobServices.CancelScheduleJob($"FinishedBookingSession_{booking.Id}", "FinishedBookingSession");
         return true;
