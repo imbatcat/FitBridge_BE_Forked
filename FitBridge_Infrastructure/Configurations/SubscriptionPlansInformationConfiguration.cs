@@ -16,7 +16,7 @@ public class SubscriptionPlansInformationConfiguration : IEntityTypeConfiguratio
         builder.Property(e => e.LimitUsage).IsRequired(false);
         builder.Property(e => e.Description).IsRequired(true);
         builder.Property(e => e.ImageUrl).IsRequired(false);
-        
+        builder.Property(e => e.InAppPurchaseId).IsRequired(false);
         builder.HasOne(e => e.FeatureKey).WithMany(e => e.SubscriptionPlansInformation).HasForeignKey(e => e.FeatureKeyId);
         builder.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");

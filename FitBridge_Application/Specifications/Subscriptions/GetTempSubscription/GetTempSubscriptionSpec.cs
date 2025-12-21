@@ -7,8 +7,8 @@ namespace FitBridge_Application.Specifications.Subscriptions.GetTempSubscription
 
 public class GetTempSubscriptionSpec : BaseSpecification<UserSubscription>
 {
-    public GetTempSubscriptionSpec(Guid orderItemId) : base(x => x.OrderItem.Id == orderItemId && x.Status == SubScriptionStatus.Created)
+    public GetTempSubscriptionSpec(Guid orderItemId) : base(x => x.OrderItems.Any(o => o.Id == orderItemId) && x.Status == SubScriptionStatus.Created)
     {
-        AddInclude(x => x.OrderItem);
+        AddInclude(x => x.OrderItems);
     }
 }

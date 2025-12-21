@@ -208,6 +208,7 @@ namespace FitBridge_Infrastructure.Extensions
             services.AddScoped<SubscriptionService>();
             services.AddScoped<BookingService>();
             services.AddScoped<OrderService>();
+            services.AddScoped<IExchangeRateService, ExchangeRateService>();
             // Register HttpClient for Ahamove Service
             services.AddHttpClient<IAhamoveService, AhamoveService>();
         }
