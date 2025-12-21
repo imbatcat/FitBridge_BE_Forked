@@ -8,6 +8,7 @@
 
         COD,
 
-        System
+        System,
+        InAppPurchase
     }
 }

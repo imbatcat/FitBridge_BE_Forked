@@ -9,6 +9,7 @@ public class UserSubscription : BaseEntity
 {
     public Guid UserId { get; set; }
     public Guid SubscriptionPlanId { get; set; }
+    public string? OriginalTransactionId { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int? LimitUsage { get; set; }
@@ -16,5 +17,5 @@ public class UserSubscription : BaseEntity
     public SubScriptionStatus Status { get; set; }
     public ApplicationUser User { get; set; }
     public SubscriptionPlansInformation SubscriptionPlansInformation { get; set; }
-    public OrderItem OrderItem { get; set; }
+    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

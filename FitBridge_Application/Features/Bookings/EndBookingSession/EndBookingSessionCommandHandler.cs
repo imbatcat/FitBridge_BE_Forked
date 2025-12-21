@@ -19,7 +19,7 @@ ILogger<EndBookingSessionCommandHandler> _logger) : IRequestHandler<EndBookingSe
         {
             throw new NotFoundException("Booking not found");
         }
-        if (booking.SessionStartTime == null)
+        if (booking.SessionStartTime == null && booking.PTGymSlotId == null)
         {
             throw new BusinessException("Booking session not started");
         }

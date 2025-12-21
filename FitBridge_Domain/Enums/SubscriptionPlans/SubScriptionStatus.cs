@@ -7,6 +7,7 @@ public enum SubScriptionStatus
     Active,
     Expired,
     Cancelled,
-    Revoked, 
-    Created
+    Revoked,
+    Created,
+    Active_Not_Renewed
 }

@@ -13,6 +13,7 @@ using FitBridge_Application.Features.Payments.GetPaymentInfor;
 using FitBridge_Application.Features.Payments.PaymentCallbackWebhook;
 using FitBridge_Application.Features.Payments.RejectWithdrawalRequest;
 using FitBridge_Application.Features.Payments.RePaidOrder;
+using FitBridge_Application.Features.Payments.RevenueCatWebhook;
 using FitBridge_Application.Features.Refund.RefundItem;
 using FitBridge_Application.Specifications.Payments.GetAllWithdrawalRequests;
 using MediatR;
@@ -58,6 +59,31 @@ public class PaymentsController(IMediator _mediator) : _BaseApiController
         var spec = new AppleWebhookCommand { WebhookData = webhookData };
         var result = await _mediator.Send(spec);
         return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "Apple webhook processed successfully", result));
+    }
+
+    /// <summary>
+    /// RevenueCat webhook endpoint for handling subscription events
+    /// </summary>
+    /// <returns>Success response if webhook is processed successfully</returns>
+    /// <response code="200">Returns success if the webhook is processed.</response>
+    /// <response code="400">If webhook processing fails.</response>
+    [HttpPost("revenuecat-webhook")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<bool>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RevenueCatWebhook()
+    {
+        using var reader = new StreamReader(Request.Body);
+        var webhookData = await reader.ReadToEndAsync();
+        var command = new RevenueCatWebhookCommand { WebhookData = webhookData };
+        var result = await _mediator.Send(command);
+
+        if (result)
+        {
+            return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "RevenueCat webhook processed successfully", result));
+        }
+
+        return BadRequest(new BaseResponse<bool>(StatusCodes.Status400BadRequest.ToString(), "Failed to process RevenueCat webhook", result));
     }
 
     [HttpGet("{id}")]
