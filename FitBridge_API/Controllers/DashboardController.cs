@@ -1,11 +1,13 @@
 using FitBridge_API.Helpers.RequestHelpers;
 using FitBridge_Application.Commons.Constants;
 using FitBridge_Application.Dtos.Dashboards;
+using FitBridge_Application.Dtos.Dashboard;
 using FitBridge_Application.Features.Dashboards.GetAvailableBalanceDetail;
 using FitBridge_Application.Features.Dashboards.GetDisbursementDetail;
 using FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail;
 using FitBridge_Application.Features.Dashboards.GetRevenueDetail;
 using FitBridge_Application.Features.Dashboards.GetWalletBalance;
+using FitBridge_Application.Features.Dashboards.GetDashboardFinancialStats;
 using FitBridge_Application.Specifications.Dashboards.GetDisbursementDetail;
 using FitBridge_Application.Specifications.Dashboards.GetPendingBalanceDetail;
 using FitBridge_Application.Specifications.Dashboards.GetOrderItemForRevenueDetail;
@@ -33,7 +35,6 @@ namespace FitBridge_API.Controllers
     /// 
     /// Access: All endpoints are restricted to GymOwner and FreelancePT roles only.
     /// </remarks>
-    [Authorize(Roles = $"{ProjectConstant.UserRoles.GymOwner},{ProjectConstant.UserRoles.FreelancePT}")]
     [Produces(MediaTypeNames.Application.Json)]
     public class DashboardController(IMediator mediator) : _BaseApiController
     {
@@ -297,5 +298,62 @@ namespace FitBridge_API.Controllers
             "Dashboard statistics retrieved successfully",
             result));
     }
+
+        /// <summary>
+        /// Retrieves comprehensive financial statistics for the admin dashboard.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint provides detailed financial analytics including:
+        /// 
+        /// **Summary Cards:**
+        /// - Total revenue and profit across all categories
+        /// - Breakdown by category: Product, Gym Course, Freelance PT, Subscription
+        /// 
+        /// **Profit Distribution Chart:**
+        /// - Pie chart data showing profit distribution across categories
+        /// - Includes percentage calculations
+        /// 
+        /// **Revenue and Profit Over Time Chart:**
+        /// - Time-series data grouped by date
+        /// - Separate metrics for each category (Product, Gym, Freelance, Subscription)
+        /// 
+        /// **Recent Transactions Table:**
+        /// - Paginated list of successful transactions
+        /// - Includes customer info, order details, and items summary
+        /// 
+        /// Date range filtering:
+        /// - FromDate: Filter transactions from this date (inclusive)
+        /// - ToDate: Filter transactions up to this date (inclusive)
+        /// - If not specified, returns all-time data
+        /// 
+        /// **Business Logic:**
+        /// - Product: Revenue includes COGS calculation, profit accounts for refunds and COD shipping losses
+        /// - Gym/PT: Commission-based profit (ProfitAmount), adjusted for refunds
+        /// - Subscription: Total amounts (no refunds allowed)
+        /// </remarks>
+        /// <param name="parameters">Query parameters including date range and pagination for recent transactions. Includes FromDate, ToDate, PageNumber, PageSize.</param>
+        /// <returns>
+        /// A BaseResponse containing DashboardStatsDto with comprehensive financial statistics.
+        /// Returns HTTP 200 with the dashboard data.
+        /// </returns>
+        /// <response code="200">Financial statistics retrieved successfully</response>
+        /// <response code="401">Unauthorized - User must be authenticated</response>
+        /// <response code="403">Forbidden - Only Admin can access</response>
+        [HttpGet("financial-stats")]
+        [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<DashboardStatsDto>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<DashboardStatsDto>> GetFinancialStats([FromQuery] GetDashboardFinancialStatsParams parameters)
+        {
+            var query = new GetDashboardFinancialStatsQuery { Params = parameters };
+            var response = await mediator.Send(query);
+
+            return Ok(
+                new BaseResponse<DashboardStatsDto>(
+                    StatusCodes.Status200OK.ToString(),
+                    "Financial statistics retrieved successfully",
+                    response));
+        }
     }
 }

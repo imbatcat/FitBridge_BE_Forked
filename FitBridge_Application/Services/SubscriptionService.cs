@@ -102,7 +102,8 @@ public class SubscriptionService(
 
         // Calculate subscription end date
         var startDate = DateTime.UtcNow;
-        var endDate = CalculateSubscriptionEndDate(startDate, subscriptionPlan.Duration);
+        // var endDate = CalculateSubscriptionEndDate(startDate, subscriptionPlan.Duration);
+        var endDate = eventData.Environment == "SANDBOX" ? DateTime.UtcNow.AddDays(subscriptionPlan.Duration) : DateTimeOffset.FromUnixTimeMilliseconds(eventData.ExpirationAtMs.Value).UtcDateTime;
 
         // Create UserSubscription
         var userSubscription = new UserSubscription
@@ -157,8 +158,8 @@ public class SubscriptionService(
 
         // Create Transaction
         var transaction = new Transaction
-        {
-            OrderCode = long.Parse(eventData.TransactionId ?? _payOSService.GenerateOrderCode().ToString()),
+        {   
+            OrderCode = _payOSService.GenerateOrderCode(),
             Description = $"RevenueCat Initial Purchase - {eventData.ProductId} - TransactionId: {eventData.TransactionId}",
             PaymentMethodId = paymentMethod.Id,
             TransactionType = TransactionType.SubscriptionPlansOrder,
@@ -193,7 +194,6 @@ public class SubscriptionService(
                 return true;
             }
         }
-
         // Find existing subscription by OriginalTransactionId
         if (string.IsNullOrWhiteSpace(eventData.OriginalTransactionId))
         {
@@ -202,11 +202,19 @@ public class SubscriptionService(
         }
 
         var userSubscription = await FindUserSubscriptionByOriginalTransactionId(eventData.OriginalTransactionId);
+                // Extend subscription
+        if (!eventData.ExpirationAtMs.HasValue)
+        {
+            _logger.LogError("ExpirationAtMs is null in RENEWAL event");
+            throw new BusinessException("ExpirationAtMs is required for renewal events");
+        }
+        
         if (userSubscription == null)
         {
-            _logger.LogError("User subscription not found for original transaction {OriginalTransactionId}", 
+            _logger.LogError("User subscription not found for original transaction {OriginalTransactionId}",
                 eventData.OriginalTransactionId);
-            throw new NotFoundException($"User subscription not found for original transaction {eventData.OriginalTransactionId}");
+            await HandleInitialPurchase(eventData);
+            return true;
         }
         var priceInPurchasedCurrency = eventData.PriceInPurchasedCurrency ?? 0;
         var takehomePercentage = eventData.TakehomePercentage ?? 0;
@@ -218,14 +226,8 @@ public class SubscriptionService(
             priceInPurchasedCurrency * takehomePercentage,
             eventData.Currency);
 
-        // Extend subscription
-        if (!eventData.ExpirationAtMs.HasValue)
-        {
-            _logger.LogError("ExpirationAtMs is null in RENEWAL event");
-            throw new BusinessException("ExpirationAtMs is required for renewal events");
-        }
-        
-        var newEndDate = DateTimeOffset.FromUnixTimeMilliseconds(eventData.ExpirationAtMs.Value).UtcDateTime;
+
+        var newEndDate = eventData.Environment == "SANDBOX" ? DateTime.UtcNow.AddDays(userSubscription.SubscriptionPlansInformation.Duration) : DateTimeOffset.FromUnixTimeMilliseconds(eventData.ExpirationAtMs.Value).UtcDateTime;
         userSubscription.EndDate = newEndDate;
         userSubscription.Status = SubScriptionStatus.Active;
         userSubscription.UpdatedAt = DateTime.UtcNow;
@@ -262,16 +264,15 @@ public class SubscriptionService(
         };
         _unitOfWork.Repository<OrderItem>().Insert(orderItem);
 
-        // Find RevenueCat payment method
         var paymentMethod = await _unitOfWork.Repository<PaymentMethod>().GetBySpecificationAsync(new GetPaymentMethodByTypeSpecification(MethodType.InAppPurchase));
 
         // Create Transaction
         var transaction = new Transaction
         {
-            OrderCode = long.Parse(eventData.TransactionId ?? _payOSService.GenerateOrderCode().ToString()),
+            OrderCode = _payOSService.GenerateOrderCode(),
             Description = $"RevenueCat Renewal - {eventData.ProductId} - TransactionId: {eventData.TransactionId}",
             PaymentMethodId = paymentMethod.Id,
-            TransactionType = TransactionType.SubscriptionPlansOrder,
+            TransactionType = TransactionType.RenewalSubscriptionPlansOrder,
             Status = TransactionStatus.Success,
             OrderId = order.Id,
             Amount = amountInVnd,
@@ -308,7 +309,6 @@ public class SubscriptionService(
             return true; // Return true to acknowledge
         }
 
-        // Update status to Active_Not_Renewed (access remains until EndDate)
         userSubscription.Status = SubScriptionStatus.Active_Not_Renewed;
         userSubscription.UpdatedAt = DateTime.UtcNow;
 

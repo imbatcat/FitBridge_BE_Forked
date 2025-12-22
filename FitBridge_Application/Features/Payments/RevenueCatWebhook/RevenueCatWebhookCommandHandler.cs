@@ -27,12 +27,13 @@ public class RevenueCatWebhookCommandHandler(
     {
         try
         {
-            if(request.WebhookData.Contains("TEST"))
+
+            _logger.LogInformation("Received RevenueCat webhook: {WebhookData}", request.WebhookData);
+            if(request.WebhookData.Contains("\"type\": \"TEST\""))
             {
                 _logger.LogInformation("Test webhook received");
                 return true;
             }
-            _logger.LogInformation("Received RevenueCat webhook: {WebhookData}", request.WebhookData);
 
             var webhook = JsonSerializer.Deserialize<RevenueCatWebhookDto>(request.WebhookData, _jsonOptions);
             if (webhook?.Event == null)
@@ -40,7 +41,10 @@ public class RevenueCatWebhookCommandHandler(
                 _logger.LogWarning("Invalid webhook data received");
                 return false;
             }
-
+            if (webhook.Event.ProductId == "premium") //Premium is the id of test store
+            {
+                webhook.Event.ProductId = "fb_200_1m_1w0";
+            }
             var eventData = webhook.Event;
             _logger.LogInformation(
                 "Processing RevenueCat event: Type={EventType}, UserId={UserId}, ProductId={ProductId}, TransactionId={TransactionId}",

@@ -545,7 +545,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             assignLimitUsage = subscriptionPlansInformation.LimitUsage;
         }
         transactionToPurchaseSubscriptionPlans.Order.Status = OrderStatus.Finished;
-        transactionToPurchaseSubscriptionPlans.ProfitAmount = transactionToPurchaseSubscriptionPlans.Amount;
+        transactionToPurchaseSubscriptionPlans.ProfitAmount = transactionToPurchaseSubscriptionPlans.Order.TotalAmount;
 
         var startDate = DateTime.UtcNow;
         var endDate = startDate.AddDays(subscriptionPlansInformation.Duration);

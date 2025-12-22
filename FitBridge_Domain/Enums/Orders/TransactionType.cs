@@ -13,6 +13,7 @@
         FreelancePTPackage,
 
         SubscriptionPlansOrder,
+        RenewalSubscriptionPlansOrder,
 
         AssignPt,
 
