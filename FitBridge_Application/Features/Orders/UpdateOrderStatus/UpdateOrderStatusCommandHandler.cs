@@ -51,14 +51,14 @@ public class UpdateOrderStatusCommandHandler(IUnitOfWork _unitOfWork, IMapper _m
             }
 
         }
-        if (request.Status == OrderStatus.CustomerNotReceived)
-        {
-            if (order.Status != OrderStatus.Arrived)
-            {
-                throw new WrongStatusSequenceException("Order status is not arrived");
-            }
-            await _scheduleJobServices.CancelScheduleJob($"AutoFinishArrivedOrder_{order.Id}", "AutoFinishArrivedOrder");
-        }
+        // if (request.Status == OrderStatus.CustomerNotReceived)
+        // {
+        //     if (order.Status != OrderStatus.Arrived)
+        //     {
+        //         throw new WrongStatusSequenceException("Order status is not arrived");
+        //     }
+        //     await _scheduleJobServices.CancelScheduleJob($"AutoFinishArrivedOrder_{order.Id}", "AutoFinishArrivedOrder");
+        // }
         var previousStatus = order.Status;
         order.Status = request.Status;
         var orderStatusHistory = new OrderStatusHistory
