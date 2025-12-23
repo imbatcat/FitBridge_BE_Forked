@@ -7,10 +7,14 @@ using FitBridge_Application.Commons.Constants;
 using FitBridge_Domain.Enums.Trainings;
 using FitBridge_Application.Services;
 using FitBridge_Application.Interfaces.Services;
+using FitBridge_Application.Dtos.Templates;
+using FitBridge_Domain.Enums.MessageAndReview;
+using FitBridge_Application.Dtos.Notifications;
+using FitBridge_Application.Interfaces.Services.Notifications;
 
 namespace FitBridge_Application.Features.Bookings.CancelGymPtBooking;
 
-public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemConfigurationService systemConfigurationService, IScheduleJobServices _scheduleJobServices) : IRequestHandler<CancelGymPtBookingCommand, bool>
+public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemConfigurationService systemConfigurationService, IScheduleJobServices _scheduleJobServices, INotificationService notificationService) : IRequestHandler<CancelGymPtBookingCommand, bool>
 {
     public async Task<bool> Handle(CancelGymPtBookingCommand request, CancellationToken cancellationToken)
     {
@@ -25,7 +29,8 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
         if (booking.PTGymSlot != null)
         {
             sessionDateTime = booking.BookingDate.ToDateTime(booking.PTGymSlot.GymSlot.StartTime);
-        } else
+        }
+        else
         {
             sessionDateTime = booking.BookingDate.ToDateTime(booking.PtFreelanceStartTime.Value);
         }
@@ -45,11 +50,34 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
             }
             booking.CustomerPurchased.AvailableSessions++;
         }
+        await SendNotification(booking);
         booking.SessionStatus = SessionStatus.Cancelled;
         booking.UpdatedAt = DateTime.UtcNow;
         await _unitOfWork.CommitAsync();
         await _scheduleJobServices.CancelScheduleJob($"FinishedBookingSession_{booking.Id}", "FinishedBookingSession");
+
         return true;
     }
+    
+    private async Task SendNotification(Booking booking)
+    {
+        var sessionStartTime = booking.PTGymSlot.GymSlot.StartTime.ToString();
+        if (booking.PTGymSlot != null)
+        {
+            sessionStartTime = booking.PtFreelanceStartTime.Value.ToString();
+        }
+        var model = new CancelBookingModel()
+        {
+            TitleBookingName = "Buổi tập bị hủy",
+            BookingName = booking.BookingName ?? "",
+            SessionStartTime = sessionStartTime,
+            SessionDate = booking.BookingDate.ToString(),
+        };
+        var notificationMessage = new NotificationMessage(
+            EnumContentType.BookingCancelled,
+            new List<Guid> { booking.CustomerId, booking.PtId.Value },
+            model);
 
+        await notificationService.NotifyUsers(notificationMessage);
+    }
 }
