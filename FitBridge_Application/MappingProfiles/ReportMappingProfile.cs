@@ -13,6 +13,7 @@ namespace FitBridge_Application.MappingProfiles
               .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
             .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
             .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
+            .ForMember(dest => dest.ResolvedEvidenceImageUrls, opt => opt.MapFrom(src => src.ResolvedEvidenceImageUrl))
             .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
 
             CreateMap<ReportCases, GetCustomerReportsResponseDto>()
@@ -20,6 +21,7 @@ namespace FitBridge_Application.MappingProfiles
            .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
            .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
             .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
+            .ForMember(dest => dest.ResolvedEvidenceImageUrls, opt => opt.MapFrom(src => src.ResolvedEvidenceImageUrl))
             .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
         }
     }

@@ -28,6 +28,8 @@ namespace FitBridge_Application.Dtos.Reports
 
         public List<string> EvidenceImageUrls { get; set; } = [];
 
+        public string ResolvedEvidenceImageUrls { get; set; }
+
         public DateTime CreatedAt { get; set; }
     }
 }
