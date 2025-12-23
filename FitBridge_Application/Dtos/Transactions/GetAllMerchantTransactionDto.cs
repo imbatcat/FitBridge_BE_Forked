@@ -12,5 +12,6 @@ public class GetAllMerchantTransactionDto
     public string? CustomerName { get; set; }
     public string? CustomerAvatarUrl { get; set; }
     public long OrderCode { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
  
