@@ -4,7 +4,7 @@ namespace FitBridge_Application.Specifications.Reviews.GetAllReview;
 
 public class GetAllReviewQueryParams : BaseParams
 {
-    public Guid? GymCourseId { get; set; }
-    public Guid? FreelancePtCourseId { get; set; }
+    public Guid? GymOwnerId { get; set; }
+    public Guid? FreelancePtId { get; set; }
     public Guid? ProductId { get; set; }
 }

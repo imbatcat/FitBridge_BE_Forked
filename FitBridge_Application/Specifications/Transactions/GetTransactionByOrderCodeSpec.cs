@@ -12,6 +12,7 @@ public class GetTransactionByOrderCodeSpec : BaseSpecification<Transaction>
         if (isInclude)
         {
             AddInclude(x => x.Order);
+            AddInclude(x => x.Order.OrderItems);
         }
 
     }

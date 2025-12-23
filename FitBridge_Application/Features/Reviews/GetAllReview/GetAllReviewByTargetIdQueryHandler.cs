@@ -25,30 +25,21 @@ public class GetAllReviewByTargetIdQueryHandler(IUnitOfWork _unitOfWork, IMapper
 
     public async Task<(Guid, GetAllReviewByTargetIdSpec)> DetermineTargetId(GetAllReviewByTargetIdQuery request)
     {
-        var gymCourseId = request.Params.GymCourseId;
-        var freelancePtCourseId = request.Params.FreelancePtCourseId;
+        var gymOwnerId = request.Params.GymOwnerId;
+        var freelancePtId = request.Params.FreelancePtId;
         var productId = request.Params.ProductId;
-        if(freelancePtCourseId != null)
+        if(freelancePtId != null)
         {
-            var freelancePTPackage = await _unitOfWork.Repository<FreelancePTPackage>().GetByIdAsync(freelancePtCourseId.Value);
-            if(freelancePTPackage == null)
-            {
-                throw new NotFoundException("Freelance pt package not found");
-            }
-            return (freelancePTPackage.PtId, new GetAllReviewByTargetIdSpec(request.Params, FreelancePtId: freelancePTPackage.PtId));
+
+            return (freelancePtId.Value, new GetAllReviewByTargetIdSpec(request.Params, FreelancePtId: freelancePtId.Value));
         }
         if(productId != null)
         {
             return (productId.Value, new GetAllReviewByTargetIdSpec(request.Params, ProductId: productId.Value));
         }
-        if(gymCourseId != null)
+        if(gymOwnerId != null)
         {
-            var gymCourse = await _unitOfWork.Repository<GymCourse>().GetByIdAsync(gymCourseId.Value);
-            if(gymCourse == null)
-            {
-                throw new NotFoundException("Gym course not found");
-            }
-            return (gymCourse.GymOwnerId, new GetAllReviewByTargetIdSpec(request.Params, GymId: gymCourse.GymOwnerId));
+            return (gymOwnerId.Value, new GetAllReviewByTargetIdSpec(request.Params, GymId: gymOwnerId.Value));
         }
         throw new NotFoundException("Target not found");
     }
