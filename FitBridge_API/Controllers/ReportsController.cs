@@ -346,7 +346,7 @@ namespace FitBridge_API.Controllers
         /// <response code="401">If the user is not authenticated.</response>
         /// <response code="403">If the user is not an admin.</response>
         /// <response code="404">If the report is not found.</response>
-        [HttpPost("/upload-refund-proof")]
+        [HttpPost("upload-refund-proof")]
         [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<object>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
