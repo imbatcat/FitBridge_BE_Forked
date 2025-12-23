@@ -29,7 +29,7 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
             {
                 TransactionId = transaction.Id,
                 TransactionType = transaction.TransactionType,
-                TotalPaidAmount = transaction.TransactionType == TransactionType.SubscriptionPlansOrder ? transaction.Amount : null,
+                TotalPaidAmount = (transaction.TransactionType == TransactionType.ExtendCourse || transaction.TransactionType == TransactionType.GymCourse) ? transaction.Order.TotalAmount : null,
                 OrderCode = transaction.OrderCode,
                 CustomerName = transaction.Order.Account.FullName,
                 CustomerAvatarUrl = transaction.Order.Account.AvatarUrl,
