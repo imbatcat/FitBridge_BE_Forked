@@ -9,14 +9,24 @@ public class CustomerPurchasedResponseDto
 
     // Package Information
     public string PackageName { get; set; } = string.Empty;
+
     public string CourseImageUrl { get; set; } = string.Empty;
 
     public int AvailableSessions { get; set; }
+
     public DateOnly ExpirationDate { get; set; }
+
     public bool CanAssignPT { get; set; }
+
     public decimal PTAssignmentPrice { get; set; }
+
     public Guid? GymCourseId { get; set; }
+
     public Guid? PtId { get; set; }
+
     public string? PtName { get; set; }
+
     public string? PtImageUrl { get; set; }
+
+    public List<Guid> OrderItems { get; set; } = new List<Guid>();
 }
