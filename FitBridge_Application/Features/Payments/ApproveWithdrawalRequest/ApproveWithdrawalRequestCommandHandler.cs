@@ -2,6 +2,7 @@ using FitBridge_Application.Commons.Utils;
 using FitBridge_Application.Dtos.Notifications;
 using FitBridge_Application.Dtos.Templates;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Services.Notifications;
 using FitBridge_Application.Specifications.Wallets.GetWalletByUserId;
 using FitBridge_Domain.Entities.Orders;
@@ -14,6 +15,7 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
 {
     internal class ApproveWithdrawalRequestCommandHandler(
         IUnitOfWork unitOfWork,
+        IScheduleJobServices scheduleJobServices,
         INotificationService notificationService) : IRequestHandler<ApproveWithdrawalRequestCommand>
     {
         public async Task Handle(ApproveWithdrawalRequestCommand request, CancellationToken cancellationToken)
@@ -34,7 +36,15 @@ namespace FitBridge_Application.Features.Payments.ApproveWithdrawalRequest
             await InsertTransactionAsync(withdrawalRequest, updatedWallet);
 
             await unitOfWork.CommitAsync();
+
+            await ScheduleAutoConfirmJob(withdrawalRequest.Id);
             await SendNotification(withdrawalRequest);
+        }
+
+        private async Task ScheduleAutoConfirmJob(Guid withdrawalRequestId)
+        {
+            var triggerTime = DateTime.UtcNow.AddDays(2); // BR-17
+            await scheduleJobServices.ScheduleAutoConfirmWithdrawalRequestJob(withdrawalRequestId, triggerTime);
         }
 
         private async Task<Wallet> UpdateUserWallet(WithdrawalRequest withdrawalRequest)
