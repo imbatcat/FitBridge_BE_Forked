@@ -6,8 +6,8 @@ namespace FitBridge_Application.Specifications.GymSlots;
 
 public class GetGymSlotByTimeRangeSpec : BaseSpecification<GymSlot>
 {
-    public GetGymSlotByTimeRangeSpec(TimeOnly startTime, TimeOnly endTime) : base(x => !(startTime >= x.EndTime || endTime <= x.StartTime)
-    && x.IsEnabled)
+    public GetGymSlotByTimeRangeSpec(TimeOnly startTime, TimeOnly endTime, Guid slotId) : base(x => !(startTime >= x.EndTime || endTime <= x.StartTime)
+    && x.IsEnabled && x.Id != slotId)
     {
     }
 }
