@@ -40,5 +40,6 @@
 
         ReportStatusUpdated, // Admin updates report status
         NearExpiredSubscriptionReminder, // Customer's subscription is about to expire
+        BookingCancelled, // Booking cancelled
     }
 }
