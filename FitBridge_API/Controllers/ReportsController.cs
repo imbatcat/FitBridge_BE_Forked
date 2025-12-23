@@ -8,11 +8,9 @@ using FitBridge_Application.Features.Reports.GetCustomerReports;
 using FitBridge_Application.Features.Reports.GetReportById;
 using FitBridge_Application.Features.Reports.ProcessReport;
 using FitBridge_Application.Features.Reports.ResolveReport;
-using FitBridge_Application.Features.Reports.UpdateReportStatus;
 using FitBridge_Application.Features.Reports.UploadRefundProof;
 using FitBridge_Application.Specifications.Reports.GetAllReports;
 using FitBridge_Application.Specifications.Reports.GetCustomerReports;
-using FitBridge_Domain.Enums.Reports;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -62,11 +60,10 @@ namespace FitBridge_API.Controllers
         {
             var response = await mediator.Send(command);
 
-            return Ok(
-new BaseResponse<CreateReportResponseDto>(
-      StatusCodes.Status200OK.ToString(),
-     "Report created successfully",
-          response));
+            return Ok(new BaseResponse<CreateReportResponseDto>(
+                  StatusCodes.Status200OK.ToString(),
+                 "Report created successfully",
+                      response));
         }
 
         /// <summary>
@@ -208,45 +205,6 @@ new BaseResponse<CreateReportResponseDto>(
           StatusCodes.Status200OK.ToString(),
         "Get report detail success",
    response));
-        }
-
-        /// <summary>
-        /// Updates the status of an existing report case.
-        /// Only admins can update report statuses.
-        /// </summary>
-        /// <param name="reportId">The unique identifier of the report to update.</param>
-        /// <param name="command">The update details including:
-        /// <list type="bullet">
-        /// <item>
-        /// <term>Status</term>
-        /// <description>The new status (Pending, Processing, Resolved, FraudConfirmed).</description>
-        /// </item>
-        /// <item>
-        /// <term>Note</term>
-        /// <description>Optional note about the status update (required for FraudConfirmed status).</description>
-        /// </item>
-        /// </list>
-        /// </param>
-        /// <returns>Success response if the status was updated.</returns>
-        [HttpPut("{reportId}/status")]
-        [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<object>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> UpdateReportStatus(
-        [FromRoute] Guid reportId,
-            [FromBody] UpdateReportStatusCommand command)
-        {
-            command.ReportId = reportId;
-            await mediator.Send(command);
-
-            return Ok(
-              new BaseResponse<object>(
-                   StatusCodes.Status200OK.ToString(),
-                   "Report status updated successfully",
-                 null));
         }
 
         /// <summary>

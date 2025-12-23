@@ -14,6 +14,7 @@ namespace FitBridge_Application.Features.Reports.ProcessReport
 {
     internal class ProcessReportCommandHandler(
         IUnitOfWork unitOfWork,
+        IScheduleJobServices scheduleJobServices,
         INotificationService notificationService) : IRequestHandler<ProcessReportCommand>
     {
         public async Task Handle(ProcessReportCommand request, CancellationToken cancellationToken)
@@ -26,8 +27,11 @@ namespace FitBridge_Application.Features.Reports.ProcessReport
             }
 
             existingReport.Status = ReportCaseStatus.Processing;
-            // set flag for job distribution
             existingReport.IsPayoutPaused = true;
+
+            var jobName = $"ProfitDistribution_{existingReport.OrderItemId}";
+            var jobGroup = "ProfitDistribution";
+            await scheduleJobServices.CancelScheduleJob(jobName, jobGroup);
 
             unitOfWork.Repository<ReportCases>().Update(existingReport);
             await unitOfWork.CommitAsync();
