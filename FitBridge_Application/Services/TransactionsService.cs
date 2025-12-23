@@ -101,7 +101,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         }
         var profit = await CalculateMerchantProfit(orderItemToExtend, transactionToExtend.Order.Coupon);
         walletToUpdate.PendingBalance += profit;
-         transactionToExtend.ProfitAmount = profit;
 
         _unitOfWork.Repository<Wallet>().Update(walletToUpdate);
         await _unitOfWork.CommitAsync();
@@ -395,7 +394,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                 }
                 var profit = await CalculateMerchantProfit(orderItem, OrderEntity.Coupon);
                 walletToUpdate.PendingBalance += profit;
-                OrderEntity.Transactions.FirstOrDefault(t => t.OrderCode == orderCode).ProfitAmount = profit;
                 _unitOfWork.Repository<Wallet>().Update(walletToUpdate);
                 await _unitOfWork.CommitAsync();
 
