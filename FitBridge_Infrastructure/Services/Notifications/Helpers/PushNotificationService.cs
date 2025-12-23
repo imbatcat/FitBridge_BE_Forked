@@ -41,13 +41,20 @@ namespace FitBridge_Infrastructure.Services.Notifications.Helpers
                             throw new ArgumentOutOfRangeException(nameof(userDeviceToken.Platform), userDeviceToken.Platform, "Unsupported platform type");
                     }
                 }
-                catch (FirebaseMessagingException)
+                catch (FirebaseMessagingException ex)
                 {
                     failedTokens.Add(userDeviceToken.Id);
+                    logger.LogError("Firebase messaging error {Ex} while sending push notification to {DeviceToken}", ex.Message, userDeviceToken.DeviceToken);
                 }
-                catch (ApnsCertificateExpiredException)
+                catch (ApnsCertificateExpiredException ex)
                 {
                     failedTokens.Add(userDeviceToken.Id);
+                    logger.LogError(ex, "Ios messaging error {Ex} while sending push notification to {DeviceToken}", ex.Message, userDeviceToken.DeviceToken);
+                }
+                catch (Exception ex)
+                {
+                    failedTokens.Add(userDeviceToken.Id);
+                    logger.LogError(ex, "Unexpected error while sending push notification to {DeviceToken}", userDeviceToken.DeviceToken);
                 }
             }
 
