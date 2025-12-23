@@ -14,8 +14,8 @@ public class Order : BaseEntity
     public string CheckoutUrl { get; set; }
     public decimal SubTotalPrice { get; set; }
     public Guid? AddressId { get; set; }
-    public decimal ShippingFee { get; set; }
-    public decimal? ShippingFeeActualCost { get; set; }
+    public decimal ShippingFee { get; set; } // Shipping fees that customer pays
+    public decimal? ShippingFeeActualCost { get; set; } // Actual shipping cost paid to the shipping agent
     public string? ShippingTrackingId { get; set; }
     public decimal TotalAmount { get; set; }
     public Guid? CustomerPurchasedIdToExtend { get; set; }

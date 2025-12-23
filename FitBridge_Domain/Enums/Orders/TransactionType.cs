@@ -13,6 +13,7 @@
         FreelancePTPackage,
 
         SubscriptionPlansOrder,
+        RenewalSubscriptionPlansOrder,
 
         AssignPt,
 
@@ -23,6 +24,7 @@
         DistributeProfit,
 
         PurchasePremiumService,
+
         PendingDeduction,
     }
 }

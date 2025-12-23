@@ -35,7 +35,7 @@ namespace FitBridge_Application.Features.Reports.CreateReport
             var report = await GetExistingReport(request.ReportedItemId, reporterId);
             if (report != null)
             {
-                throw new DataValidationFailedException("An ongoing report for this item already exists.");
+                throw new DataValidationFailedException("Đã có đơn kiện đang được xử lý cho mục này.");
             }
 
             var (reportedId, reportType) = await GetReportedUserIdAndReportTypeAsync(request.ReportedItemId);
@@ -95,7 +95,7 @@ namespace FitBridge_Application.Features.Reports.CreateReport
             }
             else
             {
-                throw new DataValidationFailedException("Invalid report case type.");
+                throw new DataValidationFailedException("Loại đơn kiện không hợp lệ.");
             }
         }
 
@@ -105,12 +105,20 @@ namespace FitBridge_Application.Features.Reports.CreateReport
                 ProjectConstant.UserRoles.Admin);
             var reporterName = userUtil.GetUserFullName(httpContextAccessor.HttpContext);
 
+            var reportTypeVietnamese = reportType switch
+            {
+                ReportCaseType.FreelancePtReport => "Báo cáo PT tự do",
+                ReportCaseType.GymCourseReport => "Báo cáo khóa học phòng gym",
+                ReportCaseType.ProductReport => "Báo cáo sản phẩm",
+                _ => reportType.ToString()
+            };
+
             var model = new NewReportModel
             {
-                TitleReporterName = reporterName ?? "Anonymous",
-                BodyReporterName = reporterName ?? "Anonymous",
-                BodyReportTitle = reportTitle,
-                BodyReportType = reportType.ToString()
+                TitleReporterName = reporterName ?? "Ẩn danh",
+                BodyReporterName = reporterName ?? "Ẩn danh",
+                BodyReportTitle = reportTitle.Length > 0 ? reportTitle : "Có đơn kiện mới",
+                BodyReportType = reportTypeVietnamese
             };
 
             var notificationMessage = new NotificationMessage(

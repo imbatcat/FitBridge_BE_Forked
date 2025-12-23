@@ -38,5 +38,11 @@ public class OrderMappingProfile : Profile
         .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.CouponId))
         .ForMember(dest => dest.DiscountPercent, opt => opt.MapFrom(src => src.Coupon != null ? src.Coupon.DiscountPercent : 0))
         .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems));
+        CreateMap<Order, CustomerOrderHistoryDto>()
+        .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Id))
+        .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.Status))
+        .ForMember(dest => dest.SubTotalPrice, opt => opt.MapFrom(src => src.SubTotalPrice))
+        .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+        .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
     }
 }

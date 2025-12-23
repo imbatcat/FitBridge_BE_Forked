@@ -43,6 +43,30 @@ namespace FitBridge_Application.MappingProfiles
                 .ForMember(dest => dest.Experience, opt => opt.MapFrom(
                     src => src.UserDetail!.Experience));
 
+            CreateProjection<GymCoursePT, GetGymPtsDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(
+                    src => src.PT.Id))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(
+                    src => src.PT.Email))
+                .ForMember(dest => dest.Dob, opt => opt.MapFrom(
+                    src => new DateOnly(src.PT.Dob.Year, src.PT.Dob.Month, src.PT.Dob.Day)))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(
+                    src => src.PT.PhoneNumber))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(
+                    src => src.PT.IsMale ? "Male" : "Female"))
+                .ForMember(dest => dest.GoalTraining, opt => opt.MapFrom(
+                    src => string.Join(", ", src.PT.GoalTrainings.Select(x => x.Name))))
+                .ForMember(dest => dest.Height, opt => opt.MapFrom(
+                    src => src.PT.UserDetail!.Height))
+                .ForMember(dest => dest.Weight, opt => opt.MapFrom(
+                    src => src.PT.UserDetail!.Weight))
+                .ForMember(dest => dest.Experience, opt => opt.MapFrom(
+                    src => src.PT.UserDetail!.Experience))
+                .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(
+                    src => src.PT.AvatarUrl))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(
+                    src => src.PT.FullName));
+
             CreateMap<ApplicationUser, GetAllGymsForSearchDto>()
                 .ForMember(dest => dest.GymImages, opt => opt.MapFrom(
                     src => src.GymImages.Select(gi => new GymImageDto { Url = gi }).ToList()))

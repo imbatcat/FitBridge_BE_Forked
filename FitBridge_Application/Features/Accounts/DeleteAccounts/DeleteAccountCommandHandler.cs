@@ -1,8 +1,11 @@
 using FitBridge_Application.Commons.Constants;
+using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Utils;
 using FitBridge_Application.Specifications.Accounts.GetAllGymPts;
 using FitBridge_Application.Specifications.Accounts.GetUsersByIds;
+using FitBridge_Application.Specifications.GymCoursePts.GetGymCoursePtByPtId;
+using FitBridge_Domain.Entities.Gyms;
 using FitBridge_Domain.Entities.Identity;
 using FitBridge_Domain.Exceptions;
 using MediatR;
@@ -13,6 +16,7 @@ namespace FitBridge_Application.Features.Accounts.DeleteAccounts
     internal class DeleteAccountCommandHandler(
         IApplicationUserService applicationUserService,
         IUserUtil userUtil,
+        IUnitOfWork unitOfWork,
         IHttpContextAccessor httpContextAccessor) : IRequestHandler<DeleteAccountCommand>
     {
         public async Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
@@ -31,6 +35,8 @@ namespace FitBridge_Application.Features.Accounts.DeleteAccounts
             {
                 await DeleteGymPts(request.UserIdDeleteList, userId);
             }
+            
+            await unitOfWork.CommitAsync();
         }
 
         private async Task DeleteAccounts(List<Guid> userIdDeleteList)
@@ -38,14 +44,11 @@ namespace FitBridge_Application.Features.Accounts.DeleteAccounts
             var spec = new GetUsersByIdsSpec(userIdDeleteList);
             var users = await applicationUserService.GetAllUsersWithSpecAsync(spec, asNoTracking: false);
 
-            List<Task> updateTasks = [];
             foreach (var user in users)
             {
                 user.IsEnabled = false;
-                updateTasks.Add(applicationUserService.UpdateAsync(user));
             }
-
-            await Task.WhenAll(updateTasks);
+            
         }
 
         private async Task DeleteGymPts(List<Guid> userIdDeleteList, Guid gymOwnerId)
@@ -53,14 +56,19 @@ namespace FitBridge_Application.Features.Accounts.DeleteAccounts
             var spec = new GetAllGymPtsSpec(userIdDeleteList, gymOwnerId);
             var users = await applicationUserService.GetAllUsersWithSpecAsync(spec, asNoTracking: false);
 
-            List<Task> updateTasks = [];
             foreach (var user in users)
             {
                 user.IsEnabled = false;
-                updateTasks.Add(applicationUserService.UpdateAsync(user));
-            }
-
-            await Task.WhenAll(updateTasks);
+                
+                var gymCoursePtByPtIdSpec = new GetGymCoursePtByPtIdSpec(user.Id);
+                var gymCoursePTs = await unitOfWork.Repository<GymCoursePT>()
+                    .GetAllWithSpecificationAsync(gymCoursePtByPtIdSpec);
+                
+                foreach (var gymCoursePT in gymCoursePTs)
+                {
+                    unitOfWork.Repository<GymCoursePT>().Delete(gymCoursePT);
+                }
+            }            
         }
     }
 }

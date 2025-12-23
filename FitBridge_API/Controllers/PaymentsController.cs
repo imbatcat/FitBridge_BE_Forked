@@ -13,7 +13,7 @@ using FitBridge_Application.Features.Payments.GetPaymentInfor;
 using FitBridge_Application.Features.Payments.PaymentCallbackWebhook;
 using FitBridge_Application.Features.Payments.RejectWithdrawalRequest;
 using FitBridge_Application.Features.Payments.RePaidOrder;
-using FitBridge_Application.Features.Refund.RefundItem;
+using FitBridge_Application.Features.Payments.RevenueCatWebhook;
 using FitBridge_Application.Specifications.Payments.GetAllWithdrawalRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,6 +58,31 @@ public class PaymentsController(IMediator _mediator) : _BaseApiController
         var spec = new AppleWebhookCommand { WebhookData = webhookData };
         var result = await _mediator.Send(spec);
         return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "Apple webhook processed successfully", result));
+    }
+
+    /// <summary>
+    /// RevenueCat webhook endpoint for handling subscription events
+    /// </summary>
+    /// <returns>Success response if webhook is processed successfully</returns>
+    /// <response code="200">Returns success if the webhook is processed.</response>
+    /// <response code="400">If webhook processing fails.</response>
+    [HttpPost("revenuecat-webhook")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<bool>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RevenueCatWebhook()
+    {
+        using var reader = new StreamReader(Request.Body);
+        var webhookData = await reader.ReadToEndAsync();
+        var command = new RevenueCatWebhookCommand { WebhookData = webhookData };
+        var result = await _mediator.Send(command);
+
+        if (result)
+        {
+            return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "RevenueCat webhook processed successfully", result));
+        }
+
+        return BadRequest(new BaseResponse<bool>(StatusCodes.Status400BadRequest.ToString(), "Failed to process RevenueCat webhook", result));
     }
 
     [HttpGet("{id}")]
@@ -248,36 +273,6 @@ public class PaymentsController(IMediator _mediator) : _BaseApiController
             Empty));
     }
 
-    /// <summary>
-    /// Refunds an order item.
-    /// Admin can refund an order item by its ID.
-    /// If a profit distribution job is scheduled for the item, it will be cancelled.
-    /// Otherwise, the refund amount will be deducted from the seller's wallet.
-    /// Sends notification to the customer upon successful refund.
-    /// </summary>
-    /// <param name="orderItemId">The ID of the order item to refund.</param>
-    /// <returns>Success response if the refund is successful.</returns>
-    /// <response code="200">Returns success if the order item is refunded.</response>
-    /// <response code="400">If the order item has already been refunded or validation fails.</response>
-    /// <response code="401">If the user is not authenticated.</response>
-    /// <response code="403">If the user is not an admin.</response>
-    /// <response code="404">If the order item or wallet is not found.</response>
-    [HttpPost("refund/{orderItemId}")]
-    [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<EmptyResult>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RefundItem([FromRoute] Guid orderItemId)
-    {
-        var command = new RefundItemCommand { OrderItemId = orderItemId };
-        await _mediator.Send(command);
-        return Ok(new BaseResponse<EmptyResult>(
-            StatusCodes.Status200OK.ToString(),
-            "Order item refunded successfully",
-            Empty));
-    }
     /// <summary>
     /// Check an order checkout url and create new ones with new transaction if old one is expired
     /// </summary>

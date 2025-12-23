@@ -101,7 +101,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         }
         var profit = await CalculateMerchantProfit(orderItemToExtend, transactionToExtend.Order.Coupon);
         walletToUpdate.PendingBalance += profit;
-         transactionToExtend.ProfitAmount = profit;
 
         _unitOfWork.Repository<Wallet>().Update(walletToUpdate);
         await _unitOfWork.CommitAsync();
@@ -197,7 +196,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderItemId = orderItemId,
             TransactionType = TransactionType.DistributeProfit,
             Status = TransactionStatus.Success,
-            Description = $"Profit distribution for completed course - OrderItem: {orderItemId}",
+            Description = $"Phân ph?i l?i nhu?n cho khóa h?c hoàn thành - M?c ??n hàng: {orderItemId}",
             OrderCode = orderCode,
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
@@ -211,7 +210,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderCode = orderCode,
             TransactionType = TransactionType.PendingDeduction,
             Status = TransactionStatus.Success,
-            Description = $"Pending deduction for completed course - OrderItem: {orderItemId}",
+            Description = $"Kh?u tr? ch? thanh toán cho khóa h?c hoàn thành - M?c ??n hàng: {orderItemId}",
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
         _unitOfWork.Repository<Transaction>().Insert(pendingDeductionTransaction);
@@ -395,7 +394,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                 }
                 var profit = await CalculateMerchantProfit(orderItem, OrderEntity.Coupon);
                 walletToUpdate.PendingBalance += profit;
-                OrderEntity.Transactions.FirstOrDefault(t => t.OrderCode == orderCode).ProfitAmount = profit;
                 _unitOfWork.Repository<Wallet>().Update(walletToUpdate);
                 await _unitOfWork.CommitAsync();
 
@@ -545,7 +543,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             assignLimitUsage = subscriptionPlansInformation.LimitUsage;
         }
         transactionToPurchaseSubscriptionPlans.Order.Status = OrderStatus.Finished;
-        transactionToPurchaseSubscriptionPlans.ProfitAmount = transactionToPurchaseSubscriptionPlans.Amount;
+        transactionToPurchaseSubscriptionPlans.ProfitAmount = transactionToPurchaseSubscriptionPlans.Order.TotalAmount;
 
         var startDate = DateTime.UtcNow;
         var endDate = startDate.AddDays(subscriptionPlansInformation.Duration);

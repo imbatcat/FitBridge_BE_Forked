@@ -39,7 +39,7 @@ namespace FitBridge_Application.Features.Dashboards.GetDisbursementDetail
                     TotalProfit = transaction.Amount,
                     TransactionType = transaction.TransactionType.ToString(),
                     ActualDistributionDate = null,
-                    WithdrawDate = transaction.WithdrawalRequestId != null
+                    TransactionDate = transaction.WithdrawalRequestId != null
                                    ? transaction.CreatedAt : null,
                     WithdrawalRequestId = transaction.WithdrawalRequestId,
                     Description = transaction.Description

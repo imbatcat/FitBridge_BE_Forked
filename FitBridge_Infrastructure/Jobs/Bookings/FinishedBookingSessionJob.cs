@@ -26,7 +26,10 @@ public class FinishedBookingSessionJob(ILogger<FinishedBookingSessionJob> _logge
         booking.SessionEndTime = DateTime.UtcNow;
         booking.UpdatedAt = DateTime.UtcNow;
         _unitOfWork.Repository<Booking>().Update(booking);
-        var distributePendingProfitResult = await _transactionService.DistributePendingProfit(booking.CustomerPurchasedId);
+        if (booking.PTGymSlotId == null)
+        {
+            var distributePendingProfitResult = await _transactionService.DistributePendingProfit(booking.CustomerPurchasedId);
+        }
         await _unitOfWork.CommitAsync();
     }
 }

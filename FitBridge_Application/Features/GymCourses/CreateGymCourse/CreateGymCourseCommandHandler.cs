@@ -22,13 +22,15 @@ namespace FitBridge_Application.Features.GymCourses.CreateGymCourse
             return mappedEntity is not null
                 ? new CreateGymCourseResponse
                 {
+                    Id = mappedEntity.Id,
                     GymOwnerId = mappedEntity.GymOwnerId,
                     Name = mappedEntity.Name,
                     Description = mappedEntity.Description,
                     Price = mappedEntity.Price,
                     Duration = mappedEntity.Duration,
                     Type = mappedEntity.Type,
-                    ImageUrl = mappedEntity.ImageUrl
+                    ImageUrl = mappedEntity.ImageUrl,
+                    PtPrice = mappedEntity.PtPrice
                 }
                 : null!;
         }

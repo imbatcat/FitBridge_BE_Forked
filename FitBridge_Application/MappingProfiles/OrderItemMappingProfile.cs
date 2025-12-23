@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using FitBridge_Application.Dtos.Dashboards;
 using FitBridge_Application.Dtos.OrderItems;
+using FitBridge_Application.Dtos.Orders;
 using FitBridge_Domain.Entities.Orders;
 
 namespace FitBridge_Application.MappingProfiles;
@@ -24,5 +25,12 @@ public class OrderItemMappingProfile : Profile
         CreateMap<OrderItem, OrderItemForCourseOrderResponseDto>()
         .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.GymCourse.Name))
         .ForMember(dest => dest.FreelancePTPackage, opt => opt.MapFrom(src => src.FreelancePTPackage));
+
+        CreateMap<OrderItem, OrderItemSummaryDto>()
+        .ForMember(dest => dest.OrderItemId, opt => opt.MapFrom(src => src.Id))
+        .ForMember(dest => dest.FreelancePTPackageId, opt => opt.MapFrom(src => src.FreelancePTPackageId))
+        .ForMember(dest => dest.GymCourseId, opt => opt.MapFrom(src => src.GymCourseId))
+        .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+        .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
     }
 }

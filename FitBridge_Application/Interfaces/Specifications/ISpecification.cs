@@ -18,6 +18,8 @@ namespace FitBridge_Application.Interfaces.Specifications
 
         List<Expression<Func<T, object>>> Includes { get; }// LEFT JOIN
 
+        public List<(Expression<Func<T, object>> Expression, bool IsDescending)> ThenByExpressions { get; }
+
         List<string> IncludeStrings { get; } // Orders.Include("OrderDetails.Person")
 
         public int? Top { get; } // Get top N records

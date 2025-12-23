@@ -34,4 +34,5 @@ public class ReportCases : BaseEntity
     public bool IsPayoutPaused { get; set; }
 
     public ReportCaseType ReportType { get; set; }
+    public string? ResolvedEvidenceImageUrl { get; set; }
 }

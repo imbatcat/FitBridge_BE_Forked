@@ -12,6 +12,7 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
         builder.ToTable("UserSubscriptions");
         builder.Property(e => e.UserId).IsRequired();
         builder.Property(e => e.SubscriptionPlanId).IsRequired();
+        builder.Property(e => e.OriginalTransactionId).IsRequired(false);
         builder.Property(e => e.StartDate).IsRequired();
         builder.Property(e => e.EndDate).IsRequired();
         builder.Property(e => e.LimitUsage).IsRequired(false);

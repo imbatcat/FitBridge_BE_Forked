@@ -12,10 +12,6 @@ using FitBridge_Application.Specifications.FreelancePtPackages.GetAllFreelancePT
 
 namespace FitBridge_API.Controllers
 {
-    /// <summary>
-    /// Controller for managing Freelance PT Packages, including creation, retrieval, update, and deletion.
-    /// </summary>
-    [Authorize]
     public class FreelancePTPackagesController(IMediator mediator) : _BaseApiController
     {
         /// <summary>

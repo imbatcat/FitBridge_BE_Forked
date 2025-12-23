@@ -7,6 +7,7 @@ namespace FitBridge_Application.Specifications.GymCourses.GetGymCoursesByGymId
     {
         public GetGymCoursesByGymIdSpecification(Guid gymId, GetGymCourseByGymIdParams parameters) : base(x => x.IsEnabled && x.GymOwnerId == gymId)
         {
+            AddInclude(x => x.GymCoursePTs);
             switch (StringCapitalizationConverter.ToUpperFirstChar(parameters.SortBy))
             {
                 case nameof(GymCourse.Price):

@@ -17,11 +17,23 @@ namespace FitBridge_Application.Specifications
             if (specification.OrderBy != null)
             {
                 query = query.OrderBy(specification.OrderBy);
+                foreach(var (expression, isDescending) in specification.ThenByExpressions)
+                {
+                    query = isDescending
+                        ? ((IOrderedQueryable<T>)query).ThenByDescending(expression)
+                        : ((IOrderedQueryable<T>)query).ThenBy(expression);
+                }
             }
 
             if (specification.OrderByDescending != null)
             {
                 query = query.OrderByDescending(specification.OrderByDescending);
+                foreach (var (expression, isDescending) in specification.ThenByExpressions)
+                {
+                    query = isDescending
+                        ? ((IOrderedQueryable<T>)query).ThenByDescending(expression)
+                        : ((IOrderedQueryable<T>)query).ThenBy(expression);
+                }
             }
 
             if (specification.Includes.Count > 0)
