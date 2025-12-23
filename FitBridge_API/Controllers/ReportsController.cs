@@ -328,7 +328,6 @@ namespace FitBridge_API.Controllers
         /// The report status will be changed from FraudConfirmed to Resolved.
         /// Only admins can upload refund proof.
         /// </summary>
-        /// <param name="reportId">The unique identifier of the report.</param>
         /// <param name="command">The refund proof details including:
         /// <list type="bullet">
         /// <item>
@@ -347,7 +346,7 @@ namespace FitBridge_API.Controllers
         /// <response code="401">If the user is not authenticated.</response>
         /// <response code="403">If the user is not an admin.</response>
         /// <response code="404">If the report is not found.</response>
-        [HttpPost("{reportId}/upload-refund-proof")]
+        [HttpPost("/upload-refund-proof")]
         [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<object>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -355,10 +354,8 @@ namespace FitBridge_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UploadRefundProof(
-            [FromRoute] Guid reportId,
-            [FromBody] UploadRefundProofCommand command)
+            [FromForm] UploadRefundProofCommand command)
         {
-            command.ReportId = reportId;
             await mediator.Send(command);
 
             return Ok(
