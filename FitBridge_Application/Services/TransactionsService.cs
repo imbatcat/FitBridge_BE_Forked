@@ -196,7 +196,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderItemId = orderItemId,
             TransactionType = TransactionType.DistributeProfit,
             Status = TransactionStatus.Success,
-            Description = $"Profit distribution for completed course - OrderItem: {orderItemId}",
+            Description = $"Phân ph?i l?i nhu?n cho khóa h?c hoàn thành - M?c ??n hàng: {orderItemId}",
             OrderCode = orderCode,
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
@@ -210,7 +210,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderCode = orderCode,
             TransactionType = TransactionType.PendingDeduction,
             Status = TransactionStatus.Success,
-            Description = $"Pending deduction for completed course - OrderItem: {orderItemId}",
+            Description = $"Kh?u tr? ch? thanh toán cho khóa h?c hoàn thành - M?c ??n hàng: {orderItemId}",
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
         _unitOfWork.Repository<Transaction>().Insert(pendingDeductionTransaction);

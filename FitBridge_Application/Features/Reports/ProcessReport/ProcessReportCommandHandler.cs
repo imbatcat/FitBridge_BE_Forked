@@ -1,6 +1,7 @@
 ﻿using FitBridge_Application.Dtos.Notifications;
 using FitBridge_Application.Dtos.Templates;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Services.Notifications;
 using FitBridge_Domain.Entities.Reports;
 using FitBridge_Domain.Enums.MessageAndReview;
@@ -9,32 +10,24 @@ using FitBridge_Domain.Exceptions;
 using MediatR;
 using System.Text.Json;
 
-namespace FitBridge_Application.Features.Reports.UpdateReportStatus
+namespace FitBridge_Application.Features.Reports.ProcessReport
 {
-    internal class UpdateReportStatusCommandHandler(
+    internal class ProcessReportCommandHandler(
         IUnitOfWork unitOfWork,
-        INotificationService notificationService) : IRequestHandler<UpdateReportStatusCommand>
+        INotificationService notificationService) : IRequestHandler<ProcessReportCommand>
     {
-        public async Task Handle(UpdateReportStatusCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ProcessReportCommand request, CancellationToken cancellationToken)
         {
             var existingReport = await unitOfWork.Repository<ReportCases>().GetByIdAsync(request.ReportId, asNoTracking: false)
                 ?? throw new NotFoundException(nameof(ReportCases));
+            if (existingReport.Status != ReportCaseStatus.Pending)
+            {
+                throw new DataValidationFailedException("Đơn kiện phải ở trạng thái Chờ xử lý để bắt đầu điều tra");
+            }
 
-            existingReport.Status = request.Status;
-            if (request.Status == ReportCaseStatus.Pending)
-            {
-                existingReport.IsPayoutPaused = true;
-            }
-            else if (request.Status == ReportCaseStatus.Resolved)
-            {
-                existingReport.ResolvedAt = DateTime.UtcNow;
-                existingReport.IsPayoutPaused = false;
-            }
-            else if (request.Status == ReportCaseStatus.FraudConfirmed)
-            {
-                existingReport.ResolvedAt = DateTime.UtcNow;
-                existingReport.Note = request.Note;
-            }
+            existingReport.Status = ReportCaseStatus.Processing;
+            // set flag for job distribution
+            existingReport.IsPayoutPaused = true;
 
             unitOfWork.Repository<ReportCases>().Update(existingReport);
             await unitOfWork.CommitAsync();
@@ -44,21 +37,12 @@ namespace FitBridge_Application.Features.Reports.UpdateReportStatus
 
         private async Task SendNotificationToReporter(ReportCases report)
         {
-            var statusMessage = report.Status switch
-            {
-                ReportCaseStatus.Pending => "Chờ xem xét",
-                ReportCaseStatus.Processing => "Đang điều tra",
-                ReportCaseStatus.Resolved => "Đã giải quyết",
-                ReportCaseStatus.FraudConfirmed => "Xác nhận lừa đảo",
-                _ => report.Status.ToString()
-            };
-
             var model = new ReportStatusUpdatedModel
             {
                 TitleReportTitle = report.Title,
                 BodyReportTitle = report.Title,
-                BodyStatus = statusMessage,
-                BodyNote = report.Note ?? "Không có ghi chú bổ sung."
+                BodyStatus = "Đang điều tra",
+                BodyNote = "Đơn kiện của bạn đang được đội ngũ của chúng tôi điều tra."
             };
 
             var notificationMessage = new NotificationMessage(
