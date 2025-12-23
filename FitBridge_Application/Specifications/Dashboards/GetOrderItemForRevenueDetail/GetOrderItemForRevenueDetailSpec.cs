@@ -9,7 +9,7 @@ namespace FitBridge_Application.Specifications.Dashboards.GetOrderItemForRevenue
         public GetOrderItemForRevenueDetailSpec(Guid userId, string userRole, GetRevenueDetailParams parameters) : base(x =>
             // Filter by user - either FreelancePT or GymOwner
             ((x.FreelancePTPackage != null && x.FreelancePTPackage.PtId == userId) ||
-            (x.GymPt != null && x.GymPt.GymOwnerId == userId))
+            (x.GymCourse != null && x.GymCourse.GymOwnerId == userId))
             && x.Order.Transactions.Any(t => t.Status == TransactionStatus.Success) // check order's transactions
             && (!parameters.From.HasValue || x.CreatedAt >= parameters.From.Value)
             // Filter by date range - To date (inclusive, end of day)

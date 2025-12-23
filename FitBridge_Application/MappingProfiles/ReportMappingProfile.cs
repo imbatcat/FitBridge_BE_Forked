@@ -8,17 +8,19 @@ namespace FitBridge_Application.MappingProfiles
     {
         public ReportMappingProfile()
         {
-     CreateProjection<ReportCases, GetCustomerReportsResponseDto>()
-    .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
-       .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
-     .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
-     .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
+            CreateProjection<ReportCases, GetCustomerReportsResponseDto>()
+           .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
+              .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
+            .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
+            .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
+            .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
 
             CreateMap<ReportCases, GetCustomerReportsResponseDto>()
           .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
-   .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
-       .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
-                .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
+           .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
+           .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
+            .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
+            .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
         }
-  }
+    }
 }

@@ -26,6 +26,8 @@ namespace FitBridge_Application.Dtos.Reports
 
         public ReportCaseType ReportType { get; set; }
 
+        public List<string> EvidenceImageUrls { get; set; } = [];
+
         public DateTime CreatedAt { get; set; }
     }
 }
