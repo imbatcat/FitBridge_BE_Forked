@@ -20,6 +20,8 @@ using FitBridge_Domain.Entities.MessageAndReview;
 using FitBridge_Domain.Enums.MessageAndReview;
 using FitBridge_Application.Specifications.Messaging.GetConversationMembers;
 using FitBridge_Application.Dtos.Messaging;
+using FitBridge_Application.Commons.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.Bookings.AcceptBookingRequestCommand;
 
@@ -30,8 +32,9 @@ public class AcceptBookingRequestCommandHandler(
     IUserUtil userUtil,
     IMessagingHubService messagingHubService,
     IHttpContextAccessor httpContextAccessor,
-
-    BookingService _bookingService) : IRequestHandler<AcceptBookingRequestCommand, Guid>
+    SystemConfigurationService systemConfigurationService,
+    BookingService _bookingService,
+    ILogger<AcceptBookingRequestCommandHandler> _logger) : IRequestHandler<AcceptBookingRequestCommand, Guid>
 {
     public async Task<Guid> Handle(AcceptBookingRequestCommand request, CancellationToken cancellationToken)
     {
@@ -62,7 +65,7 @@ public class AcceptBookingRequestCommandHandler(
         _unitOfWork.Repository<BookingRequest>().Update(bookingRequest);
         await _scheduleJobServices.ScheduleAutoCancelBookingJob(newBooking);
         await _scheduleJobServices.CancelScheduleJob($"AutoRejectBookingRequest_{bookingRequest.Id}", "AutoRejectBookingRequest");
-
+        await ScheduleRemindBookingSessionJob(newBooking);
         var userId = userUtil.GetAccountId(httpContextAccessor.HttpContext)
                 ?? throw new NotFoundException(nameof(ApplicationUser));
         var userName = userUtil.GetUserFullName(httpContextAccessor.HttpContext)
@@ -155,5 +158,19 @@ public class AcceptBookingRequestCommandHandler(
         };
 
         await messagingHubService.NotifyUsers(dtoUpdatedMessageSchedule, users.Except([userId.ToString()]));
+    }
+
+    public async Task ScheduleRemindBookingSessionJob(Booking booking)
+    {
+        var remindBeforeTime = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.RemindBookingSessionBeforeHours);
+        var remindTime = booking.BookingDate.ToDateTime(booking.PtFreelanceStartTime.Value, DateTimeKind.Utc).AddMinutes(-remindBeforeTime);
+        if (remindTime > DateTime.UtcNow)
+        {
+            await _scheduleJobServices.ScheduleRemindBookingSessionJob(booking.Id, remindTime);
+        }
+        else
+        {
+            _logger.LogInformation($"Remind booking session job for booking {booking.Id} is not scheduled because the remind time is in the past");
+        }
     }
 }

@@ -512,4 +512,32 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
         _logger.LogInformation($"Successfully scheduled delete temp user subscription job for user subscription {UserSubscriptionId} at {triggerTime.ToLocalTime}");
         return true;
     }
+
+    public async Task<bool> ScheduleRemindBookingSessionJob(Guid BookingId, DateTime triggerTime)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+        var jobKey = new JobKey($"RemindBookingSession_{BookingId}", "RemindBookingSession");
+        var triggerKey = new TriggerKey($"RemindBookingSession_{BookingId}_Trigger", "RemindBookingSession");
+        var exists = await scheduler.CheckExists(jobKey);
+        if (exists)
+        {
+            _logger.LogWarning("Job for booking {BookingId} already exists. Deleting old job before creating new one.", BookingId);
+            await scheduler.DeleteJob(jobKey);
+        }
+        var jobData = new JobDataMap
+        {
+            { "bookingId", BookingId.ToString() }
+        };
+        var job = JobBuilder.Create<SendRemindBookingSessionNotiJob>()
+        .WithIdentity(jobKey)
+        .SetJobData(jobData)
+        .Build();
+        var trigger = TriggerBuilder.Create()
+        .WithIdentity(triggerKey)
+        .StartAt(triggerTime)
+        .Build();
+        await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
+        _logger.LogInformation($"Successfully scheduled remind booking session job for booking {BookingId} at {triggerTime.ToLocalTime}");
+        return true;
+    }
 }
