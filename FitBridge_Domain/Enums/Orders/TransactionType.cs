@@ -13,6 +13,7 @@
         FreelancePTPackage,
 
         SubscriptionPlansOrder,
+
         RenewalSubscriptionPlansOrder,
 
         AssignPt,
@@ -26,5 +27,7 @@
         PurchasePremiumService,
 
         PendingDeduction,
+
+        ProductRefund
     }
 }

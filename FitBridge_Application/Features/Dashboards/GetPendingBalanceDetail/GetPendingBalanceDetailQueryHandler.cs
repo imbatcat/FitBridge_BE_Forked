@@ -99,7 +99,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                     CouponCode = oi.Order.Coupon?.CouponCode,
                     CouponDiscountPercent = oi.Order.Coupon?.DiscountPercent,
                     CouponId = oi.Order.CouponId,
-                    CourseId = isGymOwner ? oi.GymCourseId!.Value : oi.FreelancePTPackageId!.Value,
+                    CourseId = isGymOwner ? oi.GymCourseId! : oi.FreelancePTPackageId!,
                     CourseName = isGymOwner ? oi.GymCourse!.Name : oi.FreelancePTPackage!.Name,
                     CustomerId = oi.Order.AccountId,
                     CustomerFullName = oi.Order.Account.FullName,
