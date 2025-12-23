@@ -10,8 +10,7 @@ namespace FitBridge_Application.Specifications.Reports.GetReportByOrderItemId
             Guid reporterId,
             bool isGetOngoingOnly = false) : base(x =>
             x.OrderItemId == reportedItemId
-            && x.ReporterId == reporterId
-            && (!isGetOngoingOnly || (isGetOngoingOnly && x.Status != (ReportCaseStatus.Resolved & ReportCaseStatus.FraudConfirmed))))
+            && x.ReporterId == reporterId)
         {
         }
     }

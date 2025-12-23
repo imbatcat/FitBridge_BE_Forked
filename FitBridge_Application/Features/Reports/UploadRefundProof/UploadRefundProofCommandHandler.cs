@@ -1,6 +1,7 @@
 ﻿using FitBridge_Application.Dtos.Notifications;
 using FitBridge_Application.Dtos.Templates;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Services.Notifications;
 using FitBridge_Domain.Entities.Reports;
 using FitBridge_Domain.Enums.MessageAndReview;
@@ -13,6 +14,7 @@ namespace FitBridge_Application.Features.Reports.UploadRefundProof
 {
     internal class UploadRefundProofCommandHandler(
         IUnitOfWork unitOfWork,
+        IUploadService uploadService,
         INotificationService notificationService) : IRequestHandler<UploadRefundProofCommand>
     {
         public async Task Handle(UploadRefundProofCommand request, CancellationToken cancellationToken)
@@ -25,13 +27,14 @@ namespace FitBridge_Application.Features.Reports.UploadRefundProof
                 throw new DataValidationFailedException("Đơn kiện phải ở trạng thái Xác nhận lừa đảo để tải lên bằng chứng hoàn tiền");
             }
 
-            if (request.ResolvedEvidenceImageUrl == null || request.ResolvedEvidenceImageUrl.Length == 0)
+            if (request.ResolvedEvidenceImage == null)
             {
-                throw new DataValidationFailedException("Cần cung cấp ít nhất một ảnh bằng chứng hoàn tiền");
+                throw new DataValidationFailedException("Cần cung cấp ảnh bằng chứng hoàn tiền");
             }
 
-            // Update report with refund proof images
-            existingReport.ResolvedEvidenceImageUrl = request.ResolvedEvidenceImageUrl;
+            var imgUrl = await uploadService.UploadFileAsync(request.ResolvedEvidenceImage);
+
+            existingReport.ResolvedEvidenceImageUrl = imgUrl;
             existingReport.Status = ReportCaseStatus.Resolved;
             existingReport.ResolvedAt = DateTime.UtcNow;
             existingReport.Note = request.Note ?? existingReport.Note;
