@@ -29,7 +29,7 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
             {
                 TransactionId = transaction.Id,
                 TransactionType = transaction.TransactionType,
-                TotalPaidAmount = (transaction.TransactionType == TransactionType.ExtendCourse || transaction.TransactionType == TransactionType.GymCourse) ? transaction.Order.TotalAmount : null,
+                TotalPaidAmount = transaction.Order.TotalAmount,
                 OrderCode = transaction.OrderCode,
                 CustomerName = transaction.Order.Account.FullName,
                 CustomerAvatarUrl = transaction.Order.Account.AvatarUrl,
@@ -43,10 +43,6 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
             {
                 getAllMerchantTransactionDto.ProfitAmount = transaction.Amount;
             }   
-            if(transaction.TransactionType == TransactionType.Withdraw)
-            {
-                getAllMerchantTransactionDto.WithdrawalAmount = transaction.Amount;
-            }
             result.Add(getAllMerchantTransactionDto);
         }
         var totalCount = await _unitOfWork.Repository<Transaction>().CountAsync(spec);
