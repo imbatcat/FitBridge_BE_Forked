@@ -33,6 +33,7 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
                 OrderCode = transaction.OrderCode,
                 CustomerName = transaction.Order.Account.FullName,
                 CustomerAvatarUrl = transaction.Order.Account.AvatarUrl,
+                CreatedAt = transaction.CreatedAt
             };
             if (transaction.TransactionType != TransactionType.SubscriptionPlansOrder && transaction.TransactionType != TransactionType.DistributeProfit)
             {
