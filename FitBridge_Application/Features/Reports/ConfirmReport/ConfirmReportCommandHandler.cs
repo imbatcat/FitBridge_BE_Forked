@@ -58,7 +58,7 @@ namespace FitBridge_Application.Features.Reports.ConfirmReport
             existingReport.IsPayoutPaused = true;
 
             var isProduct = orderItem.ProductDetailId.HasValue;
-            var refundAmount = isProduct ? orderItem.Order.TotalAmount :
+            var refundAmount = isProduct ? orderItem.Price :
                 await transactionService.CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
 
             if (!isProduct)
