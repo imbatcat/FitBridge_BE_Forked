@@ -150,7 +150,7 @@ namespace FitBridge_Infrastructure.Repositories
             {
                 query = includes.Aggregate(query, (current, include) => current.Include(include.ToString()));
             }
-            return await query.FirstOrDefaultAsync(e => e.Id == id && e.IsEnabled == true);
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<TDto?> GetByIdProjectedAsync<TDto>(Guid id, IConfigurationProvider mapperConfig)
