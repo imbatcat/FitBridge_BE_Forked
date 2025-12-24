@@ -5,7 +5,9 @@ namespace FitBridge_Application.Specifications.Notifications.GetByDeviceToken
 {
     public class GetByDeviceTokenSpec : BaseSpecification<PushNotificationTokens>
     {
-        public GetByDeviceTokenSpec(string deviceToken) : base(x => x.DeviceToken == deviceToken)
+        public GetByDeviceTokenSpec(string deviceToken, Guid? userId = null) : base(x =>
+            x.DeviceToken == deviceToken
+            && (userId == null || x.UserId == userId))
         {
         }
     }

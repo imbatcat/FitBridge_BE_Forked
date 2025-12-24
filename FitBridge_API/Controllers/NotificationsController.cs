@@ -3,6 +3,7 @@ using FitBridge_Application.Dtos.Notifications;
 using FitBridge_Application.Features.Notifications.AddUserDeviceToken;
 using FitBridge_Application.Features.Notifications.DeleteAllNotifications;
 using FitBridge_Application.Features.Notifications.DeleteNotification;
+using FitBridge_Application.Features.Notifications.DeleteUserDeviceToken;
 using FitBridge_Application.Features.Notifications.GetUnreadCount;
 using FitBridge_Application.Features.Notifications.GetUserNotifications;
 using FitBridge_Application.Features.Notifications.MarkAllAsRead;
@@ -171,6 +172,31 @@ namespace FitBridge_API.Controllers
                 new BaseResponse<EmptyResult>(
                     StatusCodes.Status200OK.ToString(),
                     "Device token registered successfully",
+                    Empty));
+        }
+
+        /// <summary>
+        /// Deletes a device token for the authenticated user, disabling push notifications for that device.
+        /// </summary>
+        /// <param name="command">The command containing the device token to delete:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>DeviceToken</term>
+        /// <description>The Firebase Cloud Messaging (FCM) device token string to be removed from the user's account.</description>
+        /// </item>
+        /// </list>
+        /// </param>
+        /// <returns>A success response if the deletion is successful.</returns>
+        [HttpDelete("device-token")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<EmptyResult>))]
+        public async Task<IActionResult> DeleteUserDeviceToken([FromBody] DeleteUserDeviceTokenCommand command)
+        {
+            await mediator.Send(command);
+
+            return Ok(
+                new BaseResponse<EmptyResult>(
+                    StatusCodes.Status200OK.ToString(),
+                    "Device token deleted successfully",
                     Empty));
         }
     }
