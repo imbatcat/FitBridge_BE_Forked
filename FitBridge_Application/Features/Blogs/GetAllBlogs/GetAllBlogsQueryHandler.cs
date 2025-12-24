@@ -21,7 +21,8 @@ internal class GetAllBlogsQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler
             AuthorId = blog.AuthorId,
             Images = blog.Images,
             CreatedAt = blog.CreatedAt,
-            UpdatedAt = blog.UpdatedAt
+            UpdatedAt = blog.UpdatedAt,
+            IsEnabled = blog.IsEnabled
         }).ToList();
     }
 }
