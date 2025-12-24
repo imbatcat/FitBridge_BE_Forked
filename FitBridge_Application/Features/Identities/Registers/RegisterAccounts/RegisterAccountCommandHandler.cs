@@ -25,17 +25,17 @@ public class RegisterAccountCommandHandler(IApplicationUserService _applicationU
         }
         if(request.OpenTime != null && request.CloseTime == null)
         {
-            throw new BusinessException("Close time is required if open time is provided");
+            throw new BusinessException("Thiếu thời gian đóng cửa của gym");
         }
         if(request.OpenTime == null && request.CloseTime != null)
         {
-            throw new BusinessException("Open time is required if close time is provided");
+            throw new BusinessException("Thiếu thời gian mở cửa của gym");
         }
         if (request.OpenTime != null && request.CloseTime != null)
         {
             if (request.OpenTime >= request.CloseTime)
             {
-                throw new BusinessException("Open time must be before close time");
+                throw new BusinessException("Thời gian mở cửa phải trước thời gian đóng cửa");
             }
         }
 
@@ -60,6 +60,8 @@ public class RegisterAccountCommandHandler(IApplicationUserService _applicationU
             OpenTime = request.OpenTime ?? null,
             CloseTime = request.CloseTime ?? null,
             GymFoundationDate = request.GymFoundationDate ?? null,
+            IsMale = request.IsMale ?? false,
+            Dob = request.Dob ?? DateTime.UtcNow.AddYears(-17),
         };
         if (request.FrontCitizenIdFile != null)
         {
