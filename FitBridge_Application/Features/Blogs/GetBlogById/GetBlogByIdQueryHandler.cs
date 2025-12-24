@@ -1,5 +1,6 @@
 using FitBridge_Application.Dtos.Blogs;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Specifications.Blogs;
 using FitBridge_Domain.Entities.Blogging;
 using FitBridge_Domain.Exceptions;
 using MediatR;
@@ -10,7 +11,8 @@ internal class GetBlogByIdQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler
 {
     public async Task<BlogDto> Handle(GetBlogByIdQuery request, CancellationToken cancellationToken)
     {
-        var blog = await unitOfWork.Repository<Blog>().GetByIdAsync(request.Id)
+        var spec = new GetBlogByIdSpec(request.Id);
+        var blog = await unitOfWork.Repository<Blog>().GetBySpecificationAsync(spec)
             ?? throw new NotFoundException(nameof(Blog));
 
         return new BlogDto
