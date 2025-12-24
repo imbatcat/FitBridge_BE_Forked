@@ -18,11 +18,10 @@ internal class GetAllBlogsForUserQueryHandler(IUnitOfWork unitOfWork) : IRequest
             Id = blog.Id,
             Title = blog.Title,
             Content = blog.Content,
-            AuthorId = blog.AuthorId,
             Images = blog.Images,
             CreatedAt = blog.CreatedAt,
             UpdatedAt = blog.UpdatedAt,
-            IsEnabled = blog.IsEnabled,
+            IsEnabled = blog.IsEnabled
         }).ToList();
     }
 }

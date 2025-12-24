@@ -3,6 +3,7 @@ using FitBridge_Application.Commons.Constants;
 using FitBridge_Application.Dtos.Blogs;
 using FitBridge_Application.Features.Blogs.CreateBlog;
 using FitBridge_Application.Features.Blogs.DeleteBlog;
+using FitBridge_Application.Features.Blogs.EnableBlog;
 using FitBridge_Application.Features.Blogs.GetAllBlogs;
 using FitBridge_Application.Features.Blogs.GetBlogById;
 using FitBridge_Application.Features.Blogs.UpdateBlog;
@@ -65,6 +66,15 @@ public class BlogsController(IMediator _mediator) : _BaseApiController
         command.Id = id;
         await _mediator.Send(command);
         return Ok(new BaseResponse<object>(StatusCodes.Status200OK.ToString(), "Blog updated successfully", null));
+    }
+
+    [HttpPut("{id}/enable")]
+    [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
+    public async Task<IActionResult> EnableBlog(Guid id)
+    {
+        var command = new EnableBlogCommand { Id = id };
+        await _mediator.Send(command);
+        return Ok(new BaseResponse<object>(StatusCodes.Status200OK.ToString(), "Blog enabled successfully", null));
     }
 
     [HttpDelete("{id}")]

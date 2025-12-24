@@ -8,8 +8,6 @@ public class BlogDto
 
     public string Content { get; set; } = string.Empty;
 
-    public Guid AuthorId { get; set; }
-
     public List<string> Images { get; set; } = new();
 
     public DateTime CreatedAt { get; set; }
