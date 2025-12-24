@@ -21,11 +21,20 @@ public class AccountMappingProfile : Profile
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
             .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Bio : null))
-            .ForMember(dest => dest.PriceFrom, opt => opt.MapFrom(src => src.PTFreelancePackages.Count > 0 ? src.PTFreelancePackages.Where(x => x.IsEnabled && x.IsDisplayed).Min(x => x.Price) : 0))
+            .ForMember(dest => dest.PriceFrom, opt => opt.MapFrom(src => 
+                    (src.PTFreelancePackages != null && src.PTFreelancePackages.Any(x => x.IsEnabled && x.IsDisplayed))
+                        ? src.PTFreelancePackages
+                            .Where(x => x.IsEnabled && x.IsDisplayed)
+                            .Min(x => x.Price)
+                        : 0))
             .ForMember(dest => dest.ExperienceYears, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Experience : 0))
             .ForMember(dest => dest.Certifications, opt => opt.MapFrom(src => src.PtCertificates))
-            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.FreelancePtReviews.Count > 0 ? Math.Round(src.FreelancePtReviews
-            .Where(x => x.IsEnabled).Average(x => x.Rating), 2) : 0))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => 
+                    (src.FreelancePtReviews != null && src.FreelancePtReviews.Any(x => x.IsEnabled)) 
+                        ? Math.Round(src.FreelancePtReviews
+                            .Where(x => x.IsEnabled)
+                            .Average(x => x.Rating), 2) 
+                        : 0))
             .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
             .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude));
 
