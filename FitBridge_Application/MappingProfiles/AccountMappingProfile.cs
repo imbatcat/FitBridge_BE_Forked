@@ -24,7 +24,7 @@ public class AccountMappingProfile : Profile
             .ForMember(dest => dest.PriceFrom, opt => opt.MapFrom(src => src.PTFreelancePackages.Count > 0 ? src.PTFreelancePackages.Min(x => x.Price) : 0))
             .ForMember(dest => dest.ExperienceYears, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Experience : 0))
             .ForMember(dest => dest.Certifications, opt => opt.MapFrom(src => src.PtCertificates))
-            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Count > 0 ? src.Reviews.Average(x => x.Rating) : 0))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.FreelancePtReviews.Count > 0 ? src.FreelancePtReviews.Average(x => x.Rating) : 0))
             .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
             .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude));
 

@@ -25,7 +25,8 @@ public class GetFreelancePTByIdQueryHandler(IApplicationUserService _application
             "PTFreelancePackages",
             "GoalTrainings",
             "PtCertificates",
-            "PtCertificates.CertificateMetadata"
+            "PtCertificates.CertificateMetadata",
+            "FreelancePtReviews"
         });
         if (freelancePt == null)
         {
