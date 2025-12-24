@@ -20,7 +20,7 @@ internal class GetAllBlogsQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler
             Content = blog.Content,
             Images = blog.Images,
             CreatedAt = blog.CreatedAt,
-            UpdatedAt = blog.UpdatedAt
+            UpdatedAt = blog.UpdatedAt,
             IsEnabled = blog.IsEnabled
         }).ToList();
     }
