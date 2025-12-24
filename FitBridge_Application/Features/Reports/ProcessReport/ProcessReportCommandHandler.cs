@@ -3,6 +3,8 @@ using FitBridge_Application.Dtos.Templates;
 using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Services.Notifications;
+using FitBridge_Application.Specifications.Orders.GetOrderItemById;
+using FitBridge_Domain.Entities.Orders;
 using FitBridge_Domain.Entities.Reports;
 using FitBridge_Domain.Enums.MessageAndReview;
 using FitBridge_Domain.Enums.Reports;
@@ -26,12 +28,21 @@ namespace FitBridge_Application.Features.Reports.ProcessReport
                 throw new DataValidationFailedException("Đơn kiện phải ở trạng thái Chờ xử lý để bắt đầu điều tra");
             }
 
+            var orderItemSpec = new GetOrderItemByIdSpec(existingReport.OrderItemId);
+            var orderItem = await unitOfWork.Repository<OrderItem>()
+                .GetBySpecificationAsync(orderItemSpec, asNoTracking: true)
+                ?? throw new NotFoundException(nameof(OrderItem));
+
             existingReport.Status = ReportCaseStatus.Processing;
             existingReport.IsPayoutPaused = true;
 
-            var jobName = $"ProfitDistribution_{existingReport.OrderItemId}";
-            var jobGroup = "ProfitDistribution";
-            await scheduleJobServices.CancelScheduleJob(jobName, jobGroup);
+            var isProduct = orderItem.ProductDetailId.HasValue;
+            if (!isProduct)
+            {
+                var jobName = $"ProfitDistribution_{existingReport.OrderItemId}";
+                var jobGroup = "ProfitDistribution";
+                await scheduleJobServices.CancelScheduleJob(jobName, jobGroup);
+            }
 
             unitOfWork.Repository<ReportCases>().Update(existingReport);
             await unitOfWork.CommitAsync();
