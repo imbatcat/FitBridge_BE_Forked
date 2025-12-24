@@ -44,14 +44,8 @@ namespace FitBridge_Application.Features.Reports.ResolveReport
             unitOfWork.Repository<ReportCases>().Update(existingReport);
             await unitOfWork.CommitAsync();
 
-            await RecreateDistributeProfitJobAsync(orderItem);
-
-            await SendNotificationToReporter(existingReport);
-        }
-
-        private async Task RecreateDistributeProfitJobAsync(OrderItem orderItem)
-        {
-            if (orderItem.ProfitDistributePlannedDate.HasValue)
+            var isProduct = orderItem.ProductDetailId.HasValue;
+            if (!isProduct && orderItem.ProfitDistributePlannedDate.HasValue)
             {
                 var today = DateOnly.FromDateTime(DateTime.UtcNow);
                 var profitDistributionDate = orderItem.ProfitDistributePlannedDate.Value;
@@ -68,6 +62,8 @@ namespace FitBridge_Application.Features.Reports.ResolveReport
                 };
                 await scheduleJobServices.ScheduleProfitDistributionJob(profitJobScheduleDto);
             }
+
+            await SendNotificationToReporter(existingReport);
         }
 
         private async Task SendNotificationToReporter(ReportCases report)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FitBridge_Application.Specifications.Transactions;
 using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Domain.Exceptions;
@@ -28,8 +28,11 @@ namespace FitBridge_Application.Services;
 public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsService> _logger, ISchedulerFactory _schedulerFactory, IScheduleJobServices _scheduleJobServices, IApplicationUserService _applicationUserService, SystemConfigurationService systemConfigurationService) : ITransactionService
 {
     private int defaultProfitDistributionDays;
+
     private decimal defaultCommissionRate;
+
     private int autoMarkAsFeedbackAfterDays;
+
     public async Task<int> GetProfitDistributionDays()
     {
         if (defaultProfitDistributionDays == 0)
@@ -38,6 +41,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         }
         return defaultProfitDistributionDays;
     }
+
     public async Task<decimal> GetCommissionRate()
     {
         if (defaultCommissionRate == 0)
@@ -46,6 +50,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         }
         return defaultCommissionRate;
     }
+
     public async Task<int> GetAutoMarkAsFeedbackAfterDays()
     {
         if (autoMarkAsFeedbackAfterDays == 0)
@@ -54,6 +59,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         }
         return autoMarkAsFeedbackAfterDays;
     }
+
     public async Task<bool> ExtendCourse(long orderCode)
     {
         autoMarkAsFeedbackAfterDays = await GetAutoMarkAsFeedbackAfterDays();
@@ -196,7 +202,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderItemId = orderItemId,
             TransactionType = TransactionType.DistributeProfit,
             Status = TransactionStatus.Success,
-            Description = $"Ph�n ph?i l?i nhu?n cho kh�a h?c ho�n th�nh - M?c ??n h�ng: {orderItemId}",
+            Description = $"Phân phối lợi nhuận cho khóa học hoàn thành - Mã đơn hàng: {orderItemId}",
             OrderCode = orderCode,
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
@@ -210,7 +216,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             OrderCode = orderCode,
             TransactionType = TransactionType.PendingDeduction,
             Status = TransactionStatus.Success,
-            Description = $"Kh?u tr? ch? thanh to�n cho kh�a h?c ho�n th�nh - M?c ??n h�ng: {orderItemId}",
+            Description = $"Khẩu trừ cho thanh toán cho khóa học hoàn thành - Mã đơn hàng: {orderItemId}",
             PaymentMethodId = await GetSystemPaymentMethodId.GetPaymentMethodId(MethodType.System, _unitOfWork)
         };
         _unitOfWork.Repository<Transaction>().Insert(pendingDeductionTransaction);
@@ -372,7 +378,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                         throw new NotFoundException("Gym course PT with gym course id and pt id not found");
                     }
                     numOfSession = gymCoursePT.Session.Value;
-
                 }
 
                 expirationDate = expirationDate.AddDays(orderItem.GymCourse.Duration * orderItem.Quantity);
@@ -454,7 +459,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             ProfitDistributionDate = profitDistributePlannedDate
         });
         var originalCustomerPurchasedOrderItem = customerPurchasedToExtend.OrderItems.OrderBy(o => o.CreatedAt).First();
-        
+
         await _scheduleJobServices.RescheduleJob($"AutoUpdatePTCurrentCourse_{originalCustomerPurchasedOrderItem.Id}", "AutoUpdatePTCurrentCourse", customerPurchasedToExtend.ExpirationDate.ToDateTime(TimeOnly.MaxValue));
 
         await _scheduleJobServices.CancelScheduleJob($"AutoCancelCreatedOrder_{transactionToExtend.Order.Id}", "AutoCancelCreatedOrder");
@@ -504,7 +509,6 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
                     orderItem.UpdatedAt = DateTime.UtcNow;
                     _unitOfWork.Repository<OrderItem>().Update(orderItem);
                     _logger.LogInformation($"Successfully rescheduled profit distribution job for order item {orderItem.Id} at {distributeDate}");
-
                 }
             }
         }
@@ -514,6 +518,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
 
         return true;
     }
+
     public async Task<bool> PurchaseSubscriptionPlans(long orderCode)
     {
         var transactionToPurchaseSubscriptionPlans = await _unitOfWork.Repository<Transaction>().GetBySpecificationAsync(new GetTransactionByOrderCodeWithIncludeSpec(orderCode), false);
@@ -631,6 +636,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
 
         return true;
     }
+
     public async Task<bool> PurchaseAppleSubscriptionPlans(AsnDecodedPayload asnDecodedPayload, JwsTransactionDecoded jwsTransactionDecoded)
     {
         // var orderItemToInsert = new OrderItem
@@ -661,6 +667,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         // if(subscriptionPlansInformation == null)
         return true;
     }
+
     public async Task<bool> PurchaseProduct(long orderCode)
     {
         var transactionToPurchaseProduct = await _unitOfWork.Repository<Transaction>().GetBySpecificationAsync(new GetTransactionByOrderCodeWithIncludeSpec(orderCode), false);
