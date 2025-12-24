@@ -20,7 +20,6 @@ internal class GetBlogByIdForUserQueryHandler(IUnitOfWork unitOfWork) : IRequest
             Id = blog.Id,
             Title = blog.Title,
             Content = blog.Content,
-            AuthorId = blog.AuthorId,
             Images = blog.Images,
             CreatedAt = blog.CreatedAt,
             UpdatedAt = blog.UpdatedAt,
