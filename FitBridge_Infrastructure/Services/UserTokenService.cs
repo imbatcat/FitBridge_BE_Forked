@@ -70,6 +70,7 @@ public class UserTokenService(
                 new Claim(JwtRegisteredClaimNames.Gender, user.IsMale.ToString()!),
                 new Claim("senderAvatar", user.AvatarUrl ?? ProjectConstant.defaultAvatar),
                 new Claim("role", string.Join(",", roles)),
+                new Claim("isContractSigned", user.IsContractSigned.ToString()!),
                 new Claim("aud", audiences[0].ToString()),
                 new Claim("aud", audiences[1].ToString()),
                 new Claim("aud", audiences[2].ToString()),

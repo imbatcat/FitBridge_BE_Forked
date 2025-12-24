@@ -39,7 +39,8 @@ public class LoginUserCommandHandler(
                 FullName = user.FullName,
                 Phone = user.PhoneNumber,
                 Email = user.Email,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                IsContractSigned = user.IsContractSigned
             };
         }
         catch (Exception ex)
