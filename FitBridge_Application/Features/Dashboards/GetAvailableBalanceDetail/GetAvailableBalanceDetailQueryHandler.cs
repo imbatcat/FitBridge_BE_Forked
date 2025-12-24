@@ -60,12 +60,12 @@ namespace FitBridge_Application.Features.Dashboards.GetAvailableBalanceDetail
 
                 return new AvailableBalanceTransactionDto
                 {
-                    OrderItemId = isWithdrawal ? null : transaction.OrderItemId!.Value,
+                    OrderItemId = isWithdrawal ? null : transaction.OrderItemId,
                     CourseName = GetCourseName(),
                     TransactionId = transaction.Id,
                     TotalProfit = isWithdrawal ? transaction.Amount * -1 : transaction.Amount,
                     TransactionType = transaction.TransactionType.ToString(),
-                    ActualDistributionDate = isWithdrawal ? transaction.OrderItem!.ProfitDistributeActualDate : null,
+                    ActualDistributionDate = isWithdrawal ? null : transaction.OrderItem?.ProfitDistributeActualDate,
                     TransactionDate = transaction.CreatedAt,  // by the time admin approved
                     WithdrawalRequestId = isWithdrawal ? transaction.WithdrawalRequestId : null,
                     Description = transaction.Description

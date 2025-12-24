@@ -11,6 +11,7 @@ namespace FitBridge_Application.Specifications.Dashboards.GetOrderItemForPending
             // Filter by user - either FreelancePT or GymOwner
             ((x.FreelancePTPackage != null && x.FreelancePTPackage.PtId == userId) ||
             (x.GymCourse != null && x.GymCourse.GymOwnerId == userId))
+            && x.ProfitDistributeActualDate == null // pending balance only
             && x.Order.Transactions.Any(t => t.Status == TransactionStatus.Success) // check order's transactions
                                                                                     // Filter by date range - From date
             && (!parameters.From.HasValue || x.CreatedAt >= parameters.From.Value)

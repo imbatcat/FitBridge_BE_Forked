@@ -119,13 +119,13 @@ namespace FitBridge_Infrastructure.Services
             var existingUserByPhoneNumber = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.PhoneNumber == user.PhoneNumber);
             if (existingUserByPhoneNumber != null)
             {
-                throw new DuplicateUserException($"A user with the phone number {user.PhoneNumber} already exists.");
+                throw new DuplicateUserException($"Người dùng với số điện thoại {user.PhoneNumber} đã tồn tại.");
             }
 
             var existingUserByEmail = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == user.Email);
             if (existingUserByEmail != null)
             {
-                throw new DuplicateUserException($"A user with the email {user.Email} already exists.");
+                throw new DuplicateUserException($"Người dùng với email {user.Email} đã tồn tại.");
             }
 
             if (!string.IsNullOrWhiteSpace(user.TaxCode))
@@ -133,7 +133,7 @@ namespace FitBridge_Infrastructure.Services
                 var existingUserByTaxCode = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.TaxCode == user.TaxCode);
                 if (existingUserByTaxCode != null)
                 {
-                    throw new DuplicateUserException($"A user with the tax code {user.TaxCode} already exists.");
+                    throw new DuplicateUserException($"Người dùng với mã số thuế {user.TaxCode} đã tồn tại.");
                 }
             }
             if (!string.IsNullOrWhiteSpace(user.CitizenIdNumber))
@@ -141,14 +141,14 @@ namespace FitBridge_Infrastructure.Services
                 var existingUserByCitizenIdNumber = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.CitizenIdNumber == user.CitizenIdNumber);
                 if (existingUserByCitizenIdNumber != null)
                 {
-                    throw new DuplicateUserException($"A user with the citizen id number {user.CitizenIdNumber} already exists.");
+                    throw new DuplicateUserException($"Người dùng với số căn cước công dân {user.CitizenIdNumber} đã tồn tại.");
                 }
             }
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new CreateFailedException($"User creation failed: {errors}");
+                throw new CreateFailedException($"Tạo người dùng thất bại: {errors}");
             }
         }
 
@@ -184,22 +184,22 @@ namespace FitBridge_Infrastructure.Services
                 var existingUserByEmail = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email && u.Id != user.Id);
                 if (existingUserByEmail != null)
                 {
-                    throw new DuplicateUserException($"A user with the email {email} already exists.");
+                    throw new DuplicateUserException($"Người dùng với email {email} đã tồn tại.");
                 }
                 var updateEmailResult = await userManager.SetEmailAsync(user, email);
                 if (!updateEmailResult.Succeeded)
                 {
-                    throw new UpdateFailedException($"Failed to update email: {string.Join(", ", updateEmailResult.Errors.Select(e => e.Description))}");
+                    throw new UpdateFailedException($"Cập nhật email thất bại: {string.Join(", ", updateEmailResult.Errors.Select(e => e.Description))}");
                 }
                 var updateUserNameResult = await userManager.SetUserNameAsync(user, email);
                 if (!updateUserNameResult.Succeeded)
                 {
-                    throw new UpdateFailedException($"Failed to update user name: {string.Join(", ", updateUserNameResult.Errors.Select(e => e.Description))}");
+                    throw new UpdateFailedException($"Cập nhật tên người dùng thất bại: {string.Join(", ", updateUserNameResult.Errors.Select(e => e.Description))}");
                 }
                 var confirmEmailResult = await userManager.ConfirmEmailAsync(user, await userManager.GenerateEmailConfirmationTokenAsync(user));
                 if (!confirmEmailResult.Succeeded)
                 {
-                    throw new UpdateFailedException($"Failed to confirm email: {string.Join(", ", confirmEmailResult.Errors.Select(e => e.Description))}");
+                    throw new UpdateFailedException($"Xác nhận email thất bại: {string.Join(", ", confirmEmailResult.Errors.Select(e => e.Description))}");
                 }
             }
             if (phoneNumber != null)
@@ -207,12 +207,12 @@ namespace FitBridge_Infrastructure.Services
                 var existingUserByPhoneNumber = await userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber && u.Id != user.Id);
                 if (existingUserByPhoneNumber != null)
                 {
-                    throw new DuplicateUserException($"A user with the phone number {phoneNumber} already exists.");
+                    throw new DuplicateUserException($"Người dùng với số điện thoại {phoneNumber} đã tồn tại.");
                 }
                 var updatePhoneNumberResult = await userManager.SetPhoneNumberAsync(user, phoneNumber);
                 if (!updatePhoneNumberResult.Succeeded)
                 {
-                    throw new UpdateFailedException($"Failed to update phone number: {string.Join(", ", updatePhoneNumberResult.Errors.Select(e => e.Description))}");
+                    throw new UpdateFailedException($"Cập nhật số điện thoại thất bại: {string.Join(", ", updatePhoneNumberResult.Errors.Select(e => e.Description))}");
                 }
             }
             return true;
@@ -223,7 +223,7 @@ namespace FitBridge_Infrastructure.Services
             var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
             if (!result.Succeeded)
             {
-                throw new UpdateFailedException($"Failed to update password: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                throw new UpdateFailedException($"Cập nhật mật khẩu thất bại: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
             return true;
         }

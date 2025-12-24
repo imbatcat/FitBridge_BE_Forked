@@ -54,5 +54,5 @@ public class CustomerPurchasedOverallResultResponseDto
     // User goals
     public UserGoalsDto UserGoals { get; set; } = new();
     public DateTime? FirstSessionStartTime { get; set; }
-    public DateTime? LatestSessionEndTime { get; set; }
+    public DateTime? LatestSessionStartTime { get; set; }
 }
