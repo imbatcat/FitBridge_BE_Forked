@@ -59,7 +59,7 @@ public class ProductsController(IMediator _mediator) : _BaseApiController
         var result = await _mediator.Send(command);
         return Ok(new BaseResponse<ProductResponseDto>(StatusCodes.Status200OK.ToString(), "Product updated successfully", result));
     }
-    
+
     [HttpGet("detail/{id}")]
     public async Task<IActionResult> GetProductDetailForSale([FromRoute] Guid id)
     {
