@@ -22,6 +22,16 @@ namespace FitBridge_Application.MappingProfiles
                         : (src.OrderItem != null && src.OrderItem.FreelancePTPackage != null
                             ? src.OrderItem.FreelancePTPackage.Name
                             : null))))
+            .ForMember(dest => dest.ReportedProductImageUrl, opt => opt.MapFrom(src =>
+                src.OrderItem != null && src.OrderItem.ProductDetail != null && src.OrderItem.ProductDetail.Product != null
+                    ? src.OrderItem.ProductDetail.Product.CoverImageUrl
+                    : (src.OrderItem != null && src.OrderItem.GymCourse != null
+                        ? src.OrderItem.GymCourse.ImageUrl
+                        : (src.OrderItem != null && src.OrderItem.FreelancePTPackage != null
+                            ? src.OrderItem.FreelancePTPackage.ImageUrl
+                            : null))))
+            .ForMember(dest => dest.IsProductReport, opt => opt.MapFrom(src =>
+                src.OrderItem != null && src.OrderItem.ProductDetailId.HasValue))
             .ForMember(dest => dest.ResolvedEvidenceImageUrls, opt => opt.MapFrom(src => src.ResolvedEvidenceImageUrl))
             .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
 
@@ -39,6 +49,16 @@ namespace FitBridge_Application.MappingProfiles
                         : (src.OrderItem != null && src.OrderItem.FreelancePTPackage != null
                             ? src.OrderItem.FreelancePTPackage.Name
                             : null))))
+            .ForMember(dest => dest.ReportedProductImageUrl, opt => opt.MapFrom(src =>
+                src.OrderItem != null && src.OrderItem.ProductDetail != null && src.OrderItem.ProductDetail.Product != null
+                    ? src.OrderItem.ProductDetail.Product.CoverImageUrl
+                    : (src.OrderItem != null && src.OrderItem.GymCourse != null
+                        ? src.OrderItem.GymCourse.ImageUrl
+                        : (src.OrderItem != null && src.OrderItem.FreelancePTPackage != null
+                            ? src.OrderItem.FreelancePTPackage.ImageUrl
+                            : null))))
+            .ForMember(dest => dest.IsProductReport, opt => opt.MapFrom(src =>
+                src.OrderItem != null && src.OrderItem.ProductDetailId.HasValue))
             .ForMember(dest => dest.ReportedUserAvatarUrl, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.AvatarUrl : null));
         }
     }

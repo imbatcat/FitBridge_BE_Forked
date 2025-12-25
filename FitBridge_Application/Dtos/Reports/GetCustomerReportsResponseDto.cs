@@ -12,6 +12,10 @@ namespace FitBridge_Application.Dtos.Reports
 
         public string? ReportedProduct { get; set; }
 
+        public string? ReportedProductImageUrl { get; set; }
+
+        public bool IsProductReport { get; set; }
+
         public string? ReportedUserName { get; set; }
 
         public string? ReportedUserAvatarUrl { get; set; }
@@ -33,5 +37,7 @@ namespace FitBridge_Application.Dtos.Reports
         public string ResolvedEvidenceImageUrls { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public decimal? RefundAmount { get; set; }
     }
 }
