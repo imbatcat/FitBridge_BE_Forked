@@ -49,6 +49,7 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
                 throw new InvalidOperationException("CustomerPurchased not found for booking");
             }
             booking.CustomerPurchased.AvailableSessions++;
+            booking.IsSessionRefund = true;
         }
         await SendNotification(booking);
         booking.SessionStatus = SessionStatus.Cancelled;

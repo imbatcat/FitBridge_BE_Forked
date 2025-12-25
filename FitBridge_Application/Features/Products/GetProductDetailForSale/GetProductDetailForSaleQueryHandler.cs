@@ -28,14 +28,17 @@ public class GetProductDetailForSaleQueryHandler(IUnitOfWork _unitOfWork, IMappe
         var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
         var currentVietnamDate = DateOnly.FromDateTime(vietnamNow);
-        product.ProductDetails = product.ProductDetails.Where(x => x.ExpirationDate > currentVietnamDate.AddDays(autoHideProductBeforeExpirationDate)).ToList();
         
         var productDetailDtos = new List<ProductDetailForAdminResponseDto>();
         foreach (var productDetail in product.ProductDetails)
         {
             var productDetailDto = _mapper.Map<ProductDetailForAdminResponseDto>(productDetail);
-            productDetailDto.DaysToExpire = productDetail.ExpirationDate.DayNumber - currentVietnamDate.DayNumber;
+            productDetailDto.DaysToExpire = productDetail.ExpirationDate.DayNumber - currentVietnamDate.DayNumber > 0 ? productDetail.ExpirationDate.DayNumber - currentVietnamDate.DayNumber : 0;
             productDetailDto.IsNearExpired = productDetailDto.DaysToExpire <= nearExpiredDateProductWarning;
+            if (productDetail.ExpirationDate <= currentVietnamDate.AddDays(autoHideProductBeforeExpirationDate))
+            {
+                productDetailDto.Quantity = 0; //So that UI knwo that it is out of stock
+            }
             productDetailDtos.Add(productDetailDto);
         }
         productDetailForSaleDto.ProductDetails = productDetailDtos;

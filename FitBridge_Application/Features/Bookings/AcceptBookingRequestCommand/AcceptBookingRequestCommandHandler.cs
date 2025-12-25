@@ -53,6 +53,7 @@ public class AcceptBookingRequestCommandHandler(
         }
         await _bookingService.ValidateBookingRequest(bookingRequest);
         var newBooking = _mapper.Map<Booking>(bookingRequest);
+        newBooking.IsSessionRefund = false;
         bookingRequest.RequestStatus = BookingRequestStatus.Approved;
         _unitOfWork.Repository<Booking>().Insert(newBooking);
         var customerPurchased = await _unitOfWork.Repository<CustomerPurchased>().GetByIdAsync(bookingRequest.CustomerPurchasedId);

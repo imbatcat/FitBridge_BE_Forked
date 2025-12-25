@@ -475,7 +475,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         {
             throw new NotFoundException("Customer purchased not found");
         }
-        var finishedBookings = customerPurchased.Bookings.Count(b => b.SessionStatus == SessionStatus.Finished);
+        var finishedBookings = customerPurchased.Bookings.Count(b => b.SessionStatus == SessionStatus.Finished && b.IsSessionRefund == false);
         var orderItemsList = customerPurchased.OrderItems.OrderBy(o => o.CreatedAt).ToList();
         // Track how many sessions have been "allocated" to previous order items
         var allocatedSessionsForDistribute = 0;
