@@ -9,7 +9,6 @@ public class GetCustomerBookingByCustomerIdSpecification : BaseSpecification<Boo
 {
     public GetCustomerBookingByCustomerIdSpecification(GetCustomerBookingsParams parameters) : base(x => x.CustomerId == parameters.CustomerId
     && x.IsEnabled
-    && x.SessionStatus != SessionStatus.Cancelled
     && (parameters.Date == null || x.BookingDate == parameters.Date)
     && (parameters.CustomerPurchasedId == null || x.CustomerPurchasedId == parameters.CustomerPurchasedId))
     {

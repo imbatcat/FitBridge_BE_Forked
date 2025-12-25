@@ -37,6 +37,8 @@ public class GetUserProfileResponse
     public TimeOnly? CloseTime { get; set; }
     public int? PtMaxCourse { get; set; }
     public int? PtCurrentCourse { get; set; }
+    public double? Longitude { get; set; }
+    public double? Latitude { get; set; }
     public List<string> GymImages { get; set; }
     public List<string> FreelancePtImages{ get; set; }
 }
