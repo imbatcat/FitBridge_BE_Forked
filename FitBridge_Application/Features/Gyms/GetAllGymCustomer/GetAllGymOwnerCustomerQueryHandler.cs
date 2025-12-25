@@ -39,7 +39,7 @@ public class GetAllGymOwnerCustomerQueryHandler(IUnitOfWork _unitOfWork, IUserUt
             getAllGymOwnerCustomer.PtName = latestCustomerPurchasedOrderItem.GymPt?.FullName;
             getAllGymOwnerCustomer.ExpirationDate = latestCustomerPurchased.ExpirationDate;
             getAllGymOwnerCustomer.Status = latestCustomerPurchased.ExpirationDate > DateOnly.FromDateTime(DateTime.UtcNow) ? GymOwnerCustomerStatus.Active : GymOwnerCustomerStatus.Expired;
-            getAllGymOwnerCustomer.JoinedAt = user.CustomerPurchased.OrderBy(x => x.CreatedAt).First().CreatedAt;
+            getAllGymOwnerCustomer.JoinedAt = user.CustomerPurchased.Where(c => c.OrderItems.Any(o => o.GymCourseId != null && o.GymCourse!.GymOwnerId == userId.Value)).OrderBy(x => x.CreatedAt).First().CreatedAt;
             getAllGymOwnerCustomer.PtGymAvailableSession = latestCustomerPurchased.AvailableSessions;
             getAllGymOwnerCustomer.AvatarUrl = user.AvatarUrl;
             getAllGymOwnerCustomerResult.Add(getAllGymOwnerCustomer);
