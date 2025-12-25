@@ -23,7 +23,8 @@ public class GetCourseOrderSpec : BaseSpecification<Order>
         AddInclude("OrderItems.GymPt");
         AddInclude("OrderItems.GymPt.UserDetail");
         AddInclude("OrderItems.FreelancePTPackage.Pt.UserDetail");
-        AddInclude("OrderItems.FreelancePTPackage.Pt");        
+        AddInclude("OrderItems.FreelancePTPackage.Pt");
+        AddInclude("OrderItems.ReportCases");
         if (parameters.SortOrder == "asc")
         {
             AddOrderBy(x => x.CreatedAt);
