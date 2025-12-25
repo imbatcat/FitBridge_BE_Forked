@@ -8,11 +8,12 @@ namespace FitBridge_Application.Specifications.GymSlots;
 
 public class GetGymSlotForCreateValidationSpecification : BaseSpecification<GymSlot>
 {
-    public GetGymSlotForCreateValidationSpecification(CreateNewSlotResponse request)
+    public GetGymSlotForCreateValidationSpecification(Guid gymOwnerId, string name, TimeOnly startTime, TimeOnly endTime)
         : base(x =>
             x.IsEnabled
-            && x.Name == request.Name
-            && !(x.EndTime <= request.StartTime || request.EndTime <= x.StartTime))
+            && x.GymOwnerId == gymOwnerId
+            && (x.Name == name
+                || (x.StartTime < endTime && x.EndTime > startTime)))
     {
     }
 }

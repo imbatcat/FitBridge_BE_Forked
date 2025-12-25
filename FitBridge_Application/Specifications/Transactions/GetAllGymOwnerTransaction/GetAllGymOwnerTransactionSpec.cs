@@ -10,12 +10,14 @@ public class GetAllGymOwnerTransactionSpec : BaseSpecification<Transaction>
 {
     public GetAllGymOwnerTransactionSpec(GetAllGymOwnerTransactionParams parameters, Guid gymOwnerId) : base(x =>
     x.Status == TransactionStatus.Success &&
-    x.IsEnabled &&
-        (
-            (x.TransactionType != TransactionType.DistributeProfit && x.OrderId != null && x.Order.OrderItems.Any(oi => oi.GymCourseId != null && oi.GymCourse!.GymOwnerId == gymOwnerId))
-            ||
-            (x.TransactionType == TransactionType.DistributeProfit && x.WalletId != null && x.Wallet.User.Id == gymOwnerId)
-        )
+    x.IsEnabled
+    && x.TransactionType != TransactionType.DistributeProfit
+    && x.TransactionType != TransactionType.PendingDeduction
+    && x.TransactionType != TransactionType.Withdraw
+    && x.TransactionType != TransactionType.Disbursement
+    && x.TransactionType != TransactionType.ProductOrder
+    && x.OrderId != null
+    && x.Order.OrderItems.Any(oi => oi.GymCourseId != null && oi.GymCourse!.GymOwnerId == gymOwnerId)
     )
     {
         if (parameters.DoApplyPaging)
@@ -27,6 +29,7 @@ public class GetAllGymOwnerTransactionSpec : BaseSpecification<Transaction>
             parameters.Size = -1;
             parameters.Page = -1;
         }
+        AddOrderByDesc(x => x.CreatedAt);
         AddInclude(x => x.Order);
         AddInclude(x => x.Order.OrderItems);
         AddInclude("Order.OrderItems.GymCourse");

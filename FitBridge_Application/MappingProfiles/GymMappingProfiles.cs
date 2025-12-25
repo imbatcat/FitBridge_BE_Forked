@@ -17,7 +17,9 @@ namespace FitBridge_Application.MappingProfiles
                 .ForMember(dest => dest.GymImages, opt => opt.MapFrom(
                     src => src.GymImages.Select(gi => new GymImageDto { Url = gi }).ToList()))
                 .ForMember(dest => dest.RepresentName, opt => opt.MapFrom(
-                    src => src.FullName));
+                    src => src.FullName))
+                .ForMember(dest => dest.GymAddress, opt => opt.MapFrom(
+                    src => src.BusinessAddress));
 
             CreateProjection<ApplicationUser, GetAllGymsDto>()
                 .ForMember(dest => dest.GymImages, opt => opt.MapFrom(

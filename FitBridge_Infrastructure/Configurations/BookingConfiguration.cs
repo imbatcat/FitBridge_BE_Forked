@@ -21,6 +21,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(e => e.SessionStatus).IsRequired(true)
         .HasConversion(convertToProviderExpression: s => s.ToString(), convertFromProviderExpression: s => Enum.Parse<SessionStatus>(s))
         .HasDefaultValue(SessionStatus.Booked);
+        builder.Property(e => e.IsSessionRefund).IsRequired(false).HasDefaultValue(false);
         builder.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");
         builder.Property(e => e.IsEnabled).HasDefaultValue(true);

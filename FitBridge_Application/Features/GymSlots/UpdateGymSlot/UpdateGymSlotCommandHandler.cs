@@ -59,16 +59,10 @@ public class UpdateGymSlotCommandHandler(IUnitOfWork _unitOfWork, IMapper _mappe
         }
         if (request.StartTime != entity.StartTime || request.EndTime != entity.EndTime)
         {
-            var gymSlot = await _unitOfWork.Repository<GymSlot>().GetAllWithSpecificationAsync(new GetGymSlotByTimeRangeSpec(request.StartTime, request.EndTime));
-            if (gymSlot.Count > 0)
+            var gymSlot = await _unitOfWork.Repository<GymSlot>().GetAllWithSpecificationAsync(new GetGymSlotByTimeRangeSpec(request.StartTime, request.EndTime, entity.Id));
+            if (gymSlot != null)
             {
-                foreach(var slot in gymSlot)
-                {
-                    if(slot.Id != entity.Id)
-                    {
-                        throw new DuplicateException("Gym slot overlapping with existing gym slot");
-                    }
-                }
+                throw new DuplicateException("Gym slot overlapping with existing gym slot");
             }
         }
     }

@@ -8,11 +8,13 @@ using FitBridge_Domain.Enums.Notifications;
 using FitBridge_Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.Notifications.AddUserDeviceToken
 {
     internal class AddUserDeviceTokenCommandHandler(
         IHttpContextAccessor httpContextAccessor,
+        ILogger<AddUserDeviceTokenCommandHandler> logger,
         IUserUtil userUtil,
         IUnitOfWork unitOfWork) : IRequestHandler<AddUserDeviceTokenCommand>
     {
@@ -22,7 +24,7 @@ namespace FitBridge_Application.Features.Notifications.AddUserDeviceToken
                 ?? throw new NotFoundException(nameof(ApplicationUser));
 
             var deviceToken = await unitOfWork.Repository<PushNotificationTokens>()
-                .GetBySpecificationAsync(new GetByDeviceTokenSpec(request.DeviceToken));
+                .GetBySpecificationAsync(new GetByDeviceTokenSpec(request.DeviceToken, accountId));
             if (deviceToken != null)
             {
                 return;
@@ -38,7 +40,15 @@ namespace FitBridge_Application.Features.Notifications.AddUserDeviceToken
             };
 
             unitOfWork.Repository<PushNotificationTokens>().Insert(newToken);
-            await unitOfWork.CommitAsync();
+
+            try
+            {
+                await unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                logger.LogInformation("Duplicate device token detected: {DeviceToken} for User: {UserId}", request.DeviceToken, accountId);
+            }
         }
     }
 }

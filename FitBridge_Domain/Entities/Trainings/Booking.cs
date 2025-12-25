@@ -21,6 +21,7 @@ public class Booking : BaseEntity
     public Guid CustomerPurchasedId { get; set; }
 
     public SessionStatus SessionStatus { get; set; }
+    public bool? IsSessionRefund { get; set; }
     public Guid? PtId { get; set; }
 
     public string? BookingName { get; set; }

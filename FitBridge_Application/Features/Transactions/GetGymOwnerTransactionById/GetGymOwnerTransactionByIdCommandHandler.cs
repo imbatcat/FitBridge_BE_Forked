@@ -24,7 +24,7 @@ public class GetGymOwnerTransactionByIdCommandHandler(IUserUtil userUtil, IHttpC
         {
             TransactionId = transaction.Id,
             TransactionType = transaction.TransactionType,
-            TotalPaidAmount = transaction.TransactionType == TransactionType.SubscriptionPlansOrder ? transaction.Amount : null,
+            TotalPaidAmount = transaction.Order.TotalAmount,
             OrderCode = transaction.OrderCode,
             Description = transaction.Description,
             CreatedAt = transaction.CreatedAt,

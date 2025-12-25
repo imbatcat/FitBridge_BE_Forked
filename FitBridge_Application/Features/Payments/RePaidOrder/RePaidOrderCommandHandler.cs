@@ -36,10 +36,10 @@ public class RePaidOrderCommandHandler(IUnitOfWork _unitOfWork, IPayOSService _p
         {
             throw new BusinessException("Order is not in created status, current status: " + order.Status);
         }
-        var transactionToCheck = order.Transactions.FirstOrDefault(x => x.Status == TransactionStatus.Pending);
+        var transactionToCheck = order.Transactions.FirstOrDefault(x => x.Status == TransactionStatus.Pending) ?? order.Transactions.FirstOrDefault(x => x.Status == TransactionStatus.Failed);
         if (transactionToCheck == null)
         {
-            throw new BusinessException("Order is not pending payment");
+            throw new BusinessException("Đơn hàng không có giao dịch trong trạng thái pending hoặc failed");
         }
         var paymentInfo = await _payOSService.GetPaymentInfoAsync(transactionToCheck.OrderCode.ToString());
         if (paymentInfo.Data.Status == "PENDING" || paymentInfo.Data.Status == "PROCESSING")
@@ -57,7 +57,7 @@ public class RePaidOrderCommandHandler(IUnitOfWork _unitOfWork, IPayOSService _p
         var orderItemDtos = _mapper.Map<List<OrderItemDto>>(order.OrderItems);
         await GetAndValidateOrderItems(orderItemDtos, order.AccountId, order.CouponId, order.CustomerPurchasedIdToExtend);
 
-        var repaidPaymentResponse = await _payOSService.CreatePaymentLinkAsync(new CreatePaymentRequestDto
+        var repaidPaymentResponse = await _payOSService.CreatePaymentLinkAsync(new CreatePaymentRequestDto  
         {
             AccountId = order.AccountId,
             SubTotalPrice = order.SubTotalPrice,

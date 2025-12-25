@@ -11,10 +11,10 @@ namespace FitBridge_Application.Specifications.Notifications.GetNotificationsByU
             x.IsEnabled && x.UserId == userId && ((onlyUnread && x.ReadAt == null) || !onlyUnread))
         {
             AddInclude(x => x.Template);
-            if (parameters != null && parameters.DoApplyPaging)
-            {
-                AddPaging(parameters.Size * (parameters.Page - 1), parameters.Size);
-            }
+            //if (parameters != null && parameters.DoApplyPaging)
+            //{
+            //    AddPaging(parameters.Size * (parameters.Page - 1), parameters.Size);
+            //}
         }
     }
 }

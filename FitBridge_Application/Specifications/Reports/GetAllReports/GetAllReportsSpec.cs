@@ -14,57 +14,63 @@ namespace FitBridge_Application.Specifications.Reports.GetAllReports
   (x.Description != null && x.Description.ToLower().Contains(parameters.SearchTerm.ToLower())) ||
             x.Reporter.FullName.ToLower().Contains(parameters.SearchTerm.ToLower()) ||
             (x.ReportedUser != null && x.ReportedUser.FullName.ToLower().Contains(parameters.SearchTerm.ToLower()))))
-  {
+        {
             // Include related entities
- AddInclude(x => x.Reporter);
-    AddInclude(x => x.ReportedUser);
-         AddInclude(x => x.OrderItem);
+            AddInclude(x => x.Reporter);
+            AddInclude(x => x.ReportedUser);
+            AddInclude(x => x.OrderItem);
+            AddInclude("OrderItem.ProductDetail");
+            AddInclude("OrderItem.ProductDetail.Product");
+            AddInclude("OrderItem.GymCourse");
+            AddInclude("OrderItem.FreelancePTPackage");
+            AddInclude("OrderItem.Order");
+            AddInclude("OrderItem.Order.Coupon");
 
             // Apply sorting
-          if (parameters.SortBy.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase))
-         {
-          if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
-     {
-   AddOrderByDesc(x => x.CreatedAt);
-          }
-    else
-              {
-               AddOrderBy(x => x.CreatedAt);
-          }
-    }
+            if (parameters.SortBy.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase))
+            {
+                if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
+                {
+                    AddOrderByDesc(x => x.CreatedAt);
+                }
+                else
+                {
+                    AddOrderBy(x => x.CreatedAt);
+                }
+            }
             else if (parameters.SortBy.Equals("Status", StringComparison.OrdinalIgnoreCase))
-{
-        if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
-   {
-        AddOrderByDesc(x => x.Status);
- }
-       else
-       {
-          AddOrderBy(x => x.Status);
+            {
+                if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
+                {
+                    AddOrderByDesc(x => x.Status);
+                }
+                else
+                {
+                    AddOrderBy(x => x.Status);
+                }
             }
+            else if (parameters.SortBy.Equals("ReportType", StringComparison.OrdinalIgnoreCase))
+            {
+                if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
+                {
+                    AddOrderByDesc(x => x.ReportType);
+                }
+                else
+                {
+                    AddOrderBy(x => x.ReportType);
+                }
             }
-        else if (parameters.SortBy.Equals("ReportType", StringComparison.OrdinalIgnoreCase))
-  {
-      if (parameters.SortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
-   {
-AddOrderByDesc(x => x.ReportType);
-         }
- else
-        {
-        AddOrderBy(x => x.ReportType);
-        }
-       }
-      else
-    {
-   // Default sorting by CreatedAt descending
-        AddOrderByDesc(x => x.CreatedAt);
-      }
+            else
+            {
+                // Default sorting by CreatedAt descending
+                AddOrderByDesc(x => x.CreatedAt);
+            }
 
- // Apply paging
+            // Apply paging
             if (parameters.DoApplyPaging)
-     {
-   AddPaging(parameters.Size * (parameters.Page - 1), parameters.Size);
-    }
+            {
+                AddPaging(parameters.Size * (parameters.Page - 1), parameters.Size);
+            }
         }
     }
 }

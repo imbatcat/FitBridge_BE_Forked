@@ -12,6 +12,7 @@ using FitBridge_Infrastructure.Jobs.Bookings;
 using FitBridge_Infrastructure.Jobs.Certificates;
 using FitBridge_Infrastructure.Jobs.Contracts;
 using FitBridge_Infrastructure.Jobs.Orders;
+using FitBridge_Infrastructure.Jobs.Payments;
 using FitBridge_Infrastructure.Jobs.Reviews;
 using FitBridge_Infrastructure.Jobs.Subscriptions;
 using Microsoft.Build.Framework;
@@ -127,18 +128,20 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
             {
                 { "bookingId", booking.Id.ToString() }
             };
-            var triggerTime = booking.BookingDate.ToDateTime(booking.PtFreelanceEndTime.Value);
+            var localTriggerTime = booking.BookingDate.ToDateTime(booking.PtFreelanceEndTime.Value);
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var utcTriggerTime = TimeZoneInfo.ConvertTimeToUtc(localTriggerTime, vietnamTimeZone);
             var job = JobBuilder.Create<CancelBookingJob>()
             .WithIdentity(jobKey)
             .SetJobData(jobData)
             .Build();
             var trigger = TriggerBuilder.Create()
             .WithIdentity(triggerKey)
-            .StartAt(triggerTime)
+            .StartAt(utcTriggerTime)
             .Build();
             await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
 
-            _logger.LogInformation($"Successfully scheduled auto cancel job for booking {booking.Id} at {triggerTime}");
+            _logger.LogInformation($"Successfully scheduled auto cancel job for booking {booking.Id} at {utcTriggerTime.ToLocalTime()}");
             return true;
         }
         catch (Exception ex)
@@ -510,6 +513,62 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
         .Build();
         await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
         _logger.LogInformation($"Successfully scheduled delete temp user subscription job for user subscription {UserSubscriptionId} at {triggerTime.ToLocalTime}");
+        return true;
+    }
+
+    public async Task<bool> ScheduleRemindBookingSessionJob(Guid BookingId, DateTime triggerTime)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+        var jobKey = new JobKey($"RemindBookingSession_{BookingId}", "RemindBookingSession");
+        var triggerKey = new TriggerKey($"RemindBookingSession_{BookingId}_Trigger", "RemindBookingSession");
+        var exists = await scheduler.CheckExists(jobKey);
+        if (exists)
+        {
+            _logger.LogWarning("Job for booking {BookingId} already exists. Deleting old job before creating new one.", BookingId);
+            await scheduler.DeleteJob(jobKey);
+        }
+        var jobData = new JobDataMap
+        {
+            { "bookingId", BookingId.ToString() }
+        };
+        var job = JobBuilder.Create<SendRemindBookingSessionNotiJob>()
+        .WithIdentity(jobKey)
+        .SetJobData(jobData)
+        .Build();
+        var trigger = TriggerBuilder.Create()
+        .WithIdentity(triggerKey)
+        .StartAt(triggerTime)
+        .Build();
+        await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
+        _logger.LogInformation($"Successfully scheduled remind booking session job for booking {BookingId} at {triggerTime.ToLocalTime}");
+        return true;
+    }
+
+    public async Task<bool> ScheduleAutoConfirmWithdrawalRequestJob(Guid WithdrawalRequestId, DateTime triggerTime)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+        var jobKey = new JobKey($"AutoConfirmWithdrawalRequest_{WithdrawalRequestId}", "AutoConfirmWithdrawalRequest");
+        var triggerKey = new TriggerKey($"AutoConfirmWithdrawalRequest_{WithdrawalRequestId}_Trigger", "AutoConfirmWithdrawalRequest");
+        var exists = await scheduler.CheckExists(jobKey);
+        if (exists)
+        {
+            _logger.LogWarning("Job for withdrawal request {WithdrawalRequestId} already exists. Deleting old job before creating new one.", WithdrawalRequestId);
+            await scheduler.DeleteJob(jobKey);
+        }
+        var jobData = new JobDataMap
+        {
+            { "withdrawalRequestId", WithdrawalRequestId.ToString() }
+        };
+        var job = JobBuilder.Create<AutoConfirmWithdrawalRequestJob>()
+        .WithIdentity(jobKey)
+        .SetJobData(jobData)
+        .Build();
+        var trigger = TriggerBuilder.Create()
+        .WithIdentity(triggerKey)
+        .StartAt(triggerTime)
+        .Build();
+        await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
+        _logger.LogInformation($"Successfully scheduled auto-confirm withdrawal request job for withdrawal request {WithdrawalRequestId} at {triggerTime.ToLocalTime}");
         return true;
     }
 }

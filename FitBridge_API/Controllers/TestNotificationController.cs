@@ -21,16 +21,10 @@ namespace FitBridge_API.Controllers
             await notificationConnectionManager.AddConnectionAsync(message.userId.ToString(), "connectionId1");
             var uid = message.userId;
             await notificationService.NotifyUsers(new NotificationMessage(
-                EnumContentType.NewPaymentRequest,
-                [uid],
-                new NewPaymentRequestModel
-                {
-                    BodyAmmount = 100,
-                    BodyRequesterName = "John Doe",
-                    TitleRequesterName
-                     = "John Doe1"
-                },
-                JsonSerializer.Serialize(new { userId = uid.ToString() })));
+                EnumContentType.RemindBookingSession,
+                new List<Guid> { message.userId },
+                new RemindBookingSessionModel("Booking Name", "10:00", "2025-01-01")
+            ));
             return Ok(new { Message = "Notification sent successfully." });
         }
 

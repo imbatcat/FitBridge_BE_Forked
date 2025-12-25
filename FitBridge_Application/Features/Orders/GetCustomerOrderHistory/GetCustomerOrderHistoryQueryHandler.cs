@@ -83,7 +83,7 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                 var relevantTransactions = order.Transactions
                     .Where(t => targetTransactionTypes.Contains(t.TransactionType))
                     .ToList();
-
+                orderDto.Transactions = new List<CustomerTransactionDetailDto>();
                 foreach (var transaction in relevantTransactions)
                 {
                     var transactionDto = _mapper.Map<CustomerTransactionDetailDto>(transaction);

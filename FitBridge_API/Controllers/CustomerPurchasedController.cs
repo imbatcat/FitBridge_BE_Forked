@@ -140,7 +140,7 @@ public class CustomerPurchasedController(IMediator _mediator) : _BaseApiControll
     {
         var command = new CheckCustomerPurchasedCommand { PtId = PtId, CustomerId = CustomerId };
         var response = await _mediator.Send(command);
-        return Ok(new BaseResponse<Guid>(StatusCodes.Status200OK.ToString(), "Check customer purchased success", response));
+        return Ok(new BaseResponse<CheckCustomerPurchasedDto>(StatusCodes.Status200OK.ToString(), "Check customer purchased success", response));
     }
 
     /// <summary>

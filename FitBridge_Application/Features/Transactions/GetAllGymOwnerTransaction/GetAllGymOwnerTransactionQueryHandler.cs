@@ -29,10 +29,11 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
             {
                 TransactionId = transaction.Id,
                 TransactionType = transaction.TransactionType,
-                TotalPaidAmount = transaction.TransactionType == TransactionType.SubscriptionPlansOrder ? transaction.Amount : null,
+                TotalPaidAmount = transaction.Order.TotalAmount,
                 OrderCode = transaction.OrderCode,
                 CustomerName = transaction.Order.Account.FullName,
                 CustomerAvatarUrl = transaction.Order.Account.AvatarUrl,
+                CreatedAt = transaction.CreatedAt
             };
             if (transaction.TransactionType != TransactionType.SubscriptionPlansOrder && transaction.TransactionType != TransactionType.DistributeProfit)
             {
@@ -43,10 +44,6 @@ public class GetAllGymOwnerTransactionQueryHandler(IUserUtil _userUtil, IHttpCon
             {
                 getAllMerchantTransactionDto.ProfitAmount = transaction.Amount;
             }   
-            if(transaction.TransactionType == TransactionType.Withdraw)
-            {
-                getAllMerchantTransactionDto.WithdrawalAmount = transaction.Amount;
-            }
             result.Add(getAllMerchantTransactionDto);
         }
         var totalCount = await _unitOfWork.Repository<Transaction>().CountAsync(spec);

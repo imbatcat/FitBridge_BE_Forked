@@ -7,7 +7,7 @@ namespace FitBridge_Application.Specifications.Coupons.GetCouponToApply
         public GetCouponToApplySpecification(string couponCode,
             bool isIncludeCreator = false) : base(x => x.IsActive
                                                        && x.IsEnabled
-                                                       && x.CouponCode.Equals(couponCode))
+                                                       && x.CouponCode.ToLower().Equals(couponCode.ToLower()))
         {
             if (isIncludeCreator)
             {

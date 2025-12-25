@@ -53,6 +53,7 @@ public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUt
             PtId = ptGymSlot.PTId,
             BookingDate = ptGymSlot.RegisterDate,
             SessionStatus = SessionStatus.Booked,
+            IsSessionRefund = false,
         };
         _unitOfWork.Repository<Booking>().Insert(insertBooking);
         await _unitOfWork.CommitAsync();

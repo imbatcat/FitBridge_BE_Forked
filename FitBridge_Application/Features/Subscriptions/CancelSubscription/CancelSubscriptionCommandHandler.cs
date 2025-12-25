@@ -8,7 +8,7 @@ using MediatR;
 
 namespace FitBridge_Application.Features.Subscriptions.CancelSubscription;
 
-public class CancelSubscriptionCommandHandler(IUnitOfWork unitOfWork, IScheduleJobServices _scheduleJobServices) : IRequestHandler<CancelSubscriptionCommand, bool>
+public class CancelSubscriptionCommandHandler(IUnitOfWork unitOfWork, IScheduleJobServices _scheduleJobServices, IApplicationUserService _applicationUserService) : IRequestHandler<CancelSubscriptionCommand, bool>
 {
     public async Task<bool> Handle(CancelSubscriptionCommand request, CancellationToken cancellationToken)
     {
@@ -23,7 +23,12 @@ public class CancelSubscriptionCommandHandler(IUnitOfWork unitOfWork, IScheduleJ
 
         userSubscription.Status = SubScriptionStatus.Cancelled;
         userSubscription.UpdatedAt = DateTime.UtcNow;
-        
+        var user = await _applicationUserService.GetByIdAsync(userSubscription.UserId);
+        if(user != null)
+        {
+            user.hotResearch = false;
+            await _applicationUserService.UpdateAsync(user);
+        }
         unitOfWork.Repository<UserSubscription>().Update(userSubscription);
         await unitOfWork.CommitAsync();
         return true;

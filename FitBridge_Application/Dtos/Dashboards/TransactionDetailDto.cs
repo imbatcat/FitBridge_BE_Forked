@@ -1,3 +1,5 @@
+using FitBridge_Domain.Enums.Orders;
+
 namespace FitBridge_Application.Dtos.Dashboards
 {
     public class TransactionDetailDto
@@ -7,6 +9,8 @@ namespace FitBridge_Application.Dtos.Dashboards
         public long OrderCode { get; set; }
 
         public DateTime TransactionDate { get; set; }
+
+        public TransactionType TransactionType { get; set; }
 
         public string PaymentMethod { get; set; } = string.Empty;
 

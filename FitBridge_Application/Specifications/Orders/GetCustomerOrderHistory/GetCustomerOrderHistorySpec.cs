@@ -19,13 +19,17 @@ namespace FitBridge_Application.Specifications.Orders.GetCustomerOrderHistory
                     t.TransactionType == TransactionType.GymCourse
                     || t.TransactionType == TransactionType.FreelancePTPackage
                     || t.TransactionType == TransactionType.ExtendFreelancePTPackage
-                    || t.TransactionType == TransactionType.ExtendCourse)
+                    || t.TransactionType == TransactionType.ExtendCourse
+                    || t.TransactionType == TransactionType.SubscriptionPlansOrder
+                    || t.TransactionType == TransactionType.RenewalSubscriptionPlansOrder)
                 && (parameters.OrderId == null || x.Id == parameters.OrderId)
                 && (parameters.OrderStatus == null || x.Status == parameters.OrderStatus.Value))
         {
             AddInclude(x => x.OrderItems);
             AddInclude("OrderItems.FreelancePTPackage");
             AddInclude("OrderItems.GymCourse");
+            AddInclude("OrderItems.UserSubscription");
+            AddInclude("OrderItems.UserSubscription.SubscriptionPlansInformation");
             AddInclude(x => x.Transactions);
             AddInclude("Transactions.PaymentMethod");
             AddInclude(x => x.Coupon);

@@ -76,6 +76,8 @@ public class PayOSService : IPayOSService
                 address = $"{addressEntity.Street}, {addressEntity.Ward}, {addressEntity.District}, {addressEntity.City}";
             }
             var expirationMinutes =(int) await _systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.PaymentLinkExpirationMinutes);
+            var returnUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "http://localhost:5173/order-process" : _settings.ReturnUrl;
+            var cancelUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "http://localhost:5173/order-process" : _settings.CancelUrl;
             var paymentData = new PaymentData(
                 orderCode: orderCode,
                 amount: (int)request.TotalAmountPrice,
@@ -83,7 +85,7 @@ public class PayOSService : IPayOSService
                 description: user.PhoneNumber,
                 items: items,
                 cancelUrl: $"{_settings.CancelUrl}?code=01&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
-                returnUrl: $"{_settings.ReturnUrl}?code=00&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
+                returnUrl: $"{returnUrl}?code=00&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
                 expiredAt: DateTimeOffset.UtcNow.AddMinutes(expirationMinutes).ToUnixTimeSeconds(),
                 buyerName: user.UserName,
                 buyerEmail: user.Email,

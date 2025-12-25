@@ -12,6 +12,8 @@ namespace FitBridge_Application.Features.Reports.CreateReport
 
         public string Description { get; set; }
 
+        public string ReportType { get; set; }
+
         public List<string> ImageUrls { get; set; }
     }
 }

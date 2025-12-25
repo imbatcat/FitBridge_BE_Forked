@@ -6,6 +6,8 @@ using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Services.Notifications;
 using FitBridge_Application.Interfaces.Utils;
+using FitBridge_Application.Services;
+using FitBridge_Application.Specifications.Payments.GetTodayWithdrawalRequestByUserId;
 using FitBridge_Application.Specifications.Payments.GetWithdrawalRequestByUserIdSpec;
 using FitBridge_Domain.Entities.Identity;
 using FitBridge_Domain.Entities.Orders;
@@ -23,7 +25,8 @@ namespace FitBridge_Application.Features.Payments.CreateRequestPayment
         IUserUtil userUtil,
         IHttpContextAccessor httpContextAccessor,
         IApplicationUserService applicationUserService,
-        INotificationService notificationService) : IRequestHandler<CreateRequestPaymentCommand, RequestPaymentResponseDto>
+        INotificationService notificationService,
+        SystemConfigurationService systemConfigurationService) : IRequestHandler<CreateRequestPaymentCommand, RequestPaymentResponseDto>
     {
         public async Task<RequestPaymentResponseDto> Handle(CreateRequestPaymentCommand request, CancellationToken cancellationToken)
         {
@@ -37,6 +40,7 @@ namespace FitBridge_Application.Features.Payments.CreateRequestPayment
             {
                 throw new DuplicateException("User already registered a withdrawal request");
             }
+            await CheckTodayWithdrawalLimit(accountId, request.Amount);
 
             var newWithdrawalRequest = InsertWithdrawalRequest(accountId, request);
 
@@ -96,6 +100,19 @@ namespace FitBridge_Application.Features.Payments.CreateRequestPayment
                 model);
 
             await notificationService.NotifyUsers(notificationMessage);
+        }
+
+        private async Task CheckTodayWithdrawalLimit(Guid accountId, decimal withdrawalAmount)
+        {
+            var todayRequestSpec = new GetTodayWithdrawalRequestByUserIdSpec(accountId, DateTime.UtcNow);
+            var todayRequest = await unitOfWork.Repository<WithdrawalRequest>()
+                .GetAllWithSpecificationAsync(todayRequestSpec);
+            var todayWithdrawAmount = todayRequest.Sum(x => x.Amount);
+            var maximumWithdrawalAmountPerDay = (decimal)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.MaximumWithdrawalAmountPerDay);
+            if (todayWithdrawAmount + withdrawalAmount > maximumWithdrawalAmountPerDay)
+            {
+                throw new BusinessException($"Người dùng đã đạt tối đa số tiền được rút ra trong ngày, số tiền tối đa: {maximumWithdrawalAmountPerDay}đ. Số tiền đã rút hôm nay: {todayWithdrawAmount}đ, số tiền yêu cầu: {withdrawalAmount}đ");
+            }
         }
     }
 }

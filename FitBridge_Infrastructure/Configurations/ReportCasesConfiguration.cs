@@ -24,7 +24,7 @@ public class ReportCasesConfiguration : IEntityTypeConfiguration<ReportCases>
         builder.Property(e => e.IsPayoutPaused).IsRequired(true).HasDefaultValue(false);
         builder.Property(e => e.ReportType).IsRequired(true).HasConversion(convertToProviderExpression: s => s.ToString(),
         convertFromProviderExpression: s => Enum.Parse<ReportCaseType>(s));
-
+        builder.Property(e => e.ResolvedEvidenceImageUrl).IsRequired(false);
         builder.HasOne(e => e.Reporter).WithMany(e => e.ReportCasesCreated).HasForeignKey(e => e.ReporterId);
         builder.HasOne(e => e.ReportedUser).WithMany(e => e.ReportCasesReported).HasForeignKey(e => e.ReportedUserId);
         builder.HasOne(e => e.OrderItem).WithMany(e => e.ReportCases).HasForeignKey(e => e.OrderItemId).OnDelete(DeleteBehavior.Restrict);

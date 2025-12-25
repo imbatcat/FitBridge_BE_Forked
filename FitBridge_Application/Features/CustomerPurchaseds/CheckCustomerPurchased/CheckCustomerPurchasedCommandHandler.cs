@@ -7,12 +7,13 @@ using FitBridge_Application.Interfaces.Utils;
 using Microsoft.AspNetCore.Http;
 using MediatR;
 using FitBridge_Application.Commons.Constants;
+using FitBridge_Application.Dtos.CustomerPurchaseds;
 
 namespace FitBridge_Application.Features.CustomerPurchaseds.CheckCustomerPurchased;
 
-public class CheckCustomerPurchasedCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor) : IRequestHandler<CheckCustomerPurchasedCommand, Guid>
+public class CheckCustomerPurchasedCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor) : IRequestHandler<CheckCustomerPurchasedCommand, CheckCustomerPurchasedDto>
 {
-    public async Task<Guid> Handle(CheckCustomerPurchasedCommand request, CancellationToken cancellationToken)
+    public async Task<CheckCustomerPurchasedDto> Handle(CheckCustomerPurchasedCommand request, CancellationToken cancellationToken)
     {
         var userId = _userUtil.GetAccountId(_httpContextAccessor.HttpContext);
         var userRole = _userUtil.GetUserRole(_httpContextAccessor.HttpContext);
@@ -60,6 +61,17 @@ public class CheckCustomerPurchasedCommandHandler(IUnitOfWork _unitOfWork, IUser
             throw new NotFoundException("Customer purchased not found");
         }
 
-        return customerPurchased.Id;
+        var dto = new CheckCustomerPurchasedDto
+        {
+            Id = customerPurchased.Id,
+        };
+        var ptFreelancePackage = customerPurchased.OrderItems.FirstOrDefault(x => x.FreelancePTPackageId != null);
+
+        if (ptFreelancePackage != null && ptFreelancePackage.FreelancePTPackage != null)
+        {
+            dto.SessionDurationInMinutes = ptFreelancePackage.FreelancePTPackage.SessionDurationInMinutes;
+        }
+
+        return dto;
     }
 }

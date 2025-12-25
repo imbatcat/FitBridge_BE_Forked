@@ -38,7 +38,8 @@ public class CustomerPurchasedMappingProfile : Profile
             .ForMember(dest => dest.PtId, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymPtId))
             .ForMember(dest => dest.PtName, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymPt.FullName))
             .ForMember(dest => dest.PtImageUrl, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymPt.AvatarUrl))
-            .ForMember(dest => dest.GymCourseId, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymCourseId));
+            .ForMember(dest => dest.GymCourseId, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymCourseId))
+            .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems.Select(x => x.Id).ToList()));
         CreateProjection<CustomerPurchased, CustomerPurchasedFreelancePtResponseDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackage.Name))
@@ -52,7 +53,8 @@ public class CustomerPurchasedMappingProfile : Profile
             .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.CreatedAt))
             .ForMember(dest => dest.FreelancePTPackageId, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackageId))
             .ForMember(x => x.SessionDurationInMinutes, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackage.SessionDurationInMinutes))
-            .ForMember(dest => dest.TotalAwaitingBookingRequests, opt => opt.MapFrom(src => src.BookingRequests.Count(x => x.RequestStatus == BookingRequestStatus.Pending)));
+            .ForMember(dest => dest.TotalAwaitingBookingRequests, opt => opt.MapFrom(src => src.BookingRequests.Count(x => x.RequestStatus == BookingRequestStatus.Pending)))
+            .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems.Select(x => x.Id).ToList()));
 
         CreateProjection<CustomerPurchased, GetCustomerPurchasedForFreelancePt>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

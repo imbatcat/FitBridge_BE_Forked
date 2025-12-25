@@ -22,7 +22,7 @@ public class CreateGymSlotCommandHandler(IMapper _mapper, IUnitOfWork _unitOfWor
         {
             throw new NotFoundException("Gym owner not found");
         }
-        await ValidateGymSlot(request.Request);
+        await ValidateGymSlot(request.Request, userId.Value);
         var mappedEntity = _mapper.Map<CreateNewSlotResponse, GymSlot>(request.Request);
         mappedEntity.GymOwnerId = userId.Value;
         _unitOfWork.Repository<GymSlot>().Insert(mappedEntity);
@@ -30,20 +30,15 @@ public class CreateGymSlotCommandHandler(IMapper _mapper, IUnitOfWork _unitOfWor
         return _mapper.Map<GymSlot, CreateNewSlotResponse>(mappedEntity);
     }
 
-    public async Task ValidateGymSlot(CreateNewSlotResponse request)
+    public async Task ValidateGymSlot(CreateNewSlotResponse request, Guid gymOwnerId)
     {
-        if (request.StartTime >= request.EndTime)
-        {
-            throw new DataValidationFailedException("Start time must be less than end time");
-        }
-        
         var defaultGymSlotDuration = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.GymSlotDuration);
         if (request.EndTime - request.StartTime < TimeSpan.FromHours(defaultGymSlotDuration))
         {
             throw new DataValidationFailedException("Gym slot duration must be more than " + defaultGymSlotDuration + " hour");
         }
-        
-        var gymSlot = await _unitOfWork.Repository<GymSlot>().GetBySpecificationAsync(new GetGymSlotForCreateValidationSpecification(request));
+           
+        var gymSlot = await _unitOfWork.Repository<GymSlot>().GetBySpecificationAsync(new GetGymSlotForCreateValidationSpecification(gymOwnerId, request.Name, request.StartTime.Value, request.EndTime.Value));
         if (gymSlot != null)
         {
             throw new DuplicateException("Gym slot name already exists or overlapping with existing gym slot");

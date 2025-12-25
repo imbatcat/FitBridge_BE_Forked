@@ -1,5 +1,4 @@
-﻿using FitBridge_Application.Dtos.Notifications;
-using FitBridge_Application.Interfaces.Services.Notifications.UserNotifications;
+﻿using FitBridge_Application.Interfaces.Services.Notifications.UserNotifications;
 using FitBridge_Infrastructure.Services.Notifications.Enums;
 using FitBridge_Infrastructure.Services.Notifications.Helpers;
 using Microsoft.AspNetCore.Authorization;

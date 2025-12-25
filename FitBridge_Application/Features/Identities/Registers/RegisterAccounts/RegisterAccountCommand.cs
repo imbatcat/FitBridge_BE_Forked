@@ -29,4 +29,6 @@ public class RegisterAccountCommand : IRequest<RegisterResponseDto>
     public DateOnly? GymFoundationDate { get; set; }
     public TimeOnly? OpenTime { get; set; }
     public TimeOnly? CloseTime { get; set; }
+    public bool? IsMale { get; set; }
+    public DateTime? Dob { get; set; }
 }

@@ -14,6 +14,8 @@
 
         SubscriptionPlansOrder,
 
+        RenewalSubscriptionPlansOrder,
+
         AssignPt,
 
         ExtendCourse,
@@ -23,6 +25,9 @@
         DistributeProfit,
 
         PurchasePremiumService,
+
         PendingDeduction,
+
+        ProductRefund
     }
 }

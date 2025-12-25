@@ -44,6 +44,8 @@ public static class ProjectConstant
         public const string AutoCancelCreatedOrderAfterTime = "AutoCancelCreatedOrderAfterTime";
         public const string DefaultPtMaxCourse = "DefaultPtMaxCourse";
         public const string EarlyStartSessionBeforeMinutes = "EarlyStartSessionBeforeMinutes";
+        public const string MaximumWithdrawalAmountPerDay = "MaximumWithdrawalAmountPerDay";
+        public const string RemindBookingSessionBeforeHours = "RemindBookingSessionBeforeHours";
     }
     public const int MaxRetries = 3;
     public static class EmailTypes

@@ -4,6 +4,7 @@ using FitBridge_Application.Dtos.Dashboards;
 using FitBridge_Application.Dtos.OrderItems;
 using FitBridge_Application.Dtos.Orders;
 using FitBridge_Domain.Entities.Orders;
+using FitBridge_Domain.Enums.Reports;
 
 namespace FitBridge_Application.MappingProfiles;
 
@@ -19,12 +20,17 @@ public class OrderItemMappingProfile : Profile
         .ForMember(dest => dest.GymCourseId, opt => opt.MapFrom(src => src.GymCourseId))
         .ForMember(dest => dest.FreelancePTPackageId, opt => opt.MapFrom(src => src.FreelancePTPackageId))
         .ForMember(dest => dest.GymPtId, opt => opt.MapFrom(src => src.GymPtId));
+
         CreateMap<OrderItem, OrderItemForProductOrderResponseDto>()
-        .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductDetail.Product.Name));
+        .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductDetail.Product.Name))
+        .ForMember(dest => dest.IsReported, opt => opt.MapFrom(src =>
+            src.ReportCases.Any()));
 
         CreateMap<OrderItem, OrderItemForCourseOrderResponseDto>()
         .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.GymCourse.Name))
-        .ForMember(dest => dest.FreelancePTPackage, opt => opt.MapFrom(src => src.FreelancePTPackage));
+        .ForMember(dest => dest.FreelancePTPackage, opt => opt.MapFrom(src => src.FreelancePTPackage))
+        .ForMember(dest => dest.IsReported, opt => opt.MapFrom(src =>
+            src.ReportCases.Any()));
 
         CreateMap<OrderItem, OrderItemSummaryDto>()
         .ForMember(dest => dest.OrderItemId, opt => opt.MapFrom(src => src.Id))
