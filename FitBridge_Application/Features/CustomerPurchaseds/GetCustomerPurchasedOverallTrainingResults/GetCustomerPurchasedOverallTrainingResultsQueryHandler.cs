@@ -106,7 +106,7 @@ public class GetCustomerPurchasedOverallTrainingResultsQueryHandler(
             WorkoutStatistics = workoutStats,
             UserGoals = userGoals,
             FirstSessionStartTime = firstSessionStartTime,
-            //LatestSessionEndTime = latestSessionEndTime
+            LatestSessionStartTime = latestSessionStartTime
         };
     }
 
