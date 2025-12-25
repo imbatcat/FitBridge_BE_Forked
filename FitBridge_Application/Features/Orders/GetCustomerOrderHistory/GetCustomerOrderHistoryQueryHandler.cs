@@ -35,7 +35,9 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                 TransactionType.GymCourse,
                 TransactionType.FreelancePTPackage,
                 TransactionType.ExtendFreelancePTPackage,
-                TransactionType.ExtendCourse
+                TransactionType.ExtendCourse,
+                TransactionType.SubscriptionPlansOrder,
+                TransactionType.RenewalSubscriptionPlansOrder
             };
 
             var spec = new GetCustomerOrderHistorySpec(request.Params, customerId.Value);
@@ -61,7 +63,7 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
 
                 foreach (var orderItem in order.OrderItems)
                 {
-                    if (orderItem.FreelancePTPackageId != null || orderItem.GymCourseId != null)
+                    if (orderItem.FreelancePTPackageId != null || orderItem.GymCourseId != null || orderItem.UserSubscriptionId != null)
                     {
                         var itemDto = _mapper.Map<OrderItemSummaryDto>(orderItem);
 
@@ -74,6 +76,11 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                         {
                             itemDto.ItemName = orderItem.GymCourse.Name;
                             itemDto.ImageUrl = orderItem.GymCourse.ImageUrl ?? string.Empty;
+                        }
+                        else if(orderItem.UserSubscriptionId != null && orderItem.UserSubscription != null)
+                        {
+                            itemDto.ItemName = orderItem.UserSubscription.SubscriptionPlansInformation.PlanName;
+                            itemDto.ImageUrl = orderItem.UserSubscription.SubscriptionPlansInformation.ImageUrl ?? string.Empty;
                         }
 
                         orderDto.Items.Add(itemDto);
