@@ -58,10 +58,10 @@ public class RegisterAccountCommandHandler(IApplicationUserService _applicationU
             IdentityCardDate = request.IdentityCardDate ?? null,
             BusinessAddress = request.BusinessAddress ?? null,
             OpenTime = request.OpenTime ?? null,
-            CloseTime = request.CloseTime ?? null,
-            GymFoundationDate = request.GymFoundationDate ?? null,
+                CloseTime = request.CloseTime ?? null,
+                GymFoundationDate = request.GymFoundationDate ?? null,
             IsMale = request.IsMale ?? false,
-            Dob = request.Dob ?? DateTime.UtcNow.AddYears(-17),
+            Dob = DateTime.SpecifyKind(request.Dob ?? DateTime.UtcNow.AddYears(-17), DateTimeKind.Utc),
         };
         if (request.FrontCitizenIdFile != null)
         {
