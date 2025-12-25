@@ -29,11 +29,15 @@ public class GetAllGymOwnerCustomerQueryHandler(IUnitOfWork _unitOfWork, IUserUt
         if(!result.Any()) {
             return new PagingResultDto<GetAllGymOwnerCustomer>(0, getAllGymOwnerCustomerResult);
         }
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+        var vietnamNowDateOnly = DateOnly.FromDateTime(vietnamNow);
         foreach (var user in result)
         {
             var getAllGymOwnerCustomer = _mapper.Map<GetAllGymOwnerCustomer>(user);
             var latestCustomerPurchased = user.CustomerPurchased.Where(c => c.OrderItems.Any(o => o.GymCourseId != null && o.GymCourse!.GymOwnerId == userId.Value)).OrderByDescending(x => x.CreatedAt).FirstOrDefault();
             var latestCustomerPurchasedOrderItem = latestCustomerPurchased.OrderItems.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
+            getAllGymOwnerCustomer.IsCourseExpired = latestCustomerPurchased.ExpirationDate < vietnamNowDateOnly;
             getAllGymOwnerCustomer.LatestCustomerPurchasedId = latestCustomerPurchased.Id;
             getAllGymOwnerCustomer.PackageName = latestCustomerPurchasedOrderItem.GymCourse?.Name;
             getAllGymOwnerCustomer.PtName = latestCustomerPurchasedOrderItem.GymPt?.FullName;
