@@ -10,7 +10,7 @@ namespace FitBridge_Application.Specifications.Gym.GetGymPtsByGymId
             GetGymPtsByGymIdParams parameters,
             bool includeUserDetails = true,
             bool includeUserGoalTraining = true) : base(x =>
-            x.GymOwnerId == gymId && x.GymOwnerId != null)
+            x.GymOwnerId == gymId && x.GymOwnerId != null && x.IsEnabled)
         {
             switch (StringCapitalizationConverter.ToUpperFirstChar(parameters.SortBy))
             {
