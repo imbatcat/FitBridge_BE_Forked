@@ -33,9 +33,13 @@ namespace FitBridge_Application.Features.Reports.CreateReport
                 ?? throw new NotFoundException(nameof(ApplicationUser));
 
             var report = await GetExistingReport(request.ReportedItemId, reporterId);
-            if (report != null)
+            if (report != null && report.Status == ReportCaseStatus.Resolved)
             {
-                throw new DataValidationFailedException("Đã có đơn kiện đang được xử lý cho mục này.");
+                throw new DataValidationFailedException("Bạn đã tạo đơn kiện cho sản phẩm này");
+            }
+            else if (report != null)
+            {
+                throw new DataValidationFailedException("Đã có đơn kiện đang được xử lý cho sản phẩm này.");
             }
 
             var (reportedId, reportType) = await GetReportedUserIdAndReportTypeAsync(request.ReportedItemId);
