@@ -22,6 +22,10 @@ public class FinishedBookingSessionJob(ILogger<FinishedBookingSessionJob> _logge
             _logger.LogError("Booking not found for BookingId: {BookingId}", bookingId);
             throw new NotFoundException($"{nameof(FinishedBookingSessionJob)}_bookingId");
         }
+        if(booking.SessionStatus == SessionStatus.Cancelled)
+        {
+            return;
+        }
         booking.SessionStatus = SessionStatus.Finished;
         booking.SessionEndTime = DateTime.UtcNow;
         booking.UpdatedAt = DateTime.UtcNow;
