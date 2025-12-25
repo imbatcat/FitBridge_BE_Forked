@@ -34,7 +34,6 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
             var countSpec = new GetOrderItemForPendingBalanceDetailSpec(accountId, accountRole, request.Params);
             var totalCount = await unitOfWork.Repository<OrderItem>()
                 .CountAsync(countSpec);
-            var pendingDeductionTransactionList = new List<PendingBalanceOrderItemDto>();
             var tasks = orderItems.Select(async oi =>
             {
                 var isGymOwner = accountRole == ProjectConstant.UserRoles.GymOwner;
@@ -70,7 +69,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                         Description = pendingDeductionTransaction.Description
                     };
 
-                    pendingDeductionTransactionList.Add(new PendingBalanceOrderItemDto
+                    return new PendingBalanceOrderItemDto
                     {
                         OrderItemId = oi.Id,
                         Quantity = oi.Quantity,
@@ -87,7 +86,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                         PlannedDistributionDate = oi.ProfitDistributePlannedDate,
                         TransactionDetail = transactionDetail,
                         TransactionType = TransactionType.PendingDeduction
-                    });
+                    };
                 }
                 return new PendingBalanceOrderItemDto
                 {
@@ -111,7 +110,6 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
 
             var mappedOrderItems = await Task.WhenAll(tasks);
             var mappedOrderItemsList = mappedOrderItems.ToList();
-            mappedOrderItemsList.AddRange(pendingDeductionTransactionList);
             var totalProfitSum = mappedOrderItemsList.Sum(oi => oi.TotalProfit);
 
             return new DashboardPagingResultDto<PendingBalanceOrderItemDto>(totalCount, mappedOrderItemsList, totalProfitSum);
