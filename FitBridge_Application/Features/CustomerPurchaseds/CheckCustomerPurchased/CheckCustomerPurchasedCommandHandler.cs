@@ -65,6 +65,7 @@ public class CheckCustomerPurchasedCommandHandler(IUnitOfWork _unitOfWork, IUser
         {
             Id = customerPurchased.Id,
         };
+
         var ptFreelancePackage = customerPurchased.OrderItems.FirstOrDefault(x => x.FreelancePTPackageId != null);
 
         if (ptFreelancePackage != null && ptFreelancePackage.FreelancePTPackage != null)
