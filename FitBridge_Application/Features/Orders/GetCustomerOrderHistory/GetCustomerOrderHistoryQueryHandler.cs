@@ -35,9 +35,7 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                 TransactionType.GymCourse,
                 TransactionType.FreelancePTPackage,
                 TransactionType.ExtendFreelancePTPackage,
-                TransactionType.ExtendCourse,
-                TransactionType.SubscriptionPlansOrder,
-                TransactionType.RenewalSubscriptionPlansOrder
+                TransactionType.ExtendCourse
             };
 
             var spec = new GetCustomerOrderHistorySpec(request.Params, customerId.Value);
@@ -77,11 +75,6 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                             itemDto.ItemName = orderItem.GymCourse.Name;
                             itemDto.ImageUrl = orderItem.GymCourse.ImageUrl ?? string.Empty;
                         }
-                        else if (orderItem.UserSubscriptionId != null && orderItem.UserSubscription != null)
-                        {
-                            itemDto.ItemName = orderItem.UserSubscription.SubscriptionPlansInformation.PlanName;
-                            itemDto.ImageUrl = orderItem.UserSubscription.SubscriptionPlansInformation.ImageUrl ?? string.Empty;
-                        }
 
                         orderDto.Items.Add(itemDto);
                     }
@@ -90,7 +83,7 @@ namespace FitBridge_Application.Features.Orders.GetCustomerOrderHistory
                 var relevantTransactions = order.Transactions
                     .Where(t => targetTransactionTypes.Contains(t.TransactionType))
                     .ToList();
-
+                orderDto.Transactions = new List<CustomerTransactionDetailDto>();
                 foreach (var transaction in relevantTransactions)
                 {
                     var transactionDto = _mapper.Map<CustomerTransactionDetailDto>(transaction);
