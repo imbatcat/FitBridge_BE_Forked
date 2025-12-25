@@ -10,7 +10,7 @@ using MediatR;
 
 namespace FitBridge_Application.Features.Reports.GetAllReports
 {
-    public class GetAllReportsQuery : IRequest<PagingResultDto<GetCustomerReportsResponseDto>>
+    public class GetAllReportsQuery : IRequest<ReportPagingResultDto>
     {
         public GetAllReportsParams Params { get; set; } = null!;
     }
