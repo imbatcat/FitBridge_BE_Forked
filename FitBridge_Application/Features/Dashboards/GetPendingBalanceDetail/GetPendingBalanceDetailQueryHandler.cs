@@ -40,7 +40,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                 var isGymOwner = accountRole == ProjectConstant.UserRoles.GymOwner;
                 var profit = await transactionService.CalculateMerchantProfit(oi, oi.Order.Coupon);
 
-                // Get the related transaction for this order item
+                // Get positive related transactions for this order item
                 var relatedTransaction = oi.Order.Transactions
                     .FirstOrDefault(t => t.Status == TransactionStatus.Success && t.OrderId == oi.OrderId && t.TransactionType != TransactionType.PendingDeduction && t.TransactionType != TransactionType.DistributeProfit);
 
@@ -57,38 +57,7 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
                         Description = relatedTransaction.Description
                     };
                 }
-                if (oi.Transactions.Any(t => t.TransactionType == TransactionType.PendingDeduction))
-                {
-                    var pendingDeductionTransaction = oi.Transactions.FirstOrDefault(t => t.TransactionType == TransactionType.PendingDeduction);
-                    transactionDetail = new TransactionDetailDto
-                    {
-                        TransactionId = pendingDeductionTransaction.Id,
-                        OrderCode = pendingDeductionTransaction.OrderCode,
-                        TransactionDate = pendingDeductionTransaction.CreatedAt,
-                        PaymentMethod = pendingDeductionTransaction.PaymentMethod.MethodType.ToString(),
-                        Amount = pendingDeductionTransaction.Amount,
-                        Description = pendingDeductionTransaction.Description
-                    };
-
-                    pendingDeductionTransactionList.Add(new PendingBalanceOrderItemDto
-                    {
-                        OrderItemId = oi.Id,
-                        Quantity = oi.Quantity,
-                        Price = oi.Price,
-                        SubTotal = oi.Price * oi.Quantity,
-                        TotalProfit = pendingDeductionTransaction.Amount,
-                        CouponCode = oi.Order.Coupon?.CouponCode,
-                        CouponDiscountPercent = oi.Order.Coupon?.DiscountPercent,
-                        CouponId = oi.Order.CouponId,
-                        CourseId = isGymOwner ? oi.GymCourseId!.Value : oi.FreelancePTPackageId!.Value,
-                        CourseName = isGymOwner ? oi.GymCourse!.Name : oi.FreelancePTPackage!.Name,
-                        CustomerId = oi.Order.AccountId,
-                        CustomerFullName = oi.Order.Account.FullName,
-                        PlannedDistributionDate = oi.ProfitDistributePlannedDate,
-                        TransactionDetail = transactionDetail,
-                        TransactionType = TransactionType.PendingDeduction
-                    });
-                }
+                GetPendingDeductionTransactions(oi, ref pendingDeductionTransactionList, isGymOwner);
                 return new PendingBalanceOrderItemDto
                 {
                     OrderItemId = oi.Id,
@@ -115,6 +84,40 @@ namespace FitBridge_Application.Features.Dashboards.GetPendingBalanceDetail
             var totalProfitSum = mappedOrderItemsList.Sum(oi => oi.TotalProfit);
 
             return new DashboardPagingResultDto<PendingBalanceOrderItemDto>(totalCount, mappedOrderItemsList, totalProfitSum);
+        }
+
+        private static void GetPendingDeductionTransactions(OrderItem oi, ref List<PendingBalanceOrderItemDto> pendingDeductionTransactionList, bool isGymOwner)
+        {
+            foreach (var deductTransaction in oi.Transactions.Where(t => t.TransactionType == TransactionType.PendingDeduction
+            ))
+            {
+                pendingDeductionTransactionList.Add(new PendingBalanceOrderItemDto
+                {
+                    OrderItemId = oi.Id,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price,
+                    SubTotal = oi.Price * oi.Quantity,
+                    TotalProfit = deductTransaction.Amount,
+                    CouponCode = oi.Order.Coupon?.CouponCode,
+                    CouponDiscountPercent = oi.Order.Coupon?.DiscountPercent,
+                    CouponId = oi.Order.CouponId,
+                    CourseId = isGymOwner ? oi.GymCourseId!.Value : oi.FreelancePTPackageId!.Value,
+                    CourseName = isGymOwner ? oi.GymCourse!.Name : oi.FreelancePTPackage!.Name,
+                    CustomerId = oi.Order.AccountId,
+                    CustomerFullName = oi.Order.Account.FullName,
+                    PlannedDistributionDate = oi.ProfitDistributePlannedDate,
+                    TransactionDetail = new TransactionDetailDto
+                    {
+                        TransactionId = deductTransaction.Id,
+                        OrderCode = deductTransaction.OrderCode,
+                        TransactionDate = deductTransaction.CreatedAt,
+                        PaymentMethod = deductTransaction.PaymentMethod.MethodType.ToString(),
+                        Amount = deductTransaction.Amount,
+                        Description = deductTransaction.Description
+                    },
+                    TransactionType = TransactionType.PendingDeduction
+                });
+            }
         }
     }
 }
