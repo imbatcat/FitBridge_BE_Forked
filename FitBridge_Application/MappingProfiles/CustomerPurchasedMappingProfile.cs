@@ -39,7 +39,8 @@ public class CustomerPurchasedMappingProfile : Profile
             .ForMember(dest => dest.PtName, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymPt.FullName))
             .ForMember(dest => dest.PtImageUrl, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymPt.AvatarUrl))
             .ForMember(dest => dest.GymCourseId, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().GymCourseId))
-            .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems.Select(x => x.Id).ToList()));
+            .ForMember(dest => dest.IsRefunded, opt => opt.MapFrom(src => src.OrderItems.First(x => x.IsRefunded)))
+            .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems.First(x => x.ReportCases.Any())));
         CreateProjection<CustomerPurchased, CustomerPurchasedFreelancePtResponseDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.OrderItems.OrderByDescending(x => x.CreatedAt).First().FreelancePTPackage.Name))

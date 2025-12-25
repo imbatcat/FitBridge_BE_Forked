@@ -29,4 +29,8 @@ public class CustomerPurchasedResponseDto
     public string? PtImageUrl { get; set; }
 
     public List<Guid> OrderItems { get; set; } = new List<Guid>();
+
+    public bool IsRefunded { get; set; }
+
+    public bool IsReported { get; set; }
 }
