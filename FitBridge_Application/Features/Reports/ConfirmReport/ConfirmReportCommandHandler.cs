@@ -1,4 +1,5 @@
 ﻿using FitBridge_Application.Commons.Utils;
+using FitBridge_Application.Dtos.Coupons;
 using FitBridge_Application.Dtos.Notifications;
 using FitBridge_Application.Dtos.Templates;
 using FitBridge_Application.Interfaces.Repositories;
@@ -49,47 +50,68 @@ namespace FitBridge_Application.Features.Reports.ConfirmReport
                 throw new DataValidationFailedException("Mục đơn hàng đã được hoàn tiền");
             }
 
-            var courseCompletion = await courseCompletionService.GetCourseCompletionAsync(existingReport.OrderItemId);
-            var isMoreThanHalfCompleted = courseCompletion.CompletionPercentage > 50m;
-
             existingReport.Status = ReportCaseStatus.FraudConfirmed;
             existingReport.ResolvedAt = DateTime.UtcNow;
             existingReport.Note = request.Note;
             existingReport.IsPayoutPaused = true;
 
-            var isProduct = orderItem.ProductDetailId.HasValue;
-            var refundAmount = isProduct ? orderItem.Price :
-                await transactionService.CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
+            orderItem.IsRefunded = true;
 
+            var responseDto = new ConfirmReportResponseDto();
+
+            var isProduct = orderItem.ProductDetailId.HasValue;
+
+            await SendNotificationToReporter(existingReport);
             if (!isProduct)
             {
                 var jobName = $"ProfitDistribution_{existingReport.OrderItemId}";
+
                 var jobGroup = "ProfitDistribution";
                 await scheduleJobServices.CancelScheduleJob(jobName, jobGroup);
 
+                var refundAmount = await transactionService.CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
                 await CreateDeductPendingBalanceTransactionAsync(orderItem, refundAmount);
+                await SendNotificationToReported(existingReport, orderItem);
+
+                var courseCompletion = await courseCompletionService.GetCourseCompletionAsync(existingReport.OrderItemId);
+                MapResponseDto(responseDto, orderItem, refundAmount, courseCompletion.CompletionPercentage);
             }
             else
             {
+                var discountAmount = 0;
+                if (orderItem.Order.Coupon != null)
+                {
+                    var coupon = orderItem.Order.Coupon;
+                    discountAmount = (int)Math.Min(orderItem.Price * (decimal)coupon.DiscountPercent / 100, coupon.MaxDiscount);
+                }
+                var refundAmount = orderItem.Price - discountAmount;
                 await CreateProductRefundTransactionAsync(orderItem, refundAmount);
+
+                MapResponseDto(responseDto, orderItem, refundAmount);
             }
 
-            orderItem.IsRefunded = true;
             unitOfWork.Repository<OrderItem>().Update(orderItem);
             unitOfWork.Repository<ReportCases>().Update(existingReport);
 
             await unitOfWork.CommitAsync();
 
-            await SendNotificationToReporter(existingReport);
-            await SendNotificationToReported(existingReport, orderItem);
+            return responseDto;
+        }
 
-            return new ConfirmReportResponseDto
-            {
-                IsMoreThanHalfCompleted = isMoreThanHalfCompleted,
-                CompletionPercentage = courseCompletion.CompletionPercentage,
-                CompletedSessions = courseCompletion.CompletedSessions,
-                TotalSessions = courseCompletion.TotalSessions
-            };
+        private void MapResponseDto(ConfirmReportResponseDto responseDto, OrderItem orderItem, decimal refundAmount, decimal? completionPercentage = null)
+        {
+            responseDto.CompletionPercentage = completionPercentage;
+
+            responseDto.OrderItemPrice = orderItem.Price;
+            responseDto.CouponDto = orderItem.Order.Coupon != null
+                ? new ApplyCouponDto
+                {
+                    CouponCode = orderItem.Order.Coupon.CouponCode,
+                    DiscountPercent = orderItem.Order.Coupon.DiscountPercent,
+                    DiscountAmount = orderItem.Order.Coupon.MaxDiscount
+                }
+                : null;
+            responseDto.RefundAmount = refundAmount;
         }
 
         private async Task CreateProductRefundTransactionAsync(OrderItem orderItem, decimal refundAmount)

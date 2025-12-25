@@ -10,6 +10,8 @@ namespace FitBridge_Application.Dtos.Reports
 
         public string? ReporterAvatarUrl { get; set; }
 
+        public string? ReportedProduct { get; set; }
+
         public string? ReportedUserName { get; set; }
 
         public string? ReportedUserAvatarUrl { get; set; }

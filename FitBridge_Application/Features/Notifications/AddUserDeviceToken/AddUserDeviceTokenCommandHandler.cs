@@ -14,7 +14,7 @@ namespace FitBridge_Application.Features.Notifications.AddUserDeviceToken
 {
     internal class AddUserDeviceTokenCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        ILogger logger,
+        ILogger<AddUserDeviceTokenCommandHandler> logger,
         IUserUtil userUtil,
         IUnitOfWork unitOfWork) : IRequestHandler<AddUserDeviceTokenCommand>
     {
