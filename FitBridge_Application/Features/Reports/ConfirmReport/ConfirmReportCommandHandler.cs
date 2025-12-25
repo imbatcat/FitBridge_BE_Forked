@@ -101,17 +101,6 @@ namespace FitBridge_Application.Features.Reports.ConfirmReport
         private void MapResponseDto(ConfirmReportResponseDto responseDto, OrderItem orderItem, decimal refundAmount, decimal? completionPercentage = null)
         {
             responseDto.CompletionPercentage = completionPercentage;
-
-            responseDto.OrderItemPrice = orderItem.Price;
-            responseDto.CouponDto = orderItem.Order.Coupon != null
-                ? new ApplyCouponDto
-                {
-                    CouponCode = orderItem.Order.Coupon.CouponCode,
-                    DiscountPercent = orderItem.Order.Coupon.DiscountPercent,
-                    DiscountAmount = orderItem.Order.Coupon.MaxDiscount
-                }
-                : null;
-            responseDto.RefundAmount = refundAmount;
         }
 
         private async Task CreateProductRefundTransactionAsync(OrderItem orderItem, decimal refundAmount)
