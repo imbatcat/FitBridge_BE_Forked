@@ -16,6 +16,8 @@ public class GetProductDetailForSaleQueryHandler(IUnitOfWork _unitOfWork, IMappe
 {
     public async Task<ProductDetailForSaleResponseDto> Handle(GetProductDetailForSaleQuery request, CancellationToken cancellationToken)
     {
+        var autoHideProductBeforeExpirationDate = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.AutoHideProductBeforeExpirationDate);
+
         int nearExpiredDateProductWarning = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.NearExpiredDateProductWarning);
         var product = await _unitOfWork.Repository<Product>().GetBySpecificationAsync(new GetProductDetailForSaleSpec(request.ProductId));
         if (product == null)
@@ -23,11 +25,16 @@ public class GetProductDetailForSaleQueryHandler(IUnitOfWork _unitOfWork, IMappe
             throw new NotFoundException(nameof(Product), request.ProductId);
         }
         var productDetailForSaleDto = _mapper.Map<ProductDetailForSaleResponseDto>(product);
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+        var currentVietnamDate = DateOnly.FromDateTime(vietnamNow);
+        product.ProductDetails = product.ProductDetails.Where(x => x.ExpirationDate > currentVietnamDate.AddDays(autoHideProductBeforeExpirationDate)).ToList();
+        
         var productDetailDtos = new List<ProductDetailForAdminResponseDto>();
         foreach (var productDetail in product.ProductDetails)
         {
             var productDetailDto = _mapper.Map<ProductDetailForAdminResponseDto>(productDetail);
-            productDetailDto.DaysToExpire = productDetail.ExpirationDate.DayNumber - DateOnly.FromDateTime(DateTime.UtcNow).DayNumber;
+            productDetailDto.DaysToExpire = productDetail.ExpirationDate.DayNumber - currentVietnamDate.DayNumber;
             productDetailDto.IsNearExpired = productDetailDto.DaysToExpire <= nearExpiredDateProductWarning;
             productDetailDtos.Add(productDetailDto);
         }
