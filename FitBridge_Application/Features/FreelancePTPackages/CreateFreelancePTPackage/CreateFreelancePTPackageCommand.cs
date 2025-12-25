@@ -20,5 +20,6 @@ namespace FitBridge_Application.Features.FreelancePTPackages.CreateFreelancePTPa
 
         public string? ImageUrl { get; set; }
         public bool IsDisplayed { get; set; }
+        
     }
 }
