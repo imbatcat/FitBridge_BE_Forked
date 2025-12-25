@@ -128,18 +128,20 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
             {
                 { "bookingId", booking.Id.ToString() }
             };
-            var triggerTime = booking.BookingDate.ToDateTime(booking.PtFreelanceEndTime.Value);
+            var localTriggerTime = booking.BookingDate.ToDateTime(booking.PtFreelanceEndTime.Value);
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var utcTriggerTime = TimeZoneInfo.ConvertTimeToUtc(localTriggerTime, vietnamTimeZone);
             var job = JobBuilder.Create<CancelBookingJob>()
             .WithIdentity(jobKey)
             .SetJobData(jobData)
             .Build();
             var trigger = TriggerBuilder.Create()
             .WithIdentity(triggerKey)
-            .StartAt(triggerTime)
+            .StartAt(utcTriggerTime)
             .Build();
             await _schedulerFactory.GetScheduler().Result.ScheduleJob(job, trigger);
 
-            _logger.LogInformation($"Successfully scheduled auto cancel job for booking {booking.Id} at {triggerTime}");
+            _logger.LogInformation($"Successfully scheduled auto cancel job for booking {booking.Id} at {utcTriggerTime.ToLocalTime()}");
             return true;
         }
         catch (Exception ex)
