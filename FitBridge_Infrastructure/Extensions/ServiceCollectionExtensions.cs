@@ -14,6 +14,7 @@ using FitBridge_Application.Services;
 using FitBridge_Domain.Entities.Identity;
 using FitBridge_Infrastructure.Jobs.Coupons;
 using FitBridge_Infrastructure.Persistence;
+using FitBridge_Infrastructure.Persistence.Graph.Repositories;
 using FitBridge_Infrastructure.Seeder;
 using FitBridge_Infrastructure.Services;
 using FitBridge_Infrastructure.Services.Implements;
@@ -32,6 +33,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Neo4j.Driver;
 using Quartz;
 using StackExchange.Redis;
 using System.Threading.Channels;
@@ -42,6 +44,12 @@ namespace FitBridge_Infrastructure.Extensions
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<IDriver>(GraphDatabase.Driver(
+                configuration.GetConnectionString("Neo4j")!,
+                AuthTokens.Basic(
+                    configuration["Neo4j:Username"]!,
+                    configuration["Neo4j:Password"]!)));
+
             services.AddDbContextPool<FitBridgeDbContext>(options =>
                 options
                     .UseNpgsql(configuration.GetConnectionString("FitBridgeDb"))
@@ -193,6 +201,7 @@ namespace FitBridge_Infrastructure.Extensions
             services.AddScoped<INotificationService, NotificationsService>();
             services.AddScoped<IIdentitySeeder, IdentitySeeder>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IGraphRepository, GraphRepository>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserTokenService, UserTokenService>();
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
