@@ -21,7 +21,7 @@ public class AccountMappingProfile : Profile
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
             .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Bio : null))
-            .ForMember(dest => dest.PriceFrom, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.PriceFrom, opt => opt.MapFrom(src =>
                     (src.PTFreelancePackages != null && src.PTFreelancePackages.Any(x => x.IsEnabled && x.IsDisplayed))
                         ? src.PTFreelancePackages
                             .Where(x => x.IsEnabled && x.IsDisplayed)
@@ -29,14 +29,15 @@ public class AccountMappingProfile : Profile
                         : 0))
             .ForMember(dest => dest.ExperienceYears, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Experience : 0))
             .ForMember(dest => dest.Certifications, opt => opt.MapFrom(src => src.PtCertificates))
-            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => 
-                    (src.FreelancePtReviews != null && src.FreelancePtReviews.Any(x => x.IsEnabled)) 
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src =>
+                    (src.FreelancePtReviews != null && src.FreelancePtReviews.Any(x => x.IsEnabled))
                         ? Math.Round(src.FreelancePtReviews
                             .Where(x => x.IsEnabled)
-                            .Average(x => x.Rating), 2) 
+                            .Average(x => x.Rating), 2)
                         : 0))
             .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
-            .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude));
+            .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
+            .ForMember(dest => dest.FreelancePtImages, opt => opt.MapFrom(src => src.FreelancePtImages));
 
         CreateProjection<ApplicationUser, GetAllGymPtsResponseDto>()
             .ForMember(dest => dest.Experience, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Experience : 0))
@@ -150,6 +151,7 @@ public class AccountMappingProfile : Profile
             .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.DOB, opt => opt.MapFrom(src => src.Dob))
             .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Weight : 0))
-            .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Height : 0));
+            .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.UserDetail != null ? src.UserDetail.Height : 0))
+            .ForMember(dest => dest.FreelancePtImages, opt => opt.MapFrom(src => src.FreelancePtImages));
     }
 }
