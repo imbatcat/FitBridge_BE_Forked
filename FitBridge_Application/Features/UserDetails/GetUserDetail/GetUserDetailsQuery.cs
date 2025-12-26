@@ -6,5 +6,5 @@ namespace FitBridge_Application.Features.UserDetails.GetUserDetail;
 
 public class GetUserDetailsQuery : IRequest<UserDetailDto>
 {
-    public Guid? CustomerId { get; set; }
+    public Guid? AccountId { get; set; }
 }
