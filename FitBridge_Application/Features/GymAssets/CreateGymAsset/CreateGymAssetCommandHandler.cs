@@ -67,7 +67,7 @@ public class CreateGymAssetCommandHandler(
             var ownsRelationship = new OwnsRelationship
             {
                 GymOwnerId = request.GymOwnerId.ToString(),
-                GymAssetId = gymAsset.Id.ToString()
+                GymAssetId = request.AssetMetadataId.ToString()
             };
 
             await graphService.CreateRelationship(ownsRelationship);
