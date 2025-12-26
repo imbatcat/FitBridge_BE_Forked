@@ -12,7 +12,12 @@ namespace FitBridge_Application.MappingProfiles
             CreateProjection<ReportCases, GetCustomerReportsResponseDto>()
            .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
               .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
-            .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
+            .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src =>
+                src.ReportedUser != null
+                ? !string.IsNullOrEmpty(src.ReportedUser.GymName)
+                    ? src.ReportedUser.GymName
+                    : src.ReportedUser.FullName
+                : null))
             .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
             .ForMember(dest => dest.ReportedProduct, opt => opt.MapFrom(src =>
                 src.OrderItem != null && src.OrderItem.ProductDetail != null && src.OrderItem.ProductDetail.Product != null && src.OrderItem.ProductDetail.Product.Name != null
@@ -38,7 +43,12 @@ namespace FitBridge_Application.MappingProfiles
             CreateMap<ReportCases, GetCustomerReportsResponseDto>()
           .ForMember(dest => dest.ReporterName, opt => opt.MapFrom(src => src.Reporter.FullName))
            .ForMember(dest => dest.ReporterAvatarUrl, opt => opt.MapFrom(src => src.Reporter.AvatarUrl))
-           .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src => src.ReportedUser != null ? src.ReportedUser.FullName : null))
+            .ForMember(dest => dest.ReportedUserName, opt => opt.MapFrom(src =>
+                src.ReportedUser != null
+                ? !string.IsNullOrEmpty(src.ReportedUser.GymName)
+                    ? src.ReportedUser.GymName
+                    : src.ReportedUser.FullName
+                : null))
             .ForMember(dest => dest.EvidenceImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
             .ForMember(dest => dest.ResolvedEvidenceImageUrls, opt => opt.MapFrom(src => src.ResolvedEvidenceImageUrl))
             .ForMember(dest => dest.ReportedProduct, opt => opt.MapFrom(src =>

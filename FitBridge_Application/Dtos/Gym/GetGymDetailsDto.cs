@@ -12,7 +12,7 @@ namespace FitBridge_Application.Dtos.Gym
 
         public string GymAddress { get; set; } = string.Empty;
 
-        public List<GymImageDto> GymImages { get; set; } = [];
+        public List<string> GymImages { get; set; }
 
         public double Longitude { get; set; } = 0.0;
 

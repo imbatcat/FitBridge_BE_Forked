@@ -52,6 +52,7 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
         var result = await _mediator.Send(command);
         return Ok(new BaseResponse<CreateShippingOrderResponseDto>(StatusCodes.Status200OK.ToString(), "Shipping order created successfully", result));
     }
+
     /// <summary>
     /// API for ahamove to callback when there is a change in the shipping order status
     /// </summary>
@@ -76,6 +77,7 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
 
         return Ok(new BaseResponse<string>(StatusCodes.Status200OK.ToString(), "Shipping webhook processed successfully", webhookPayload));
     }
+
     /// <summary>
     /// Update the status of an order
     /// </summary>
@@ -253,5 +255,4 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
             "Course completion information retrieved successfully",
             result));
     }
-
 }

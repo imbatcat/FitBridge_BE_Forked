@@ -39,7 +39,6 @@ public class CustomerPurchasedOverallResultResponseDto
     public double AverageSetsPerSession { get; set; }
 
     public double AverageRepsPerSession { get; set; }
-
     // Peak performance
     public HighestPerformanceDto? HighestPerformance { get; set; }
 

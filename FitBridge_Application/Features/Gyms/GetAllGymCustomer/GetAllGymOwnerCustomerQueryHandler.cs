@@ -29,17 +29,21 @@ public class GetAllGymOwnerCustomerQueryHandler(IUnitOfWork _unitOfWork, IUserUt
         if(!result.Any()) {
             return new PagingResultDto<GetAllGymOwnerCustomer>(0, getAllGymOwnerCustomerResult);
         }
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+        var vietnamNowDateOnly = DateOnly.FromDateTime(vietnamNow);
         foreach (var user in result)
         {
             var getAllGymOwnerCustomer = _mapper.Map<GetAllGymOwnerCustomer>(user);
             var latestCustomerPurchased = user.CustomerPurchased.Where(c => c.OrderItems.Any(o => o.GymCourseId != null && o.GymCourse!.GymOwnerId == userId.Value)).OrderByDescending(x => x.CreatedAt).FirstOrDefault();
             var latestCustomerPurchasedOrderItem = latestCustomerPurchased.OrderItems.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
+            getAllGymOwnerCustomer.IsCourseExpired = latestCustomerPurchased.ExpirationDate < vietnamNowDateOnly;
             getAllGymOwnerCustomer.LatestCustomerPurchasedId = latestCustomerPurchased.Id;
             getAllGymOwnerCustomer.PackageName = latestCustomerPurchasedOrderItem.GymCourse?.Name;
             getAllGymOwnerCustomer.PtName = latestCustomerPurchasedOrderItem.GymPt?.FullName;
             getAllGymOwnerCustomer.ExpirationDate = latestCustomerPurchased.ExpirationDate;
             getAllGymOwnerCustomer.Status = latestCustomerPurchased.ExpirationDate > DateOnly.FromDateTime(DateTime.UtcNow) ? GymOwnerCustomerStatus.Active : GymOwnerCustomerStatus.Expired;
-            getAllGymOwnerCustomer.JoinedAt = user.CustomerPurchased.OrderBy(x => x.CreatedAt).First().CreatedAt;
+            getAllGymOwnerCustomer.JoinedAt = user.CustomerPurchased.Where(c => c.OrderItems.Any(o => o.GymCourseId != null && o.GymCourse!.GymOwnerId == userId.Value)).OrderBy(x => x.CreatedAt).First().CreatedAt;
             getAllGymOwnerCustomer.PtGymAvailableSession = latestCustomerPurchased.AvailableSessions;
             getAllGymOwnerCustomer.AvatarUrl = user.AvatarUrl;
             getAllGymOwnerCustomerResult.Add(getAllGymOwnerCustomer);

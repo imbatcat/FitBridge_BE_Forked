@@ -11,8 +11,12 @@ public class GetCustomerBookingsResponse
     public TimeOnly? StartTime { get; set; }
     public TimeOnly? EndTime { get; set; }
     public Guid? PTGymSlotId { get; set; }
-
+    public string CustomerName { get; set; }
+    public string AvatarUrl { get; set; }
+    public string? PackageName { get; set; }
     public Guid CustomerId { get; set; }
+    public string CustomerEmail { get; set; }
+    public string CustomerPhone { get; set; }
 
     public Guid CustomerPurchasedId { get; set; }
 

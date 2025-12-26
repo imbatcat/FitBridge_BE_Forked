@@ -15,6 +15,10 @@ public class GetCustomerBookingByCustomerIdSpecification : BaseSpecification<Boo
         AddInclude(x => x.PTGymSlot);
         AddInclude(x => x.PTGymSlot.GymSlot);
         AddInclude(x => x.PTGymSlot.PT);
+        AddInclude(x => x.Customer);
+        AddInclude(x => x.CustomerPurchased);
+        AddInclude(x => x.CustomerPurchased.OrderItems);
+        AddInclude("CustomerPurchased.OrderItems.FreelancePTPackage");
         if (parameters.SortOrder == "desc" || parameters.SortOrder == "dsc")
         {
             AddOrderByDesc(x => x.BookingDate);

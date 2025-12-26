@@ -84,7 +84,7 @@ public class PayOSService : IPayOSService
                 // amount: 5000,
                 description: user.PhoneNumber,
                 items: items,
-                cancelUrl: $"{_settings.CancelUrl}?code=01&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
+                cancelUrl: $"{cancelUrl}?code=01&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
                 returnUrl: $"{returnUrl}?code=00&message&orderCode={orderCode}&amount={request.TotalAmountPrice}",
                 expiredAt: DateTimeOffset.UtcNow.AddMinutes(expirationMinutes).ToUnixTimeSeconds(),
                 buyerName: user.UserName,

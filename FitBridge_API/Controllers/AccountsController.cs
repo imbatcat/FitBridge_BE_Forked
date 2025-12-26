@@ -166,6 +166,7 @@ public class AccountsController(IMediator _mediator, IUserUtil _userUtil) : _Bas
     /// <param name="parameters"></param>
     /// <returns>HotResearchAccountDto with field UserRole can be "" because data is added manually into database instead of using identity framework</returns>
     [HttpGet("hot-research")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetHotResearch([FromQuery] GetHotResearchAccountParams parameters)
     {
         var response = await _mediator.Send(new GetHotResearchAccountQuery

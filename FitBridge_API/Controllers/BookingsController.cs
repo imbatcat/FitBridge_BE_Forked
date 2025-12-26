@@ -117,7 +117,7 @@ public class BookingsController(IMediator _mediator) : _BaseApiController
     [HttpGet("get-customer-bookings")]
     public async Task<IActionResult> GetCustomerBookings([FromQuery] GetCustomerBookingsParams parameters)
     {
-        var result = await _mediator.Send(new GetCustomerBookingsQuery { Params = parameters });
+    var result = await _mediator.Send(new GetCustomerBookingsQuery { Params = parameters });
         var pagination = ResultWithPagination(result.Items, result.Total, parameters.Page, parameters.Size);
         return Ok(new BaseResponse<Pagination<GetCustomerBookingsResponse>>(StatusCodes.Status200OK.ToString(), "Bookings retrieved successfully", pagination));
     }

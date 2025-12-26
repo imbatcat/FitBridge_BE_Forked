@@ -19,4 +19,5 @@ public class GetAllFreelancePTsResponseDto
     public int PtCurrentCourse { get; set; }
     public int ExperienceYears { get; set; }
     public int TotalPurchased { get; set; }
+    public List<string>? FreelancePtImages { get; set; }
 }

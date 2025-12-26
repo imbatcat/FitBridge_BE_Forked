@@ -1,5 +1,6 @@
 using FitBridge_API.Helpers.RequestHelpers;
 using FitBridge_Application.Commons.Constants;
+using FitBridge_Application.Dtos;
 using FitBridge_Application.Dtos.Reports;
 using FitBridge_Application.Features.Reports.ConfirmReport;
 using FitBridge_Application.Features.Reports.CreateReport;
@@ -69,6 +70,7 @@ namespace FitBridge_API.Controllers
         /// <summary>
         /// Retrieves all reports with optional filtering and pagination.
         /// This endpoint is typically for admin users to view all reports in the system.
+        /// Includes summary statistics with counts of all report types and statuses.
         /// </summary>
         /// <param name="parameters">Query parameters for filtering and pagination, including:
         /// <list type="bullet">
@@ -110,28 +112,22 @@ namespace FitBridge_API.Controllers
         /// </item>
         /// </list>
         /// </param>
-        /// <returns>A paginated list of all reports.</returns>
+        /// <returns>A paginated list of all reports with summary statistics including total counts by type and status.</returns>
         [HttpGet]
         [Authorize(Roles = ProjectConstant.UserRoles.Admin)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<Pagination<GetCustomerReportsResponseDto>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<ReportPagingResultDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<Pagination<GetCustomerReportsResponseDto>>> GetAllReports(
+        public async Task<ActionResult<ReportPagingResultDto>> GetAllReports(
             [FromQuery] GetAllReportsParams parameters)
         {
             var response = await mediator.Send(new GetAllReportsQuery { Params = parameters });
 
-            var pagedResult = new Pagination<GetCustomerReportsResponseDto>(
-                 response.Items,
-                response.Total,
-                  parameters.Page,
-              parameters.Size);
-
             return Ok(
-                new BaseResponse<Pagination<GetCustomerReportsResponseDto>>(
-          StatusCodes.Status200OK.ToString(),
-    "Get all reports success",
-         pagedResult));
+                new BaseResponse<ReportPagingResultDto>(
+                    StatusCodes.Status200OK.ToString(),
+                    "Get all reports success",
+                    response));
         }
 
         /// <summary>

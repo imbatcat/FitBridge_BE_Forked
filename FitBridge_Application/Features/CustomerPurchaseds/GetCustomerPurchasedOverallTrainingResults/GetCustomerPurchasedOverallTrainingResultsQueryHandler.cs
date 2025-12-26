@@ -81,7 +81,7 @@ public class GetCustomerPurchasedOverallTrainingResultsQueryHandler(
         return new CustomerPurchasedOverallResultResponseDto
         {
             CustomerPurchasedId = customerPurchased.Id,
-            TotalSessions = bookings.Count,
+            TotalSessions = bookings.Where(b => !(b.SessionStatus == SessionStatus.Cancelled && b.IsSessionRefund == true)).Count(),
             CompletedSessions = completedSessions,
             CancelledSessions = cancelledSessions,
             UpcomingSessions = upcomingSessions,

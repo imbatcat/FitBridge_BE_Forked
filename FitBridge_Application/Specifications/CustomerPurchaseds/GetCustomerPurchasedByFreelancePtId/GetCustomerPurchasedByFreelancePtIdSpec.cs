@@ -12,5 +12,7 @@ public class GetCustomerPurchasedByFreelancePtIdSpec : BaseSpecification<Custome
     && x.IsEnabled
     && x.ExpirationDate >= DateOnly.FromDateTime(DateTime.UtcNow))
     {
+        AddInclude(x => x.OrderItems);
+        AddInclude("OrderItems.FreelancePTPackage");
     }
 }

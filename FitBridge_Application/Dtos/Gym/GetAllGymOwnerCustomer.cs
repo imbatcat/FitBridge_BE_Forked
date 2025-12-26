@@ -18,4 +18,5 @@ public class GetAllGymOwnerCustomer
     public DateTime? Dob { get; set; }
     public string? Gender { get; set; }
     public int PtGymAvailableSession { get; set; }
+    public bool IsCourseExpired { get; set; }
 }
