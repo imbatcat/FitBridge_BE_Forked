@@ -13,10 +13,20 @@ using FitBridge_Application.Commons.Constants;
 using FitBridge_Application.Services;
 using FitBridge_Domain.Entities.Orders;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.Reviews.CreateReview;
 
-public class CreateReviewCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor, IUploadService _uploadService, SystemConfigurationService _systemConfigurationService, IScheduleJobServices _scheduleJobServices, IMapper _mapper) : IRequestHandler<CreateReviewCommand, ReviewProductResponseDto>
+public class CreateReviewCommandHandler(
+    IUnitOfWork _unitOfWork, 
+    IUserUtil _userUtil, 
+    IHttpContextAccessor _httpContextAccessor, 
+    IUploadService _uploadService, 
+    SystemConfigurationService _systemConfigurationService, 
+    IScheduleJobServices _scheduleJobServices, 
+    IMapper _mapper,
+    IGraphService graphService,
+    ILogger<CreateReviewCommandHandler> logger) : IRequestHandler<CreateReviewCommand, ReviewProductResponseDto>
 {
     public async Task<ReviewProductResponseDto> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
     {
@@ -65,6 +75,26 @@ public class CreateReviewCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _user
         _unitOfWork.Repository<OrderItem>().Update(orderItem);
         _unitOfWork.Repository<Review>().Insert(review);
         await _unitOfWork.CommitAsync();
+
+        try
+        {
+            var freelancePtId = review.FreelancePtId;
+            var gymId = review.GymId;
+            
+            if (freelancePtId.HasValue)
+            {
+                await graphService.SyncFreelancePTReviewStatsAsync(freelancePtId.Value, cancellationToken);
+            }
+            else if (gymId.HasValue)
+            {
+                await graphService.SyncGymReviewStatsAsync(gymId.Value, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to sync review stats to Neo4j for review {ReviewId}", review.Id);
+        }
+
         var reviewDto = _mapper.Map<ReviewProductResponseDto>(review);
         reviewDto.UserAvatarUrl = orderItem.Order.Account.AvatarUrl;
         reviewDto.UserName = orderItem.Order.Account.FullName;

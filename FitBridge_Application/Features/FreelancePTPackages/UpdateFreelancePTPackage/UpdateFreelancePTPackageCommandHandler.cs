@@ -1,16 +1,20 @@
 ﻿using AutoMapper;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Specifications.CustomerPurchaseds.GetAvailableCustomerPurchasedByFreelancePackage;
 using FitBridge_Application.Specifications.FreelancePtPackages.GetFreelancePtPackageById;
 using FitBridge_Domain.Entities.Gyms;
 using FitBridge_Domain.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.FreelancePTPackages.UpdateFreelancePTPackage
 {
     internal class UpdateFreelancePTPackageCommandHandler(
         IUnitOfWork unitOfWork,
-        IMapper mapper) : IRequestHandler<UpdateFreelancePTPackageCommand>
+        IMapper mapper,
+        IGraphService graphService,
+        ILogger<UpdateFreelancePTPackageCommandHandler> logger) : IRequestHandler<UpdateFreelancePTPackageCommand>
     {
         public async Task Handle(UpdateFreelancePTPackageCommand request, CancellationToken cancellationToken)
         {
@@ -49,10 +53,19 @@ namespace FitBridge_Application.Features.FreelancePTPackages.UpdateFreelancePTPa
             }
             await ValidateUpdateData(request, existingPackage);
 
-
             unitOfWork.Repository<FreelancePTPackage>().Update(existingPackage);
 
             await unitOfWork.CommitAsync();
+
+            try
+            {
+                var ptId = existingPackage.PtId;
+                await graphService.SyncFreelancePTCheapestCourseAsync(ptId, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to sync FreelancePT cheapest course to Neo4j for package {PackageId}", request.PackageId);
+            }
         }
 
         public async Task ValidateUpdateData(UpdateFreelancePTPackageCommand request, FreelancePTPackage existingPackage)

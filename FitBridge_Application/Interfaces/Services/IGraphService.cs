@@ -17,5 +17,13 @@ namespace FitBridge_Application.Interfaces.Services
         public Task UpdateRelationship(BaseRelationship relationship);
 
         public Task DeleteRelationship(BaseRelationship relationship);
+
+        public Task SyncFreelancePTCheapestCourseAsync(Guid ptId, CancellationToken cancellationToken = default);
+
+        public Task SyncGymCheapestCourseAsync(Guid gymOwnerId, CancellationToken cancellationToken = default);
+
+        public Task SyncFreelancePTReviewStatsAsync(Guid ptId, CancellationToken cancellationToken = default);
+
+        public Task SyncGymReviewStatsAsync(Guid gymId, CancellationToken cancellationToken = default);
     }
 }

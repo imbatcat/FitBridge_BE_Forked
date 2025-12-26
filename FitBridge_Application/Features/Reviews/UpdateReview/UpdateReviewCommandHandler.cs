@@ -10,9 +10,20 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FitBridge_Application.Commons.Constants;
+using Microsoft.Extensions.Logging;
+
 namespace FitBridge_Application.Features.Reviews.UpdateReview;
 
-public class UpdateReviewCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor, IUploadService _uploadService, SystemConfigurationService _systemConfigurationService, IScheduleJobServices _scheduleJobServices, IMapper _mapper) : IRequestHandler<UpdateReviewCommand, ReviewProductResponseDto>
+public class UpdateReviewCommandHandler(
+    IUnitOfWork _unitOfWork, 
+    IUserUtil _userUtil, 
+    IHttpContextAccessor _httpContextAccessor, 
+    IUploadService _uploadService, 
+    SystemConfigurationService _systemConfigurationService, 
+    IScheduleJobServices _scheduleJobServices, 
+    IMapper _mapper,
+    IGraphService graphService,
+    ILogger<UpdateReviewCommandHandler> logger) : IRequestHandler<UpdateReviewCommand, ReviewProductResponseDto>
 {
     public async Task<ReviewProductResponseDto> Handle(UpdateReviewCommand request, CancellationToken cancellationToken)
     {
@@ -59,6 +70,26 @@ public class UpdateReviewCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _user
         review.UpdatedAt = DateTime.UtcNow;
         _unitOfWork.Repository<Review>().Update(review);
         await _unitOfWork.CommitAsync();
+
+        try
+        {
+            var freelancePtId = review.FreelancePtId;
+            var gymId = review.GymId;
+            
+            if (freelancePtId.HasValue)
+            {
+                await graphService.SyncFreelancePTReviewStatsAsync(freelancePtId.Value, cancellationToken);
+            }
+            else if (gymId.HasValue)
+            {
+                await graphService.SyncGymReviewStatsAsync(gymId.Value, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to sync review stats to Neo4j for review {ReviewId}", review.Id);
+        }
+
         return _mapper.Map<ReviewProductResponseDto>(review);
     }
 

@@ -1,16 +1,20 @@
 ﻿using AutoMapper;
 using FitBridge_Application.Dtos.GymCourses;
 using FitBridge_Application.Interfaces.Repositories;
+using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Specifications.GymCourses.GetGymCourseById;
 using FitBridge_Domain.Entities.Gyms;
 using FitBridge_Domain.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
 {
     internal class UpdateGymCourseCommandHandler(
         IUnitOfWork unitOfWork,
-        IMapper mapper) : IRequestHandler<UpdateGymCourseCommand, UpdateGymCourseResponse>
+        IMapper mapper,
+        IGraphService graphService,
+        ILogger<UpdateGymCourseCommandHandler> logger) : IRequestHandler<UpdateGymCourseCommand, UpdateGymCourseResponse>
     {
         public async Task<UpdateGymCourseResponse> Handle(UpdateGymCourseCommand request, CancellationToken cancellationToken)
         {
@@ -28,6 +32,16 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
             unitOfWork.Repository<GymCourse>().Update(gymCourse);
             await unitOfWork.CommitAsync();
 
+            try
+            {
+                var gymOwnerId = gymCourse.GymOwnerId;
+                await graphService.SyncGymCheapestCourseAsync(gymOwnerId, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to sync Gym cheapest course to Neo4j for course {GymCourseId}", request.GymCourseId);
+            }
+
             return new UpdateGymCourseResponse
             {
                 Name = gymCourse.Name,
@@ -41,4 +55,4 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
             };
         }
     }
-}
+}}
