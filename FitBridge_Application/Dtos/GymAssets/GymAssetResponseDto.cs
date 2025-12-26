@@ -11,6 +11,8 @@ public class GymAssetResponseDto
     public string AssetName { get; set; }
     public AssetType AssetType { get; set; }
     public EquipmentCategoryType EquipmentCategory { get; set; }
+    public string? VietnameseName { get; set; }
+    public string? VietnameseDescription { get; set; }
     public string Description { get; set; }
     public int Quantity { get; set; }
     public List<string> ImageUrls { get; set; } = new List<string>();
