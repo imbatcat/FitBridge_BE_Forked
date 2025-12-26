@@ -76,8 +76,8 @@ public class PayOSService : IPayOSService
                 address = $"{addressEntity.Street}, {addressEntity.Ward}, {addressEntity.District}, {addressEntity.City}";
             }
             var expirationMinutes =(int) await _systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.PaymentLinkExpirationMinutes);
-            var returnUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "http://localhost:5173/order-process" : _settings.ReturnUrl;
-            var cancelUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "http://localhost:5173/order-process" : _settings.CancelUrl;
+            var returnUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "https://fit-bridge-web.vercel.app/order-process" : _settings.ReturnUrl;
+            var cancelUrl = request.OrderItems.Any(oi => oi.SubscriptionPlansInformationId != null) ? "https://fit-bridge-web.vercel.app/order-process" : _settings.CancelUrl;
             var paymentData = new PaymentData(
                 orderCode: orderCode,
                 amount: (int)request.TotalAmountPrice,
