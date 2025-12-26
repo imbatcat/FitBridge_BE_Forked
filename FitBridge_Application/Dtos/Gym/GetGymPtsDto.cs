@@ -25,6 +25,5 @@ namespace FitBridge_Application.Dtos.Gym
         public string Gender { get; set; } = default!;
 
         public string AvatarUrl { get; set; }
-        public int MinimumSlot { get; set; }
     }
 }

@@ -417,9 +417,9 @@ public class AccountsController(IMediator _mediator, IUserUtil _userUtil) : _Bas
         return Ok(new BaseResponse<Pagination<NonContractUserDto>>(StatusCodes.Status200OK.ToString(), "Expired contract users retrieved successfully", pagination));
     }
 
-    [HttpPut("gym-pt/update-minimum-slot")]
-    [Authorize(Roles = ProjectConstant.UserRoles.GymPT)]
-    public async Task<IActionResult> UpdateGymPtMinimumSlot([FromBody] UpdateGymPtMinimumSlotCommand command)
+    [HttpPut("gym-owner/update-minimum-slot")]
+    [Authorize(Roles = ProjectConstant.UserRoles.GymOwner)]
+    public async Task<IActionResult> UpdateGymOwnerMinimumSlot([FromBody] UpdateGymOwnerMinimumSlotCommand command)
     {
         var response = await _mediator.Send(command);
         return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "Gym PT minimum slot updated successfully", response));

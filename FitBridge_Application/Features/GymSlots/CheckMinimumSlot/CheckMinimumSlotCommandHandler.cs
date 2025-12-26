@@ -20,14 +20,14 @@ public class CheckMinimumSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUtil _
         {
             throw new NotFoundException("User not found");
         }
-        var gymPt = await _applicationUserService.GetByIdAsync(userId.Value);
+        var gymPt = await _applicationUserService.GetByIdAsync(userId.Value, includes: new List<string> { "GymOwner" });
         if (gymPt == null)
         {
             throw new NotFoundException("Gym PT not found");
         }
 
         var minimumSlot = await _unitOfWork.Repository<PTGymSlot>().GetAllWithSpecificationAsync(new GetMinimumSlotSpecification(request.StartWeek, request.EndWeek, gymPt.Id));
-        return new CheckMinimumSlotResponseDto { MinimumSlot = gymPt.MinimumSlot, RegisteredSlot = minimumSlot.Count, IsAccepted = minimumSlot.Count >= gymPt.MinimumSlot };
+        return new CheckMinimumSlotResponseDto { MinimumSlot = gymPt.GymOwner!.MinimumSlot, RegisteredSlot = minimumSlot.Count, IsAccepted = minimumSlot.Count >= gymPt.GymOwner!.MinimumSlot };
     }
 
 }
