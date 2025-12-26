@@ -9,14 +9,24 @@ using FitBridge_Application.Specifications.Accounts.CheckAccountUpdateData;
 using FitBridge_Domain.Entities.Accounts;
 using FitBridge_Domain.Entities.Identity;
 using FitBridge_Domain.Exceptions;
+using FitBridge_Domain.Graph.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 
 namespace FitBridge_Application.Features.Accounts.UpdateProfiles;
 
-public class UpdateProfileCommandHandler(IApplicationUserService applicationUserService, IMapper _mapper, IUnitOfWork _unitOfWork, 
-    IUserUtil _userUtil, IHttpContextAccessor _httpContextAccessor, IUploadService _uploadService, SystemConfigurationService systemConfigurationService) : IRequestHandler<UpdateProfileCommand, UpdateProfileResponseDto>
+public class UpdateProfileCommandHandler(
+    IApplicationUserService applicationUserService, 
+    IMapper _mapper, 
+    IUnitOfWork _unitOfWork, 
+    IUserUtil _userUtil, 
+    IHttpContextAccessor _httpContextAccessor, 
+    IUploadService _uploadService, 
+    SystemConfigurationService systemConfigurationService,
+    IGraphService _graphService,
+    ILogger<UpdateProfileCommandHandler> _logger) : IRequestHandler<UpdateProfileCommand, UpdateProfileResponseDto>
 {
     public async Task<UpdateProfileResponseDto> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
     {
@@ -75,6 +85,7 @@ public class UpdateProfileCommandHandler(IApplicationUserService applicationUser
             account.CloseTime = request.CloseTime ?? account.CloseTime;
             account.PtMaxCourse = request.PtMaxCourse ?? account.PtMaxCourse;
             await HandleImagesUpdate(account, request);
+            
             await _unitOfWork.CommitAsync();
         }
         catch (Exception ex)
@@ -82,7 +93,82 @@ public class UpdateProfileCommandHandler(IApplicationUserService applicationUser
             throw new BusinessException("Lỗi khi cập nhật hồ sơ", ex);
         }
 
+        // Update graph nodes after commit (non-blocking)
+        await UpdateGraphNodes(account);
+
         return _mapper.Map<UpdateProfileResponseDto>(account);
+    }
+
+    private async Task UpdateGraphNodes(ApplicationUser account)
+    {
+        try
+        {
+            var role = await applicationUserService.GetUserRoleAsync(account);
+            
+            if (role == ProjectConstant.UserRoles.FreelancePT)
+            {
+                try
+                {
+                    var freelancePTNode = new FreelancePTNode
+                    {
+                        DbId = account.Id.ToString(),
+                        FullName = account.FullName,
+                        Email = account.Email,
+                        PhoneNumber = account.PhoneNumber ?? string.Empty,
+                        IsMale = account.IsMale,
+                        DateOfBirth = account.Dob,
+                        BusinessAddress = account.BusinessAddress ?? string.Empty,
+                        Latitude = account.Latitude ?? 0,
+                        Longitude = account.Longitude ?? 0,
+                        CourseDescription = string.Empty,
+                        CheapestCourse = string.Empty,
+                        CheapestPrice = 0,
+                        FreelancePtCourseId = string.Empty
+                    };
+                    
+                    await _graphService.UpdateNode(freelancePTNode);
+                    _logger.LogInformation("Updated FreelancePT node for user {UserId}", account.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to update FreelancePT node for user {UserId}: {Message}", account.Id, ex.Message);
+                }
+            }
+            else if (role == ProjectConstant.UserRoles.GymOwner)
+            {
+                try
+                {
+                    var gymNode = new GymNode
+                    {
+                        DbId = account.Id.ToString(),
+                        Name = account.GymName ?? string.Empty,
+                        Email = account.Email,
+                        BusinessAddress = account.BusinessAddress ?? string.Empty,
+                        Latitude = account.Latitude ?? 0,
+                        Longitude = account.Longitude ?? 0,
+                        OpenTime = account.OpenTime?.ToString() ?? string.Empty,
+                        CloseTime = account.CloseTime?.ToString() ?? string.Empty,
+                        GymOwnerName = account.FullName,
+                        AverageRating = 0,
+                        GymOwnerId = account.Id.ToString(),
+                        CheapestCourse = string.Empty,
+                        CheapestPrice = 0,
+                        CourseId = string.Empty
+                    };
+                    
+                    await _graphService.UpdateNode(gymNode);
+                    _logger.LogInformation("Updated Gym node for user {UserId}", account.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to update Gym node for user {UserId}: {Message}", account.Id, ex.Message);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to get user role for graph update for user {UserId}: {Message}", account.Id, ex.Message);
+        }
     }
 
     public async Task validateUpdateProfile(UpdateProfileCommand request)

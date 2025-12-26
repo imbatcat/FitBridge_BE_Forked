@@ -29,10 +29,10 @@ namespace FitBridge_Application.Features.Reports.ConfirmReport
             var existingReport = await unitOfWork.Repository<ReportCases>().GetByIdAsync(request.ReportId, asNoTracking: false)
                 ?? throw new NotFoundException(nameof(ReportCases));
 
-            if (existingReport.Status != ReportCaseStatus.Processing)
-            {
-                throw new DataValidationFailedException("Đơn kiện phải ở trạng thái Đang xử lý để xác nhận lừa đảo");
-            }
+            //if (existingReport.Status != ReportCaseStatus.Processing)
+            //{
+            //    throw new DataValidationFailedException("Đơn kiện phải ở trạng thái Đang xử lý để xác nhận lừa đảo");
+            //}
 
             var orderItemSpec = new GetOrderItemByIdSpec(
                 existingReport.OrderItemId,

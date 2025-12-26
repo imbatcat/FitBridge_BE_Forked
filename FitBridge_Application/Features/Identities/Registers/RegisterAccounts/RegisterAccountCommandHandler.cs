@@ -5,15 +5,24 @@ using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Domain.Entities.Accounts;
 using FitBridge_Domain.Entities.Identity;
+using FitBridge_Domain.Graph.Entities;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using FitBridge_Domain.Entities.Orders;
 using FitBridge_Application.Dtos.Emails;
 using FitBridge_Domain.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace FitBridge_Application.Features.Identities.Registers.RegisterAccounts;
 
-public class RegisterAccountCommandHandler(IApplicationUserService _applicationUserService, IConfiguration _configuration, IEmailService _emailService, IUnitOfWork _unitOfWork, IUploadService _uploadService) : IRequestHandler<RegisterAccountCommand, RegisterResponseDto>
+public class RegisterAccountCommandHandler(
+    IApplicationUserService _applicationUserService, 
+    IConfiguration _configuration, 
+    IEmailService _emailService, 
+    IUnitOfWork _unitOfWork, 
+    IUploadService _uploadService,
+    IGraphService _graphService,
+    ILogger<RegisterAccountCommandHandler> _logger) : IRequestHandler<RegisterAccountCommand, RegisterResponseDto>
 {
     public async Task<RegisterResponseDto> Handle(RegisterAccountCommand request, CancellationToken cancellationToken)
     {
@@ -58,8 +67,8 @@ public class RegisterAccountCommandHandler(IApplicationUserService _applicationU
             IdentityCardDate = request.IdentityCardDate ?? null,
             BusinessAddress = request.BusinessAddress ?? null,
             OpenTime = request.OpenTime ?? null,
-                CloseTime = request.CloseTime ?? null,
-                GymFoundationDate = request.GymFoundationDate ?? null,
+            CloseTime = request.CloseTime ?? null,
+            GymFoundationDate = request.GymFoundationDate ?? null,
             IsMale = request.IsMale ?? false,
             Dob = DateTime.SpecifyKind(request.Dob ?? DateTime.UtcNow.AddYears(-17), DateTimeKind.Utc),
         };
@@ -93,7 +102,78 @@ public class RegisterAccountCommandHandler(IApplicationUserService _applicationU
         }
         await _unitOfWork.CommitAsync();
 
+        // Create graph nodes after commit (non-blocking)
+        if (request.Role == ProjectConstant.UserRoles.GymOwner)
+        {
+            await CreateGymNode(user);
+        }
+        else if (request.Role == ProjectConstant.UserRoles.FreelancePT)
+        {
+            await CreateFreelancePTNode(user);
+        }
+
         return new RegisterResponseDto { UserId = user.Id };
+    }
+
+    private async Task CreateFreelancePTNode(ApplicationUser user)
+    {
+        try
+        {
+            var freelancePTNode = new FreelancePTNode
+            {
+                DbId = user.Id.ToString(),
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                IsMale = user.IsMale,
+                DateOfBirth = user.Dob,
+                BusinessAddress = user.BusinessAddress ?? string.Empty,
+                Latitude = user.Latitude ?? 0,
+                Longitude = user.Longitude ?? 0,
+                CourseDescription = string.Empty,
+                CheapestCourse = string.Empty,
+                CheapestPrice = 0,
+                FreelancePtCourseId = string.Empty
+            };
+            
+            await _graphService.CreateNode(freelancePTNode);
+            _logger.LogInformation("Created FreelancePT node for user {UserId}", user.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to create FreelancePT node for user {UserId}: {Message}", user.Id, ex.Message);
+        }
+    }
+
+    private async Task CreateGymNode(ApplicationUser user)
+    {
+        try
+        {
+            var gymNode = new GymNode
+            {
+                DbId = user.Id.ToString(),
+                Name = user.GymName ?? string.Empty,
+                Email = user.Email,
+                BusinessAddress = user.BusinessAddress ?? string.Empty,
+                Latitude = user.Latitude ?? 0,
+                Longitude = user.Longitude ?? 0,
+                OpenTime = user.OpenTime?.ToString() ?? string.Empty,
+                CloseTime = user.CloseTime?.ToString() ?? string.Empty,
+                AverageRating = 0,
+                GymOwnerId = user.Id.ToString(),
+                GymOwnerName = user.FullName,
+                CheapestCourse = string.Empty,
+                CheapestPrice = 0,
+                CourseId = string.Empty
+            };
+            
+            await _graphService.CreateNode(gymNode);
+            _logger.LogInformation("Created Gym node for user {UserId}", user.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to create Gym node for user {UserId}: {Message}", user.Id, ex.Message);
+        }
     }
 
     public async Task InsertUserDetail(ApplicationUser user)
