@@ -42,5 +42,11 @@ namespace FitBridge_Domain.Graph.Entities
 
         [MappingSource("fpt.freelancePtCourseId")]
         public string FreelancePtCourseId { get; set; } = string.Empty;
+
+        [MappingSource("fpt.avgRating")]
+        public double AverageRating { get; set; }
+
+        [MappingSource("fpt.reviewCount")]
+        public int ReviewCount { get; set; }
     }
 }

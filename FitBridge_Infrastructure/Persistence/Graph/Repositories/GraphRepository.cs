@@ -65,7 +65,9 @@ namespace FitBridge_Infrastructure.Persistence.Graph.Repositories
                         courseDescription: $courseDescription,
                         cheapestCourse: $cheapestCourse,
                         cheapestPrice: $cheapestPrice,
-                        freelancePtCourseId: $freelancePtCourseId
+                        freelancePtCourseId: $freelancePtCourseId,
+                        avgRating: $avgRating,
+                        reviewCount: $reviewCount
                     })",
                     new
                     {
@@ -81,7 +83,9 @@ namespace FitBridge_Infrastructure.Persistence.Graph.Repositories
                         courseDescription = node.CourseDescription,
                         cheapestCourse = node.CheapestCourse,
                         cheapestPrice = node.CheapestPrice,
-                        freelancePtCourseId = node.FreelancePtCourseId
+                        freelancePtCourseId = node.FreelancePtCourseId,
+                        avgRating = node.AverageRating,
+                        reviewCount = node.ReviewCount
                     });
             });
         }
@@ -104,7 +108,9 @@ namespace FitBridge_Infrastructure.Persistence.Graph.Repositories
                           f.courseDescription = $courseDescription,
                           f.cheapestCourse = $cheapestCourse,
                           f.cheapestPrice = $cheapestPrice,
-                          f.freelancePtCourseId = $freelancePtCourseId",
+                          f.freelancePtCourseId = $freelancePtCourseId,
+                          f.avgRating = $avgRating,
+                          f.reviewCount = $reviewCount",
                     new
                     {
                         dbId = node.DbId,
@@ -119,7 +125,9 @@ namespace FitBridge_Infrastructure.Persistence.Graph.Repositories
                         courseDescription = node.CourseDescription,
                         cheapestCourse = node.CheapestCourse,
                         cheapestPrice = node.CheapestPrice,
-                        freelancePtCourseId = node.FreelancePtCourseId
+                        freelancePtCourseId = node.FreelancePtCourseId,
+                        avgRating = node.AverageRating,
+                        reviewCount = node.ReviewCount
                     });
             });
         }
@@ -850,7 +858,9 @@ namespace FitBridge_Infrastructure.Persistence.Graph.Repositories
                 CourseDescription = node.Properties["courseDescription"].As<string>(),
                 CheapestCourse = node.Properties["cheapestCourse"].As<string>(),
                 CheapestPrice = node.Properties["cheapestPrice"].As<decimal>(),
-                FreelancePtCourseId = node.Properties["freelancePtCourseId"].As<string>()
+                FreelancePtCourseId = node.Properties["freelancePtCourseId"].As<string>(),
+                AverageRating = node.Properties.ContainsKey("avgRating") ? node.Properties["avgRating"].As<double>() : 0,
+                ReviewCount = node.Properties.ContainsKey("reviewCount") ? node.Properties["reviewCount"].As<int>() : 0
             };
         }
 

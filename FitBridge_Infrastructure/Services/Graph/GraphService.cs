@@ -1,14 +1,37 @@
 ﻿using FitBridge_Application.Interfaces.Repositories;
 using FitBridge_Application.Interfaces.Services;
+using FitBridge_Application.Specifications.FreelancePtPackages.GetFreelancePTPackagesByPtId;
+using FitBridge_Application.Specifications.GymCourses.GetGymCoursesByGymOwnerId;
+using FitBridge_Application.Specifications.Reviews.GetReviewsByFreelancePtId;
+using FitBridge_Application.Specifications.Reviews.GetReviewsByGymId;
+using FitBridge_Domain.Entities.Gyms;
+using FitBridge_Domain.Entities.Identity;
+using FitBridge_Domain.Entities.MessageAndReview;
 using FitBridge_Domain.Graph.Entities;
 using FitBridge_Domain.Graph.Entities.Relationships;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OpenAI;
 using OpenAI.Models;
 
 namespace FitBridge_Infrastructure.Services.Graph
 {
-    internal class GraphService(IGraphRepository graphRepository) : IGraphService
+    internal class GraphService : IGraphService
     {
+        private readonly IGraphRepository graphRepository;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<ApplicationUser> userManager;
+
+        public GraphService(
+            IGraphRepository graphRepository, 
+            IUnitOfWork unitOfWork,
+            UserManager<ApplicationUser> userManager)
+        {
+            this.graphRepository = graphRepository;
+            this.unitOfWork = unitOfWork;
+            this.userManager = userManager;
+        }
+
         public async Task CreateNode(BaseNode node)
         {
             switch (node)
@@ -162,6 +185,140 @@ namespace FitBridge_Infrastructure.Services.Graph
                     await graphRepository.UpdateTargetsRelationshipAsync(targets);
                     break;
             }
+        }
+
+        public async Task SyncFreelancePTCheapestCourseAsync(Guid ptId, CancellationToken cancellationToken = default)
+        {
+            // Get all packages for this PT from PostgreSQL using specification
+            var specification = new GetFreelancePTPackagesByPtIdSpec(ptId);
+            var packages = await unitOfWork.Repository<FreelancePTPackage>()
+                .GetAllWithSpecificationAsync(specification, asNoTracking: true);
+
+            // Get the existing FreelancePTNode from Neo4j
+            var existingNode = await graphRepository.GetFreelancePTByIdAsync(ptId.ToString(), cancellationToken);
+            
+            if (existingNode == null)
+            {
+                // Node doesn't exist, skip sync
+                return;
+            }
+
+            if (packages.Any())
+            {
+                var cheapestPackage = packages.First();
+                
+                // Update the node with cheapest course info
+                existingNode.CheapestCourse = cheapestPackage.Name;
+                existingNode.CheapestPrice = cheapestPackage.Price;
+                existingNode.CourseDescription = cheapestPackage.Description ?? string.Empty;
+                existingNode.FreelancePtCourseId = cheapestPackage.Id.ToString();
+            }
+            else
+            {
+                // No packages, clear the cheapest course info
+                existingNode.CheapestCourse = string.Empty;
+                existingNode.CheapestPrice = 0;
+                existingNode.CourseDescription = string.Empty;
+                existingNode.FreelancePtCourseId = string.Empty;
+            }
+
+            // Update the node in Neo4j
+            await graphRepository.UpdateFreelancePTNodeAsync(existingNode, cancellationToken);
+        }
+
+        public async Task SyncGymCheapestCourseAsync(Guid gymOwnerId, CancellationToken cancellationToken = default)
+        {
+            // Get all courses for this gym from PostgreSQL using specification
+            var specification = new GetGymCoursesByGymOwnerIdSpec(gymOwnerId);
+            var courses = await unitOfWork.Repository<GymCourse>()
+                .GetAllWithSpecificationAsync(specification, asNoTracking: true);
+
+            // Get the existing GymNode from Neo4j
+            var existingNode = await graphRepository.GetGymByIdAsync(gymOwnerId.ToString(), cancellationToken);
+            
+            if (existingNode == null)
+            {
+                // Node doesn't exist, skip sync
+                return;
+            }
+
+            if (courses.Any())
+            {
+                var cheapestCourse = courses.First();
+                
+                // Update the node with cheapest course info
+                existingNode.CheapestCourse = cheapestCourse.Name;
+                existingNode.CheapestPrice = cheapestCourse.Price;
+                existingNode.CourseId = cheapestCourse.Id.ToString();
+            }
+            else
+            {
+                // No courses, clear the cheapest course info
+                existingNode.CheapestCourse = string.Empty;
+                existingNode.CheapestPrice = 0;
+                existingNode.CourseId = string.Empty;
+            }
+
+            // Update the node in Neo4j
+            await graphRepository.UpdateGymNodeAsync(existingNode, cancellationToken);
+        }
+
+        public async Task SyncFreelancePTReviewStatsAsync(Guid ptId, CancellationToken cancellationToken = default)
+        {
+            // Get all reviews for this PT from PostgreSQL using specification
+            var specification = new GetReviewsByFreelancePtIdSpec(ptId);
+            var reviews = await unitOfWork.Repository<Review>()
+                .GetAllWithSpecificationAsync(specification, asNoTracking: true);
+
+            // Get the existing FreelancePTNode from Neo4j
+            var existingNode = await graphRepository.GetFreelancePTByIdAsync(ptId.ToString(), cancellationToken);
+            
+            if (existingNode == null)
+            {
+                return;
+            }
+
+            if (reviews.Any())
+            {
+                var avgRating = reviews.Average(r => r.Rating);
+                existingNode.AverageRating = avgRating;
+                existingNode.ReviewCount = reviews.Count;
+            }
+            else
+            {
+                existingNode.AverageRating = 0;
+                existingNode.ReviewCount = 0;
+            }
+
+            await graphRepository.UpdateFreelancePTNodeAsync(existingNode, cancellationToken);
+        }
+
+        public async Task SyncGymReviewStatsAsync(Guid gymId, CancellationToken cancellationToken = default)
+        {
+            // Get all reviews for this gym from PostgreSQL using specification
+            var specification = new GetReviewsByGymIdSpec(gymId);
+            var reviews = await unitOfWork.Repository<Review>()
+                .GetAllWithSpecificationAsync(specification, asNoTracking: true);
+
+            // Get the existing GymNode from Neo4j
+            var existingNode = await graphRepository.GetGymByIdAsync(gymId.ToString(), cancellationToken);
+            
+            if (existingNode == null)
+            {
+                return;
+            }
+
+            if (reviews.Any())
+            {
+                var avgRating = reviews.Average(r => r.Rating);
+                existingNode.AverageRating = avgRating;
+            }
+            else
+            {
+                existingNode.AverageRating = 0;
+            }
+
+            await graphRepository.UpdateGymNodeAsync(existingNode, cancellationToken);
         }
 
         private static string GetCertificateEmbeddingText(CertificateNode node)
