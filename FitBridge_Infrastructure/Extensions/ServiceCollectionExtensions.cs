@@ -17,6 +17,7 @@ using FitBridge_Infrastructure.Persistence;
 using FitBridge_Infrastructure.Persistence.Graph.Repositories;
 using FitBridge_Infrastructure.Seeder;
 using FitBridge_Infrastructure.Services;
+using FitBridge_Infrastructure.Services.Graph;
 using FitBridge_Infrastructure.Services.Implements;
 using FitBridge_Infrastructure.Services.Jobs;
 using FitBridge_Infrastructure.Services.Meetings.Helpers;
@@ -45,7 +46,7 @@ namespace FitBridge_Infrastructure.Extensions
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IDriver>(GraphDatabase.Driver(
-                configuration.GetConnectionString("Neo4j")!,
+                configuration["Neo4j:Uri"]!,
                 AuthTokens.Basic(
                     configuration["Neo4j:Username"]!,
                     configuration["Neo4j:Password"]!)));
@@ -196,7 +197,9 @@ namespace FitBridge_Infrastructure.Extensions
             services.AddSingleton<NotificationConnectionManager>();
             services.AddSingleton<NotificationHandshakeManager>();
             services.AddSingleton<SessionManager>();
+            services.AddSingleton<IGraphRepository, GraphRepository>();
 
+            services.AddScoped<IGraphService, GraphService>();
             services.AddScoped<IMessagingHubService, MessagingHubService>();
             services.AddScoped<INotificationService, NotificationsService>();
             services.AddScoped<IIdentitySeeder, IdentitySeeder>();

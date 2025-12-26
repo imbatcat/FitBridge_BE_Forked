@@ -1,6 +1,6 @@
 namespace FitBridge_Domain.Graph.Entities.Relationships
 {
-    public class HasCertificateRelationship
+    public class HasCertificateRelationship : BaseRelationship
     {
         public string FreelancePTId { get; set; } = string.Empty;
 
@@ -10,8 +10,8 @@ namespace FitBridge_Domain.Graph.Entities.Relationships
 
         public string CertUrl { get; set; } = string.Empty;
 
-        public DateTime ProvidedDate { get; set; }
+        public DateOnly ProvidedDate { get; set; }
 
-        public DateTime ExpirationDate { get; set; }
+        public DateOnly ExpirationDate { get; set; }
     }
 }

@@ -1,11 +1,9 @@
 namespace FitBridge_Domain.Graph.Entities.Relationships
 {
-    public class TargetsRelationship
+    public class TargetsRelationship : BaseRelationship
     {
-        public string SourceId { get; set; } = string.Empty;
+        public string GymAssetId { get; set; } = string.Empty;
 
-        public string MuscleId { get; set; } = string.Empty;
-
-        public int TargetIntensity { get; set; }
+        public List<string> MuscleNames { get; set; } = [];
     }
 }

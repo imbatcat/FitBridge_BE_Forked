@@ -7,5 +7,6 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
+		<PackageReference Include="Neo4j.Driver" Version="5.28.4" />
 	</ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 namespace FitBridge_Domain.Graph.Entities
 {
-    public class CertificateNode
+    public class CertificateNode : BaseNode
     {
         public string DbId { get; set; } = string.Empty;
 
