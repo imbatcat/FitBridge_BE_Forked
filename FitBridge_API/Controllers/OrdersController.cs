@@ -13,6 +13,7 @@ using FitBridge_Application.Features.Orders.GetOrderByCustomerPurchasedId;
 using FitBridge_Application.Features.Orders.GetShippingPrice;
 using FitBridge_Application.Features.Orders.ProcessAhamoveWebhook;
 using FitBridge_Application.Features.Orders.UpdateOrderStatus;
+using FitBridge_Application.Features.Orders.UpdateShippingOrderStatus;
 using FitBridge_Application.Features.Reviews.GetCustomerReviews;
 using FitBridge_Application.Interfaces.Services;
 using FitBridge_Application.Specifications.Orders.GetAllProductOrders;
@@ -79,7 +80,7 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
     }
 
     /// <summary>
-    /// Update the status of an order
+    /// Update the status of an order (for non-shipping orders or simple status updates)
     /// </summary>
     /// <param name="orderId"></param>
     /// <param name="command"></param>
@@ -90,6 +91,44 @@ public class OrdersController(IMediator _mediator) : _BaseApiController
         command.OrderId = orderId;
         var result = await _mediator.Send(command);
         return Ok(new BaseResponse<OrderStatusResponseDto>(StatusCodes.Status200OK.ToString(), "Order status updated successfully", result));
+    }
+
+    /// <summary>
+    /// Manual backup: Update shipping order status with Ahamove-like logic (use when webhook fails)
+    /// </summary>
+    /// <remarks>
+    /// This endpoint provides a manual backup option to update shipping order status when Ahamove webhook fails.
+    /// 
+    /// **Available Target Statuses:**
+    /// - Assigning: Driver is being assigned
+    /// - Accepted: Driver accepted the order (provide SupplierName)
+    /// - Shipping: Order is being delivered (provide ActualShippingCost if transitioning from Accepted)
+    /// - Arrived: Successfully delivered to customer
+    /// - InReturn: Package is being returned to sender
+    /// - Returned: Package was returned (will auto-cancel for COD orders and restore inventory)
+    /// 
+    /// **Business Logic Applied:**
+    /// - Arrived: Updates COD transaction to Success, schedules auto-finish and feedback jobs
+    /// - Shipping (from Accepted): Updates actual shipping cost and adjusts profit
+    /// - Returned: Restores product inventory for COD orders, creates return history
+    /// 
+    /// **Use Cases:**
+    /// - Demo/testing when webhook is not working
+    /// - Manual intervention when delivery partner API is down
+    /// - Administrative corrections
+    /// </remarks>
+    /// <param name="orderId">The ID of the order to update</param>
+    /// <param name="command">Command containing target status and optional details</param>
+    /// <returns>Updated order status information</returns>
+    /// <response code="200">Shipping order status updated successfully</response>
+    /// <response code="404">Order not found</response>
+    /// <response code="400">Invalid status transition or business rule violation</response>
+    [HttpPut("shipping/status/{orderId}")]
+    public async Task<IActionResult> UpdateShippingOrderStatus([FromRoute] Guid orderId, [FromBody] UpdateShippingOrderStatusCommand command)
+    {
+        command.OrderId = orderId;
+        var result = await _mediator.Send(command);
+        return Ok(new BaseResponse<OrderStatusResponseDto>(StatusCodes.Status200OK.ToString(), "Shipping order status updated successfully", result));
     }
 
     /// <summary>

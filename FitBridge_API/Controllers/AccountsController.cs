@@ -53,6 +53,8 @@ using FitBridge_Application.Features.GymSlots.GetGymSlotPtBooking;
 using FitBridge_Application.Specifications.Accounts.GetExpiredContractUser;
 using FitBridge_Application.Features.Accounts.GetExpiredContractUser;
 using FitBridge_Application.Dtos.Contracts;
+using FitBridge_Application.Features.Accounts.UpdateGymPtMinimumSlot;
+using FitBridge_Application.Features.Accounts.GetGymOwnerMinimumSlot;
 
 namespace FitBridge_API.Controllers;
 
@@ -414,5 +416,21 @@ public class AccountsController(IMediator _mediator, IUserUtil _userUtil) : _Bas
         var response = await _mediator.Send(new GetExpiredContractUserQuery(parameters));
         var pagination = ResultWithPagination(response.Items, response.Total, parameters.Page, parameters.Size);
         return Ok(new BaseResponse<Pagination<NonContractUserDto>>(StatusCodes.Status200OK.ToString(), "Expired contract users retrieved successfully", pagination));
+    }
+
+    [HttpPut("gym-owner/update-minimum-slot")]
+    [Authorize(Roles = ProjectConstant.UserRoles.GymOwner)]
+    public async Task<IActionResult> UpdateGymOwnerMinimumSlot([FromBody] UpdateGymOwnerMinimumSlotCommand command)
+    {
+        var response = await _mediator.Send(command);
+        return Ok(new BaseResponse<bool>(StatusCodes.Status200OK.ToString(), "Gym PT minimum slot updated successfully", response));
+    }
+
+    [HttpGet("gym-owner/minimum-slot")]
+    [Authorize(Roles = ProjectConstant.UserRoles.GymOwner)]
+    public async Task<IActionResult> GetGymOwnerMinimumSlot()
+    {
+        var response = await _mediator.Send(new GetGymOwnerMinimumSlotQuery());
+        return Ok(new BaseResponse<int>(StatusCodes.Status200OK.ToString(), "Gym owner minimum slot retrieved successfully", response));
     }
 }

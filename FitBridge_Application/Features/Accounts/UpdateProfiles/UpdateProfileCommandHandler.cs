@@ -129,7 +129,7 @@ public class UpdateProfileCommandHandler(IApplicationUserService applicationUser
     private async Task HandleImagesUpdate(ApplicationUser account, UpdateProfileCommand request)
     {
         var role = await applicationUserService.GetUserRoleAsync(account);
-        if (role == ProjectConstant.UserRoles.FreelancePT)
+        if (role == ProjectConstant.UserRoles.FreelancePT || role == ProjectConstant.UserRoles.GymPT)
         {
             if (request.ImagesToRemove != null && request.ImagesToRemove.Any())
             {

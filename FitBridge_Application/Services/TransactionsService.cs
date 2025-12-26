@@ -585,7 +585,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         return true;
     }
 
-    public async Task<bool> UpdateOrderShippingDetails(Guid orderId, decimal shippingActualCost, string shippingTrackingId)
+    public async Task<bool> UpdateOrderShippingDetails(Guid orderId, decimal shippingActualCost, string shippingTrackingId, string? ahamoveSharedLink = null)
     {
         var order = await _unitOfWork.Repository<Order>().GetByIdAsync(orderId, includes: new List<string> { "Transactions", "OrderStatusHistories" });
         if (order == null)
@@ -596,6 +596,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
         // Update order shipping actual cost and Ahamove order ID
         // order.ShippingFeeActualCost += shippingActualCost;
         order.ShippingTrackingId = shippingTrackingId;
+        order.AhamoveSharedLink = ahamoveSharedLink;
         var oldStatus = order.Status;
         order.Status = OrderStatus.Assigning;
         var orderStatusHistory = new OrderStatusHistory
@@ -605,6 +606,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
             Description = "Order status updated to Assigning",
             PreviousStatus = oldStatus,
         };
+
         _unitOfWork.Repository<OrderStatusHistory>().Insert(orderStatusHistory);
 
         _logger.LogInformation($"Order {orderId} updated with shipping actual cost {shippingActualCost}, Shipping Tracking ID {shippingTrackingId}, and status changed to Assigning");

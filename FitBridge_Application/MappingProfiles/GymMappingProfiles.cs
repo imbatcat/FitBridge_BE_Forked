@@ -43,7 +43,7 @@ namespace FitBridge_Application.MappingProfiles
                     src => src.UserDetail!.Weight))
                 .ForMember(dest => dest.Experience, opt => opt.MapFrom(
                     src => src.UserDetail!.Experience));
-
+                    
             CreateProjection<GymCoursePT, GetGymPtsDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(
                     src => src.PT.Id))

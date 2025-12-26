@@ -5,6 +5,7 @@ using FitBridge_Application.Dtos.Payments;
 using FitBridge_Application.Features.Payments.AppleWebhook;
 using FitBridge_Application.Features.Payments.ApproveWithdrawalRequest;
 using FitBridge_Application.Features.Payments.CancelPaymentCommand;
+using FitBridge_Application.Features.Payments.CheckWithdrawalMaximumAmount;
 using FitBridge_Application.Features.Payments.ConfirmWithdrawalRequest;
 using FitBridge_Application.Features.Payments.CreatePaymentLink;
 using FitBridge_Application.Features.Payments.CreateRequestPayment;
@@ -288,5 +289,20 @@ public class PaymentsController(IMediator _mediator) : _BaseApiController
     {
         var result = await _mediator.Send(command);
         return Ok(new BaseResponse<string>(StatusCodes.Status200OK.ToString(), "Order re-paid successfully", result));
+    }
+
+    [HttpGet("check-withdrawal-maximum-amount")]
+    [Authorize(Roles = ProjectConstant.UserRoles.FreelancePT + "," + ProjectConstant.UserRoles.GymOwner)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseResponse<CheckWithdrawalMaximumAmountDto>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CheckWithdrawalMaximumAmount()
+    {
+        var result = await _mediator.Send(new CheckWithdrawalMaximumAmountCommand());
+        return Ok(new BaseResponse<CheckWithdrawalMaximumAmountDto>(
+            StatusCodes.Status200OK.ToString(),
+            "Withdrawal maximum amount checked successfully",
+            result));
     }
 }

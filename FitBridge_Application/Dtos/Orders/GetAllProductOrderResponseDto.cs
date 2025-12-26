@@ -18,6 +18,7 @@ public class GetAllProductOrderResponseDto
     public DateTime UpdatedAt { get; set; }
     public OrderStatus CurrentStatus { get; set; }
     public Guid? CouponId { get; set; }
+    public string? AhamoveSharedLink { get; set; }
     public AddressResponseDto ShippingDetail { get; set; }
     public ICollection<OrderItemForProductOrderResponseDto> OrderItems { get; set; } = new List<OrderItemForProductOrderResponseDto>();
 }

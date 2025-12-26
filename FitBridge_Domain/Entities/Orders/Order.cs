@@ -20,6 +20,7 @@ public class Order : BaseEntity
     public decimal TotalAmount { get; set; }
     public Guid? CustomerPurchasedIdToExtend { get; set; }
     public Guid? GymCoursePTIdToAssign { get; set; }
+    public string? AhamoveSharedLink { get; set; }
     public CustomerPurchased? CustomerPurchasedToExtend { get; set; }
 
     public Address Address { get; set; }

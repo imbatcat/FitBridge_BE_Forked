@@ -22,6 +22,7 @@ public class OrderMappingProfile : Profile
         .ForMember(dest => dest.ShippingFee, opt => opt.MapFrom(src => src.ShippingFee))
         .ForMember(dest => dest.ShippingFeeActualCost, opt => opt.MapFrom(src => src.ShippingFeeActualCost))
         .ForMember(dest => dest.ShippingTrackingId, opt => opt.MapFrom(src => src.ShippingTrackingId))
+        .ForMember(dest => dest.AhamoveSharedLink, opt => opt.MapFrom(src => src.AhamoveSharedLink))
         .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
         .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
         .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
