@@ -29,16 +29,24 @@ public class StartBookingSessionCommandHandler(IUnitOfWork _unitOfWork, ISchedul
         {
             throw new BusinessException("Không thể bắt đầu buổi tập không có hoạt động, vui lòng liên hệ huấn luyện viên của bạn");
         }
-        var currentDate = DateTime.UtcNow;
+        string timeZoneId = Environment.OSVersion.Platform == PlatformID.Win32NT 
+        ? "SE Asia Standard Time" 
+        : "Asia/Ho_Chi_Minh";
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+    // 2. CALCULATE ONLY (Don't store this!)
+    // We compare Vietnam Time vs Vietnam Time to check the rule
+        var nowUtc = DateTime.UtcNow;
+        var currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, vietnamTimeZone);
         await CheckSessionStart(booking);
         var earlyStartSessionBeforeMinutes = (int)await systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.EarlyStartSessionBeforeMinutes);
-        var earliestStartSessionTime = booking.BookingDate.ToDateTime(booking.PtFreelanceStartTime.Value, DateTimeKind.Utc).AddMinutes(-earlyStartSessionBeforeMinutes);
-        if (earliestStartSessionTime > currentDate)
+        var earliestStartSessionTime = booking.BookingDate.ToDateTime(booking.PtFreelanceStartTime.Value).AddMinutes(-earlyStartSessionBeforeMinutes);
+        if (earliestStartSessionTime > currentVietnamTime)
         {
             throw new BusinessException($"Không thể bắt đầu sớm trước thời gian bắt đầu buổi tập quá {earlyStartSessionBeforeMinutes} phút");
         }
-        booking.SessionStartTime = currentDate;
-        booking.UpdatedAt = DateTime.UtcNow;
+        booking.SessionStartTime = nowUtc;
+        booking.UpdatedAt = nowUtc;
         _unitOfWork.Repository<Booking>().Update(booking);
         await ScheduleFinishedBookingSession(booking);
         await CancelAutoCancelBookingJob(booking);
