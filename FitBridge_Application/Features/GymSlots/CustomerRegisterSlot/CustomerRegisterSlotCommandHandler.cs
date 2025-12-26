@@ -57,11 +57,12 @@ public class CustomerRegisterSlotCommandHandler(IUnitOfWork _unitOfWork, IUserUt
         };
         _unitOfWork.Repository<Booking>().Insert(insertBooking);
         await _unitOfWork.CommitAsync();
-        await _scheduleJobServices.ScheduleFinishedBookingSession(new FinishedBookingSessionJobScheduleDto
-        {
-            BookingId = insertBooking.Id,
-            TriggerTime = ptGymSlot.RegisterDate.ToDateTime(ptGymSlot.GymSlot.EndTime, DateTimeKind.Utc)
-        });
+        // await _scheduleJobServices.ScheduleFinishedBookingSession(new FinishedBookingSessionJobScheduleDto
+        // {
+        //     BookingId = insertBooking.Id,
+        //     TriggerTime = ptGymSlot.RegisterDate.ToDateTime(ptGymSlot.GymSlot.EndTime, DateTimeKind.Utc)
+        // });
+        await _scheduleJobServices.ScheduleAutoCancelBookingJob(insertBooking);
         return true;
     }
 }

@@ -55,7 +55,7 @@ public class CancelGymPtBookingCommandHandler(IUnitOfWork _unitOfWork, SystemCon
             booking.CustomerPurchased.AvailableSessions++;
             booking.IsSessionRefund = true;
         }
-        else
+        else if(booking.PTGymSlot == null) //If this booking is Freelance PT booking
         {
             //If cancel booking and not refund number of sessions, it is still count as finished booking for profit distribution
             var distributePendingProfitResult = await _transactionService.DistributePendingProfit(booking.CustomerPurchasedId);
