@@ -16,13 +16,12 @@ public class UpdateGymOwnerMinimumSlotCommandHandler(IUnitOfWork _unitOfWork, IU
         {
             throw new NotFoundException("User not found");
         }
-        var gymOwner = await _applicationUserService.GetByIdAsync(userId.Value);
+        var gymOwner = await _applicationUserService.GetByIdAsync(userId.Value, isTracking: true);
         if (gymOwner == null)
         {
             throw new NotFoundException("Gym PT not found");
         }
         gymOwner.MinimumSlot = request.MinimumSlot;
-        await _applicationUserService.UpdateAsync(gymOwner);
         await _unitOfWork.CommitAsync();
         return true;
     }
