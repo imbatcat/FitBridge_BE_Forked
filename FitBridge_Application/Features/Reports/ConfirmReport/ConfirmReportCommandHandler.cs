@@ -69,8 +69,9 @@ namespace FitBridge_Application.Features.Reports.ConfirmReport
                 var jobGroup = "ProfitDistribution";
                 await scheduleJobServices.CancelScheduleJob(jobName, jobGroup);
 
+                var systemProfit = await transactionService.CalculateSystemProfit(orderItem.Order);
                 var refundAmount = await transactionService.CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
-                await CreateDeductPendingBalanceTransactionAsync(orderItem, refundAmount);
+                await CreateDeductPendingBalanceTransactionAsync(orderItem, refundAmount - systemProfit);
                 await SendNotificationToReported(existingReport, orderItem);
 
                 var courseCompletion = await courseCompletionService.GetCourseCompletionAsync(existingReport.OrderItemId);
