@@ -16,9 +16,7 @@ public class GetUserDetailsQueryHandler(IUnitOfWork _unitOfWork, IMapper _mapper
 {
     public async Task<UserDetailDto> Handle(GetUserDetailsQuery request, CancellationToken cancellationToken)
     {
-        var userId = _userUtil.GetAccountId(_httpContextAccessor.HttpContext)
-            ?? throw new NotFoundException(nameof(ApplicationUser));
-        var userDetail = await _unitOfWork.Repository<UserDetail>().GetByIdAsync(userId);
+        var userDetail = await _unitOfWork.Repository<UserDetail>().GetByIdAsync(request.CustomerId.Value, includes: new List<string> { "User" });
         return _mapper.Map<UserDetailDto>(userDetail);
     }
 }

@@ -4,6 +4,7 @@ namespace FitBridge_Application.Dtos.SessionActivities;
 
 public class SessionPracticeContentDto
 {
+    public Guid CustomerId { get; set; }
     public Guid BookingId { get; set; }
     public string note { get; set; }
     public string NutritionTip { get; set; }

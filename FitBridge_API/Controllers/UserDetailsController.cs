@@ -10,10 +10,10 @@ namespace FitBridge_API.Controllers;
 
 public class UserDetailsController(IMediator _mediator) : _BaseApiController
 {
-    [HttpGet]
-    public async Task<IActionResult> GetUserDetails()
+    [HttpGet("{customerId}")]
+    public async Task<IActionResult> GetUserDetails([FromRoute] Guid customerId)
     {
-        var result = await _mediator.Send(new GetUserDetailsQuery());
+        var result = await _mediator.Send(new GetUserDetailsQuery { CustomerId = customerId });
         return Ok(new BaseResponse<UserDetailDto>(StatusCodes.Status200OK.ToString(), "User details fetched successfully", result));
     }
 
