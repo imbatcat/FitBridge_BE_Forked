@@ -17,4 +17,6 @@ public class UserDetailDto
     public double? Weight { get; set; }
     public int? Experience { get; set; }
     public string? Bio { get; set; }
+    public string? Gender { get; set; }
+    public DateTime? Dob { get; set; }
 }

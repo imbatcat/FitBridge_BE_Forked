@@ -23,7 +23,7 @@ namespace FitBridge_Domain.Entities.Identity
         public TimeOnly? OpenTime { get; set; }
         public TimeOnly? CloseTime { get; set; }
         public bool IsMale { get; set; }
-        public DateTime Dob { get; set; }
+        public DateTime Dob { get; set; } = DateTime.UtcNow.AddYears(-16);
         public string Password { get; set; }
         public string? GymName { get; set; }
         public string? TaxCode { get; set; }
