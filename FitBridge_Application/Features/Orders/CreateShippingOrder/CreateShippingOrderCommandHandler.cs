@@ -100,15 +100,11 @@ public class CreateShippingOrderCommandHandler : IRequestHandler<CreateShippingO
             await _transactionService.UpdateOrderShippingDetails(
                 orderId: order.Id,
                 shippingActualCost: ahamoveResponse.Order.TotalFee,
-                shippingTrackingId: ahamoveResponse.OrderId
+                shippingTrackingId: ahamoveResponse.OrderId,
+                ahamoveSharedLink: ahamoveResponse.SharedLink
             );
 
             _logger.LogInformation($"Successfully created Ahamove order {ahamoveResponse.OrderId} for Order ID: {request.OrderId}. Shared link: {ahamoveResponse.SharedLink}");
-
-            order.AhamoveSharedLink = ahamoveResponse.SharedLink;
-            _unitOfWork.Repository<Order>().Update(order);
-            await _unitOfWork.CommitAsync();
-
             return new CreateShippingOrderResponseDto
             {
                 AhamoveOrderId = ahamoveResponse.OrderId,
