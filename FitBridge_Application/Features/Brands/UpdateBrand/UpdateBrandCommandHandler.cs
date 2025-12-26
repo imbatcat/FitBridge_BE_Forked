@@ -27,6 +27,7 @@ public class UpdateBrandCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler
         }
         brand.Name = request.Name;
         brand.UpdatedAt = DateTime.UtcNow;
+        await unitOfWork.CommitAsync();
         return new BrandResponseDto { Id = brand.Id, Name = brand.Name };
     }
 }

@@ -34,13 +34,17 @@ public class CreateShippingOrderCommandHandler : IRequestHandler<CreateShippingO
     public async Task<CreateShippingOrderResponseDto> Handle(CreateShippingOrderCommand request, CancellationToken cancellationToken)
     {
         // Get order from database
-        var order = await _unitOfWork.Repository<Order>().GetByIdAsync(request.OrderId, includes: new List<string> { "Transactions", "Address", "Account" });
+        var order = await _unitOfWork.Repository<Order>().GetByIdAsync(request.OrderId, includes: new List<string> { "Transactions", "Address", "Account", "Transactions.PaymentMethod" });
         
         if (order == null)
         {
             throw new NotFoundException($"Order with ID {request.OrderId} not found");
         }
-
+        var COD = 0;
+        if (order.Transactions.FirstOrDefault()?.PaymentMethod?.MethodType == MethodType.COD)
+        {
+            COD = (int)order.TotalAmount;
+        }
         // Validate order status
         if (order.Status == OrderStatus.Shipping || order.Status == OrderStatus.Arrived || order.Status == OrderStatus.Finished)
         {
@@ -71,7 +75,7 @@ public class CreateShippingOrderCommandHandler : IRequestHandler<CreateShippingO
             ShortAddress = order.Address.Ward + ", " + order.Address.District,
             Name = order.Address.ReceiverName,
             Mobile = order.Address.PhoneNumber,
-            Cod = order.TotalAmount,
+            Cod = COD,
             Remarks = order.Address.Note,
             TrackingNumber = order.Id.ToString(),
         };
