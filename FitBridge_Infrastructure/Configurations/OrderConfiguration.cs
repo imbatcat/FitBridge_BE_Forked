@@ -26,6 +26,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(e => e.CustomerPurchasedIdToExtend).IsRequired(false);
         builder.Property(e => e.GymCoursePTIdToAssign).IsRequired(false);
         builder.Property(e => e.CommissionRate).IsRequired(true).HasDefaultValue(0m);
+        builder.Property(e => e.AhamoveSharedLink).IsRequired(false);
 
         builder.HasOne(e => e.Address).WithMany(e => e.Orders).HasForeignKey(e => e.AddressId);
         builder.HasOne(e => e.Account).WithMany(e => e.Orders).HasForeignKey(e => e.AccountId);

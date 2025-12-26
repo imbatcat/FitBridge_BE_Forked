@@ -105,12 +105,17 @@ public class CreateShippingOrderCommandHandler : IRequestHandler<CreateShippingO
 
             _logger.LogInformation($"Successfully created Ahamove order {ahamoveResponse.OrderId} for Order ID: {request.OrderId}. Shared link: {ahamoveResponse.SharedLink}");
 
+            order.AhamoveSharedLink = ahamoveResponse.SharedLink;
+            _unitOfWork.Repository<Order>().Update(order);
+            await _unitOfWork.CommitAsync();
+
             return new CreateShippingOrderResponseDto
             {
                 AhamoveOrderId = ahamoveResponse.OrderId,
                 Status = ahamoveResponse.Status,
                 ShippingFeeActualCost = ahamoveResponse.Order.TotalFee,
-                Message = "Shipping order created successfully"
+                Message = "Shipping order created successfully",
+                AhamoveSharedLink = ahamoveResponse.SharedLink
             };
         }
         catch (Exception ex)
