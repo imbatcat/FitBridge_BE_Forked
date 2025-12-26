@@ -23,11 +23,10 @@ public class CancelSubscriptionCommandHandler(IUnitOfWork unitOfWork, IScheduleJ
 
         userSubscription.Status = SubScriptionStatus.Cancelled;
         userSubscription.UpdatedAt = DateTime.UtcNow;
-        var user = await _applicationUserService.GetByIdAsync(userSubscription.UserId);
+        var user = await _applicationUserService.GetByIdAsync(userSubscription.UserId, isTracking: true);
         if(user != null)
         {
             user.hotResearch = false;
-            await _applicationUserService.UpdateAsync(user);
         }
         unitOfWork.Repository<UserSubscription>().Update(userSubscription);
         await unitOfWork.CommitAsync();
