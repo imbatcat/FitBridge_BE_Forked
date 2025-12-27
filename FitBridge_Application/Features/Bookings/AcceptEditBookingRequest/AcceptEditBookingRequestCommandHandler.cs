@@ -94,7 +94,7 @@ public class AcceptEditBookingRequestCommandHandler(
             }
             else
             {
-                throw new DuplicateException($"Customer have course at this time, booking that overlapped: {booking.First().Id}");
+                throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
             }
         }
         var freelancePtBookingSpec = new GetFreelancePtBookingForValidationSpec(ptId, request.BookingDate, request.StartTime, request.EndTime);
@@ -106,7 +106,7 @@ public class AcceptEditBookingRequestCommandHandler(
             }
             else
             {
-                throw new DuplicateException($"Customer have course at this time, booking that overlapped: {freelancePtBooking.First().Id}");
+                throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
             }
         }
         return true;

@@ -16,13 +16,13 @@ public class BookingService(IUnitOfWork _unitOfWork)
         var booking = await _unitOfWork.Repository<Booking>().GetBySpecificationAsync(bookingSpec, false);
         if (booking != null)
         {
-            throw new DuplicateException($"Customer have course at this time, booking that overlapped: {booking.Id}");
+            throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
         }
         var freelancePtBookingSpec = new GetFreelancePtBookingForValidationSpec(bookingRequest.PtId, bookingRequest.BookingDate, bookingRequest.StartTime, bookingRequest.EndTime);
         var freelancePtBooking = await _unitOfWork.Repository<Booking>().GetBySpecificationAsync(freelancePtBookingSpec, false);
         if (freelancePtBooking != null)
         {
-            throw new DuplicateException($"PT have course at this time booking that overlapped: {freelancePtBooking.Id}");
+            throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
         }
         return true;
     }
@@ -33,13 +33,13 @@ public class BookingService(IUnitOfWork _unitOfWork)
         var booking = await _unitOfWork.Repository<Booking>().GetBySpecificationAsync(bookingSpec, false);
         if (booking != null)
         {
-            throw new DuplicateException($"Customer have course at this time, booking that overlapped: {booking.Id}");
+            throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
         }
         var freelancePtBookingSpec = new GetFreelancePtBookingForValidationSpec(ptId, requestBooking.BookingDate, requestBooking.PtFreelanceStartTime, requestBooking.PtFreelanceEndTime);
         var freelancePtBooking = await _unitOfWork.Repository<Booking>().GetBySpecificationAsync(freelancePtBookingSpec, false);
         if (freelancePtBooking != null)
         {
-            throw new DuplicateException($"PT have course at this time booking that overlapped: {freelancePtBooking.Id}");
+            throw new DuplicateException($"Người dùng đã có lịch tập tại thời gian này");
         }
         return true;
     }
