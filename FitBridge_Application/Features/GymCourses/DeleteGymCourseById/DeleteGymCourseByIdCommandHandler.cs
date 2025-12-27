@@ -33,4 +33,4 @@ namespace FitBridge_Application.Features.GymCourses.DeleteGymCourseById
             }
         }
     }
-}}
+}

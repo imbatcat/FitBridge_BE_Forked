@@ -55,4 +55,4 @@ namespace FitBridge_Application.Features.GymCourses.UpdateGymCourse
             };
         }
     }
-}}
+}

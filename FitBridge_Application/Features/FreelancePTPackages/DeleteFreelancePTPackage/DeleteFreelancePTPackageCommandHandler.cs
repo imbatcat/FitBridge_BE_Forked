@@ -35,4 +35,4 @@ namespace FitBridge_Application.Features.FreelancePTPackages.DeleteFreelancePTPa
             }
         }
     }
-}}
+}
