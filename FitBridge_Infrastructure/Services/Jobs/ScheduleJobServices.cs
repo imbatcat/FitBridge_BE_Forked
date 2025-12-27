@@ -1,3 +1,4 @@
+using System;
 using FitBridge_Application.Commons.Constants;
 using FitBridge_Application.Configurations;
 using FitBridge_Application.Dtos.Jobs;
@@ -20,7 +21,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
-using System;
 
 namespace FitBridge_Infrastructure.Services.Jobs;
 
@@ -39,19 +39,26 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
         .SetJobData(jobData)
         .Build();
 
-        var triggerTime = profitJobScheduleDto.ProfitDistributionDate.ToDateTime(TimeOnly.MinValue);
-        // var triggerTime = DateTime.Now.AddSeconds(20);
+        string timeZoneId = Environment.OSVersion.Platform == PlatformID.Win32NT 
+                ? "SE Asia Standard Time" 
+                : "Asia/Ho_Chi_Minh";
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+        var vietnamMidnight = profitJobScheduleDto.ProfitDistributionDate.ToDateTime(TimeOnly.MinValue);
+
+        var utcTriggerTime = TimeZoneInfo.ConvertTimeToUtc(vietnamMidnight, vietnamTimeZone);
+
         var trigger = TriggerBuilder.Create()
-        .WithIdentity(triggerKey)
-        .StartAt(triggerTime)
-        .Build();
+            .WithIdentity(triggerKey)
+            .StartAt(utcTriggerTime)
+            .Build();
 
         await _schedulerFactory.GetScheduler().Result
         .ScheduleJob(job, trigger);
 
         _logger.LogInformation(
         "Scheduled profit distribution job for OrderItem {OrderItemId} at {TriggerTime}",
-        profitJobScheduleDto.OrderItemId, triggerTime);
+        profitJobScheduleDto.OrderItemId, utcTriggerTime);
         return true;
     }
 
@@ -128,8 +135,14 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
             {
                 { "bookingId", booking.Id.ToString() }
             };
+            string timeZoneId = Environment.OSVersion.Platform == PlatformID.Win32NT
+                        ? "SE Asia Standard Time"
+                        : "Asia/Ho_Chi_Minh";
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+            // 4. Calculate UTC Trigger Time
+            // Combine Date + EndTime (Wall Clock) -> Convert to UTC
             var localTriggerTime = booking.BookingDate.ToDateTime(booking.PtFreelanceEndTime.Value);
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var utcTriggerTime = TimeZoneInfo.ConvertTimeToUtc(localTriggerTime, vietnamTimeZone);
             var job = JobBuilder.Create<CancelBookingJob>()
             .WithIdentity(jobKey)
@@ -386,7 +399,7 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
             { "orderId", orderId.ToString() }
         };
         var expirationMinutes = (int)await _systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.AutoCancelCreatedOrderAfterTime);
-        var triggerTime = DateTime.Now.AddMinutes(expirationMinutes);
+        var triggerTime = DateTime.UtcNow.AddMinutes(expirationMinutes);
         var job = JobBuilder.Create<CancelCreatedOrderJob>()
         .WithIdentity(jobKey)
         .SetJobData(jobData)
@@ -498,7 +511,7 @@ public class ScheduleJobServices(ISchedulerFactory _schedulerFactory, ILogger<Sc
         }
         var expirationMinutes = (int)await _systemConfigurationService.GetSystemConfigurationAutoConvertDataTypeAsync(ProjectConstant.SystemConfigurationKeys.AutoCancelCreatedOrderAfterTime);
 
-        var triggerTime = DateTime.Now.AddMinutes(expirationMinutes);
+        var triggerTime = DateTime.UtcNow.AddMinutes(expirationMinutes);
         var jobData = new JobDataMap
         {
             { "userSubscriptionId", UserSubscriptionId.ToString() }

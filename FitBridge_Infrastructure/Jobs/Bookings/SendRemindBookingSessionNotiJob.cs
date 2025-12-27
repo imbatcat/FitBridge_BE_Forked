@@ -25,12 +25,15 @@ public class SendRemindBookingSessionNotiJob(ILogger<SendRemindBookingSessionNot
             _logger.LogError("Booking not found for BookingId: {BookingId}", bookingId);
             return;
         }
-        var sessionStartTime = booking.PTGymSlot.GymSlot.StartTime.ToString();
+        var sessionStartTime = "";
         if (booking.PTGymSlot != null)
         {
             sessionStartTime = booking.PtFreelanceStartTime.Value.ToString();
+        } else
+        {
+            sessionStartTime = booking.PTGymSlot.GymSlot.StartTime.ToString();
         }
-        if(booking.SessionStatus == SessionStatus.Cancelled)
+        if (booking.SessionStatus == SessionStatus.Cancelled)
         {
             _logger.LogError("Booking is cancelled, current status: {SessionStatus}", booking.SessionStatus);
             return;

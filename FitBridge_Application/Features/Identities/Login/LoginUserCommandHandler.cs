@@ -61,7 +61,7 @@ public class LoginUserCommandHandler(
         if (user is null)
         {
             logger.LogWarning("User not found with identifier: {Identifier}", identifier);
-            throw new BusinessException($"User with identifier: {identifier} was not found");
+            throw new BusinessException($"Không tìm thấy người dùng với thông tin đăng nhập: {identifier}");
         }
 
         if (!user.EmailConfirmed)

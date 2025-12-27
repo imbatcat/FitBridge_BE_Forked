@@ -13,6 +13,7 @@ public class SessionPracticeContentCommandHandler(IUnitOfWork _unitOfWork) : IRe
     public async Task<SessionPracticeContentDto> Handle(SessionPracticeContentCommand request, CancellationToken cancellationToken)
     {
         var sessionActivities = await _unitOfWork.Repository<SessionActivity>().GetAllWithSpecificationAsync(new GetSessionActivitiesByBookingIdSpecification(request.BookingId), true);
+        var booking = await _unitOfWork.Repository<Booking>().GetByIdAsync(request.BookingId, includes: new List<string> { "Customer" });
         if (sessionActivities.Count == 0)
         {
             return new SessionPracticeContentDto { SessionActivities = new List<SessionActivityListDto>(), BookingName = "" };
@@ -45,6 +46,7 @@ public class SessionPracticeContentCommandHandler(IUnitOfWork _unitOfWork) : IRe
         }
         return new SessionPracticeContentDto {
             BookingId = request.BookingId,
+            CustomerId = booking.CustomerId,
             SessionStartTime = sessionActivities.FirstOrDefault().Booking.SessionStartTime ?? null,
             SessionEndTime = sessionActivities.FirstOrDefault().Booking.SessionEndTime ?? null,
             SessionActivities = sessionActivitiesDtos,

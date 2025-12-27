@@ -9,7 +9,9 @@ public class UserDetailMappingProfile : Profile
 {
     public UserDetailMappingProfile()
     {
-        CreateMap<UserDetail, UserDetailDto>();
+        CreateMap<UserDetail, UserDetailDto>()
+        .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.User.IsMale ? "Male" : "Female"))
+        .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.User.Dob));
         CreateMap<UpdateUserDetailDto, UserDetail>()
         .ForMember(dest => dest.Biceps, opt => opt.Condition(src => src.Biceps != null))
         .ForMember(dest => dest.ForeArm, opt => opt.Condition(src => src.ForeArm != null))

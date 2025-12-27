@@ -33,6 +33,10 @@ public class GetExpiredContractUserQueryHandler(IUnitOfWork _unitOfWork, IApplic
         {
             var nonContractUserDto = _mapper.Map<NonContractUserDto>(user);
             nonContractUserDto.Role = await _applicationUserService.GetUserRoleAsync(user);
+            if(nonContractUserDto.Role == ProjectConstant.UserRoles.GymOwner)
+            {
+                nonContractUserDto.GymName = user.GymName;
+            }
             result.Add(nonContractUserDto);
         }
         
