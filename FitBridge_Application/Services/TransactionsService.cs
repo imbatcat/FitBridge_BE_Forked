@@ -190,7 +190,7 @@ public class TransactionsService(IUnitOfWork _unitOfWork, ILogger<TransactionsSe
 
         if (orderItem == null)
         {
-            throw new NotFoundException($"{nameof(orderItem)} with Id {orderItemId} not found");
+            return false;
         }
         var profit = await CalculateMerchantProfit(orderItem, orderItem.Order.Coupon);
         var orderCode = GenerateOrderCode();
