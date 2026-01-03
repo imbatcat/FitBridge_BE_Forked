@@ -22,7 +22,6 @@ builder.Services.AddApplications(builder.Configuration);
 builder.AddPresentation(builder.Configuration);
 builder.Services.AddControllers();
 var app = builder.Build();
-
 app.MapOpenApi();
 app.UseSwagger();
 app.UseSwaggerUI();
