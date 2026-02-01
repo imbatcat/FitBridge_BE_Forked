@@ -12,7 +12,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building.."
-                sh 'whoami && id'
+                sh 'whoami'
+                sh 'id'
                 sh '''
                     pwd
                     dotnet build --configuration Release
