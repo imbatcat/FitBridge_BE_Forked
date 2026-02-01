@@ -8,7 +8,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building.."
-                docker --version
                 sh '''
                     pwd
                     dotnet restore
@@ -23,12 +22,17 @@ pipeline {
                 '''
             }
         }
-        stage('Deliver') {
+        stage('Build & Push') {
             steps {
-                echo 'Deliver....'
-                sh '''
-                    echo "Delivered"
-                '''
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
+                                          passwordVariable: 'PASS', 
+                                          usernameVariable: 'USER')]) {
+                    sh """
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker build -t rutkre/fitbridge-be:${env.BUILD_NUMBER} .
+                        docker push rutkre/fitbridge-be:${env.BUILD_NUMBER}
+                    """
+                }
             }
         }
     }
