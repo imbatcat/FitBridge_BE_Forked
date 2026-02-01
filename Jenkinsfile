@@ -12,10 +12,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building.."
-                sh 'whoami'
-                sh 'id'
                 sh '''
-                    pwd
                     dotnet build --configuration Release
                 '''
             }
