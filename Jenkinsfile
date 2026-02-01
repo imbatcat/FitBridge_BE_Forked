@@ -27,20 +27,22 @@ pipeline {
         }
         stage('Build & Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
-                                          passwordVariable: 'PASS', 
-                                          usernameVariable: 'USER')]) {
-                    sh """
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker build \
-                            --build-arg BUILDKIT_INLINE_CACHE=1 \
-                            --cache-from ${REGISTRY}/${IMAGE_NAME}:latest \
-                            -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
-                            -t ${REGISTRY}/${IMAGE_NAME}:latest \
-                            .
-                        docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${REGISTRY}/${IMAGE_NAME}:latest
-                    """
+                script {
+                    def imagePath = "rutkre/fitbridge-be"
+                    def credsId = 'docker-credentials'
+
+                    docker.withRegistry(credsId) {
+                        def customImage = docker.build("${imagePath}:${env.BUILD_NUMBER}", 
+                            "--build-arg BUILDKIT_INLINE_CACHE=1 " +
+                            "--cache-from ${imagePath}:latest ."
+                        )
+
+                        // Push the specific build number tag
+                        customImage.push()
+
+                        // Push the 'latest' tag
+                        customImage.push('latest')
+                    }
                 }
             }
         }
