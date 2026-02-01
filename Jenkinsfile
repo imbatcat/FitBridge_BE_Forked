@@ -1,12 +1,15 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            label 'docker-agent-dotnet'
+        }
+    }
     stages {
         stage('Build') {
             steps {
-                echo "Building.."
-                sh '''
-                echo "doing build stuff.."
-                '''
+                echo "Pulling.."
+                pwd
+                git --version
             }
         }
         stage('Test') {
