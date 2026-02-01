@@ -21,7 +21,7 @@ pipeline {
             steps {
                 echo "Testing.."
                 sh '''
-                    dotnet test FitBridge_UnitTest.csproj --no-build --configuration Release
+                    dotnet test --no-build --configuration Release
                 '''
             }
         }
