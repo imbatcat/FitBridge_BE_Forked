@@ -13,7 +13,7 @@ pipeline {
             steps {
                 echo "Building.."
                 sh '''
-                    dotnet build --configuration Release
+                    dotnet build --property:WarningLevel=0 --configuration Release
                 '''
             }
         }
@@ -21,8 +21,7 @@ pipeline {
             steps {
                 echo "Testing.."
                 sh '''
-                    cd FitBridge_UnitTest
-                    dotnet test FitBridge_UnitTest.csproj --no-build
+                    dotnet test FitBridge_UnitTest.csproj 
                 '''
             }
         }
