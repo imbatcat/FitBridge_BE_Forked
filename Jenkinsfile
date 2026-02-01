@@ -7,10 +7,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "Pulling.."
+                echo "Building.."
+                docker --version
                 sh '''
                     pwd
-                    git --version
+                    dotnet restore
                 '''
             }
         }
@@ -18,7 +19,7 @@ pipeline {
             steps {
                 echo "Testing.."
                 sh '''
-                echo "doing test stuff.."
+                    dotnet test
                 '''
             }
         }
@@ -26,7 +27,7 @@ pipeline {
             steps {
                 echo 'Deliver....'
                 sh '''
-                echo "doing delivery stuff.."
+                    echo "Delivered"
                 '''
             }
         }
