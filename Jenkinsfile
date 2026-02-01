@@ -8,8 +8,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Pulling.."
-                pwd
-                sh 'git --version'
+                sh '''
+                    pwd
+                    git --version
+                '''
             }
         }
         stage('Test') {
