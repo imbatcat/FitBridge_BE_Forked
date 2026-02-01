@@ -4,13 +4,17 @@ pipeline {
             label 'docker-agent-dotnet'
         }
     }
+    environment {
+        REGISTRY = 'rutkre'
+        IMAGE_NAME = 'fitbridge-be'
+    }
     stages {
         stage('Build') {
             steps {
                 echo "Building.."
                 sh '''
                     pwd
-                    dotnet restore
+                    dotnet build --configuration Release
                 '''
             }
         }
@@ -18,7 +22,7 @@ pipeline {
             steps {
                 echo "Testing.."
                 sh '''
-                    dotnet test
+                    dotnet test --no-build
                 '''
             }
         }
@@ -29,8 +33,14 @@ pipeline {
                                           usernameVariable: 'USER')]) {
                     sh """
                         echo $PASS | docker login -u $USER --password-stdin
-                        docker build -t rutkre/fitbridge-be:${env.BUILD_NUMBER} .
-                        docker push rutkre/fitbridge-be:${env.BUILD_NUMBER}
+                        docker build \
+                            --build-arg BUILDKIT_INLINE_CACHE=1 \
+                            --cache-from ${REGISTRY}/${IMAGE_NAME}:latest \
+                            -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
+                            -t ${REGISTRY}/${IMAGE_NAME}:latest \
+                            .
+                        docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                        docker push ${REGISTRY}/${IMAGE_NAME}:latest
                     """
                 }
             }
