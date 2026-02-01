@@ -9,7 +9,7 @@ pipeline {
             steps {
                 echo "Pulling.."
                 pwd
-                git --version
+                sh 'git --version'
             }
         }
         stage('Test') {
