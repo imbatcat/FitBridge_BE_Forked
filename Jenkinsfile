@@ -14,6 +14,7 @@ pipeline {
                 echo "Building.."
                 sh '''
                     pwd
+                    sh 'whoami && id'
                     dotnet build --configuration Release
                 '''
             }
