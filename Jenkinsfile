@@ -14,7 +14,7 @@ pipeline {
             steps {
                 echo "Building.."
                 sh '''
-                    dotnet build --property:WarningLevel=0 --configuration Release
+                    dotnet build --property:WarningLevel=1 --configuration Release
                 '''
             }
         }
