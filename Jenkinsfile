@@ -7,6 +7,7 @@ pipeline {
     environment {
         REGISTRY = 'rutkre'
         IMAGE_NAME = 'fitbridge-be'
+        DOCKER_BUILDKIT = '1' // use docker buildx
     }
     stages {
         stage('Build') {
@@ -27,9 +28,6 @@ pipeline {
         }
         stage('Build & Push') {
             steps {
-                environment {
-                    DOCKER_BUILDKIT = '1' // use docker buildx
-                }
                 script {
                     def imagePath = "rutkre/fitbridge-be"
                     def credsId = 'docker-credentials'
