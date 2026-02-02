@@ -33,9 +33,7 @@ pipeline {
                     def imagePath = "rutkre/fitbridge-be"
                     def credsId = 'docker-credentials'
 
-                    withCredentials([usernamePassword(credentialsId: credsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh '''
-                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    sh '''
                             
                             # Build with buildx using inline cache
                             docker buildx build \
@@ -45,10 +43,9 @@ pipeline {
                             --build-arg BUILDKIT_INLINE_CACHE=1 \
                             --cache-from rutkre/fitbridge-be:latest \
                     .
-                            
-                            docker logout
-                        '''
-                    }
+                        
+                    docker logout
+                    '''
                 }
             }
         }
