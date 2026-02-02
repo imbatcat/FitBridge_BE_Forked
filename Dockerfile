@@ -17,11 +17,13 @@ RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
 
 COPY . .
 
-RUN dotnet build FitBridge_API/FitBridge_API.csproj \
+RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
+    dotnet build FitBridge_API/FitBridge_API.csproj \
     --configuration Release \
     --no-restore 
 
-RUN dotnet publish FitBridge_API/FitBridge_API.csproj \
+RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
+    dotnet publish FitBridge_API/FitBridge_API.csproj \
     --configuration Release \
     --output /app \
     --no-restore \
