@@ -32,17 +32,21 @@ pipeline {
                     def imagePath = "rutkre/fitbridge-be"
                     def credsId = 'docker-credentials'
 
-                    docker.withRegistry(credsId) {
-                        def customImage = docker.build("${imagePath}:${env.BUILD_NUMBER}", 
-                            "--build-arg BUILDKIT_INLINE_CACHE=1 " +
-                            "--cache-from ${imagePath}:latest ."
-                        )
-
-                        // Push the specific build number tag
-                        customImage.push()
-
-                        // Push the 'latest' tag
-                        customImage.push('latest')
+                    withCredentials([usernamePassword(credentialsId: credsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh '''
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            
+                            # Build with buildx using inline cache
+                            docker buildx build \
+                                -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
+                                -t ${REGISTRY}/${IMAGE_NAME}:latest \
+                                --build-arg BUILDKIT_INLINE_CACHE=1 \
+                                --cache-from ${REGISTRY}/${IMAGE_NAME}:latest \
+                                --push \
+                                .
+                            
+                            docker logout
+                        '''
                     }
                 }
             }
