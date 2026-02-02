@@ -10,14 +10,14 @@ COPY FitBridge_Application/*.csproj FitBridge_Application/
 COPY FitBridge_API/*.csproj FitBridge_API/
 COPY FitBridge_UnitTest/*.csproj FitBridge_UnitTest/
 
-ENV NUGET_PACKAGES=/var/lib/docker/volumes/nuget-cache/_data
+ENV NUGET_PACKAGES=/home/velour/nuget-cache/
 
-RUN --mount=type=cache,id=nuget,target=/var/lib/docker/volumes/nuget-cache/_data \
+RUN --mount=type=cache,id=nuget,target=/home/velour/nuget-cache \
     dotnet restore
 
 COPY . .
 
-RUN --mount=type=cache,id=nuget,target=/var/lib/docker/volumes/nuget-cache/_data \
+RUN --mount=type=cache,id=nuget,target=/home/velour/nuget-cache \
     dotnet publish FitBridge_API/FitBridge_API.csproj \
     -c Release \
     -o /app \
