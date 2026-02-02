@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 COPY *.sln .
+COPY BenchmarkSuite1/*.csproj BenchmarkSuite1/
 COPY FitBridge_Domain/*.csproj FitBridge_Domain/
 COPY FitBridge_Infrastructure/*.csproj FitBridge_Infrastructure/
 COPY FitBridge_Application/*.csproj FitBridge_Application/
