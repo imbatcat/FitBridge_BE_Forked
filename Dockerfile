@@ -13,14 +13,14 @@ COPY FitBridge_UnitTest/*.csproj FitBridge_UnitTest/
 ENV NUGET_PACKAGES=/home/jenkins/.nuget
 
 RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
-    --configuration Release \
-    dotnet restore
+    dotnet restore \
+    --configuration Release
 
 COPY . .
 
 RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
     dotnet publish FitBridge_API/FitBridge_API.csproj \
-    --property:WarningLevel=1 \
+    --property:WarningLevel=0 \
     --configuration Release \
     --output /app \
     --no-restore
