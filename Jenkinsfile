@@ -29,6 +29,7 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
+                    sh 'docker buildx version'
                     def imagePath = "rutkre/fitbridge-be"
                     def credsId = 'docker-credentials'
 
@@ -38,12 +39,12 @@ pipeline {
                             
                             # Build with buildx using inline cache
                             docker buildx build \
-                                -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
-                                -t ${REGISTRY}/${IMAGE_NAME}:latest \
-                                --build-arg BUILDKIT_INLINE_CACHE=1 \
-                                --cache-from ${REGISTRY}/${IMAGE_NAME}:latest \
-                                --push \
-                                .
+                            --push \
+                            -t rutkre/fitbridge-be:36 \
+                            -t rutkre/fitbridge-be:latest \
+                            --build-arg BUILDKIT_INLINE_CACHE=1 \
+                            --cache-from rutkre/fitbridge-be:latest \
+                    .
                             
                             docker logout
                         '''
