@@ -7,6 +7,8 @@ COPY FitBridge_Domain/*.csproj FitBridge_Domain/
 COPY FitBridge_Infrastructure/*.csproj FitBridge_Infrastructure/
 COPY FitBridge_Application/*.csproj FitBridge_Application/
 COPY FitBridge_API/*.csproj FitBridge_API/
+COPY FitBridge_UnitTest/*.csproj FitBridge_UnitTest/
+
 RUN dotnet restore
 
 COPY . .
