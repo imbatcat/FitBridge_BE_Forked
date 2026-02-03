@@ -29,8 +29,6 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    def imageTag = sh(script: "git rev-parse HEAD | sha256sum | cut -d' ' -f1", returnStdout: true)
-                        .trim()
                     withCredentials([usernamePassword(
                         credentialsId: 'docker-credentials',
                         usernameVariable: 'DOCKER_USER',
@@ -42,12 +40,12 @@ pipeline {
                             AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
                             echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
                         '''
-                        
                         // Build and push
                         sh """
+                            IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) 
                             docker buildx build \
                                 --push \
-                                -t rutkre/fitbridge-be:${imageTag} \
+                                -t rutkre/fitbridge-be:${IMAGE_TAG} \
                                 -t rutkre/fitbridge-be:latest \
                                 --build-arg BUILDKIT_INLINE_CACHE=1 \
                                 --cache-from rutkre/fitbridge-be:latest \
