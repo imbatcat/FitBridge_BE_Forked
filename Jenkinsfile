@@ -41,7 +41,7 @@ pipeline {
                             echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
                         '''
                         // Build and push
-                        sh """
+                        sh '''
                             IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) 
                             docker buildx build \
                                 --push \
@@ -50,7 +50,7 @@ pipeline {
                                 --build-arg BUILDKIT_INLINE_CACHE=1 \
                                 --cache-from rutkre/fitbridge-be:latest \
                                 .
-                        """
+                        '''
                         
                         // Cleanup
                         sh 'rm -f ~/.docker/config.json'
