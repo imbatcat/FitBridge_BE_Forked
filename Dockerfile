@@ -20,6 +20,7 @@ COPY . .
 RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \ 
     dotnet build FitBridge_API/FitBridge_API.csproj \
     --configuration Release \
+    --property:WarningLevel=0 \
     --no-restore 
 
 RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \ 

@@ -35,24 +35,24 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh '''
-                            # Create Docker config with auth (no docker login needed)
+                            # Authenticate through docker hub
                             mkdir -p ~/.docker
                             
-                            # Create config.json with registry auth
                             cat > ~/.docker/config.json << EOF
-{
-  "auths": {
-    "https://index.docker.io/v1/": {
-      "auth": "$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)"
-    }
-  }
-}
-EOF
+                            {
+                                "auths": {
+                                    "https://index.docker.io/v1/": {
+                                        "auth": "$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)"
+                                    }
+                                }
+                            }
+                            EOF
                             
-                            # Build and push with buildx
+                            IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
+                            
                             docker buildx build \
                                 --push \
-                                -t rutkre/fitbridge-be:36 \
+                                -t rutkre/fitbridge-be:${IMAGE_TAG} \
                                 -t rutkre/fitbridge-be:latest \
                                 --build-arg BUILDKIT_INLINE_CACHE=1 \
                                 --cache-from rutkre/fitbridge-be:latest \
