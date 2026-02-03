@@ -29,23 +29,39 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    sh 'docker buildx version'
-                    def imagePath = "rutkre/fitbridge-be"
-                    def credsId = 'docker-credentials'
-
-                    sh '''
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            # Create Docker config with auth (no docker login needed)
+                            mkdir -p ~/.docker
                             
-                            # Build with buildx using inline cache
+                            # Create config.json with registry auth
+                            cat > ~/.docker/config.json << EOF
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)"
+    }
+  }
+}
+EOF
+                            
+                            # Build and push with buildx
                             docker buildx build \
-                            --push \
-                            -t rutkre/fitbridge-be:36 \
-                            -t rutkre/fitbridge-be:latest \
-                            --build-arg BUILDKIT_INLINE_CACHE=1 \
-                            --cache-from rutkre/fitbridge-be:latest \
-                    .
-                        
-                    docker logout
-                    '''
+                                --push \
+                                -t rutkre/fitbridge-be:36 \
+                                -t rutkre/fitbridge-be:latest \
+                                --build-arg BUILDKIT_INLINE_CACHE=1 \
+                                --cache-from rutkre/fitbridge-be:latest \
+                                .
+                            
+                            # Cleanup
+                            rm -f ~/.docker/config.json
+                        '''
+                    }
                 }
             }
         }
