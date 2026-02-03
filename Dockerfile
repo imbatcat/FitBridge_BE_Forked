@@ -3,14 +3,25 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 COPY *.sln .
+COPY BenchmarkSuite1/*.csproj BenchmarkSuite1/
 COPY FitBridge_Domain/*.csproj FitBridge_Domain/
 COPY FitBridge_Infrastructure/*.csproj FitBridge_Infrastructure/
 COPY FitBridge_Application/*.csproj FitBridge_Application/
 COPY FitBridge_API/*.csproj FitBridge_API/
+COPY FitBridge_UnitTest/*.csproj FitBridge_UnitTest/
 
 ENV NUGET_PACKAGES=/home/jenkins/.nuget
 
+RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \
+    dotnet restore 
+
 COPY . .
+
+RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \ 
+    dotnet build FitBridge_API/FitBridge_API.csproj \
+    --configuration Release \
+    --no-restore 
+
 RUN --mount=type=cache,id=nuget,target=/home/jenkins/.nuget \ 
     dotnet publish FitBridge_API/FitBridge_API.csproj \
     --configuration Release \
