@@ -36,20 +36,15 @@ pipeline {
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
+                        // Authenticate through docker hub w/ buildkit
                         sh '''
-                            # Authenticate through docker hub
                             mkdir -p ~/.docker
-                            
-                            cat > ~/.docker/config.json << EOF
-                            {
-                                "auths": {
-                                    "https://index.docker.io/v1/": {
-                                        "auth": "$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)"
-                                    }
-                                }
-                            }
-                            EOF
-                            
+                            AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
+                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
+                        '''
+                        
+                        // Build and push
+                        sh """
                             docker buildx build \
                                 --push \
                                 -t rutkre/fitbridge-be:${imageTag} \
@@ -57,10 +52,10 @@ pipeline {
                                 --build-arg BUILDKIT_INLINE_CACHE=1 \
                                 --cache-from rutkre/fitbridge-be:latest \
                                 .
-                            
-                            # Cleanup
-                            rm -f ~/.docker/config.json
-                        '''
+                        """
+                        
+                        // Cleanup
+                        sh 'rm -f ~/.docker/config.json'
                     }
                 }
             }
