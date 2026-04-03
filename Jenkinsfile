@@ -12,6 +12,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                echo "${USER}"
                 echo "Building.."
                 sh '''
                     dotnet build --property:WarningLevel=0 --configuration Release
@@ -42,7 +43,7 @@ pipeline {
                         '''
                         // Build and push
                         sh '''
-                            IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) 
+                            IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                             docker buildx build \
                                 --push \
                                 -t rutkre/fitbridge-be:${IMAGE_TAG} \
@@ -51,7 +52,7 @@ pipeline {
                                 --cache-from rutkre/fitbridge-be:latest \
                                 .
                         '''
-                        
+
                         // Cleanup
                         sh 'rm -f ~/.docker/config.json'
                     }
