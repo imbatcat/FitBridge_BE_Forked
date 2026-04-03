@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo `ls -lah /home/jenkins/.nuget`
+                sh 'ls -lah /home/jenkins/.nuget'
                 echo "Building.."
                 sh '''
                     dotnet build --property:WarningLevel=0 --configuration Release
