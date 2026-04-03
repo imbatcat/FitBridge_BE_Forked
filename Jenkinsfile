@@ -12,7 +12,6 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "${USER} ${UID}"
                 echo "Building.."
                 sh '''
                     dotnet build --property:WarningLevel=0 --configuration Release
