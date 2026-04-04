@@ -36,11 +36,6 @@ pipeline {
                     )]) {
                         try {
                             // Authenticate through docker hub w/ buildkit
-                            //sh '''
-                             //   mkdir -p ~/.docker
-                              //  AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
-                               // echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
-                            //'''
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
 
                             // Build and push
