@@ -35,10 +35,12 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         try {
+                            echo 'Authenticating...'
                             // Authenticate through docker hub w/ buildkit
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
 
                             // Build and push
+                            echo 'Building and pushing...'
                             sh '''
                                 IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                                 docker buildx build \
@@ -52,6 +54,7 @@ pipeline {
                         } finally {
                             // Cleanup
                                 // docker logout https://index.docker.io/v1/ || true
+                            echo 'Cleaning up...'
                             sh '''
                                 docker logout
                                 if (fileExists('~/.docker/config.json')) {
