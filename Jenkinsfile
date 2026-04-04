@@ -51,6 +51,8 @@ pipeline {
                                     --cache-from rutkre/fitbridge-be:latest \
                                     .
                             '''
+                        } catch (Exception e) {
+                            echo 'Error: ' + e.getMessage()
                         } finally {
                             // Cleanup
                                 // docker logout https://index.docker.io/v1/ || true
