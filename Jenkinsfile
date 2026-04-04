@@ -37,7 +37,11 @@ pipeline {
                         try {
                             echo 'Authenticating...'
                             // Authenticate through docker hub w/ buildkit
-                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            sh '''
+                                mkdir -p ~/.docker
+                                AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
+                                echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
+                            '''
 
                             // Build and push
                             echo 'Building and pushing...'
@@ -55,10 +59,9 @@ pipeline {
                             echo 'Error: ' + e.getMessage()
                         } finally {
                             // Cleanup
-                                // docker logout https://index.docker.io/v1/ || true
-                            echo 'Cleaning up...'
                             sh '''
-                                docker logout
+                                echo 'Cleaning up...'
+                                docker logout https://index.docker.io/v1/ || true
                                 if (fileExists('~/.docker/config.json')) {
                                     sh 'rm -f ~/.docker/config.json'
                                 }
