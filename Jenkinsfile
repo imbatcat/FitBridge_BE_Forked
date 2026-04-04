@@ -12,7 +12,6 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'ls -lah /home/jenkins/.nuget'
                 echo "Building.."
                 sh '''
                     dotnet build --property:WarningLevel=0 --configuration Release
@@ -60,7 +59,9 @@ pipeline {
                             sh '''
                                 docker logout
                                 // docker logout https://index.docker.io/v1/ || true
-                                sh 'rm -f ~/.docker/config.json'
+                                if (fileExists('~/.docker/config.json')) {
+                                    sh 'rm -f ~/.docker/config.json'
+                                }
                             '''
                         }
                     }
