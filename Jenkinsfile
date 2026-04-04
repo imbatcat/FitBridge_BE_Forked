@@ -59,13 +59,8 @@ pipeline {
                             echo 'Error: ' + e.getMessage()
                         } finally {
                             // Cleanup
-                            sh '''
-                                echo 'Cleaning up...'
-                                docker logout https://index.docker.io/v1/ || true
-                                if (fileExists('~/.docker/config.json')) {
-                                    sh 'rm -f ~/.docker/config.json'
-                                }
-                            '''
+                            echo 'Cleaning up...'
+                            sh 'docker logout https://index.docker.io/v1/ && rm -f ~/.docker/config.json'
                         }
                     }
                 }
