@@ -35,26 +35,34 @@ pipeline {
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
-                        // Authenticate through docker hub w/ buildkit
-                        sh '''
-                            mkdir -p ~/.docker
-                            AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
-                            echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
-                        '''
-                        // Build and push
-                        sh '''
-                            IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
-                            docker buildx build \
-                                --push \
-                                -t rutkre/fitbridge-be:${IMAGE_TAG} \
-                                -t rutkre/fitbridge-be:latest \
-                                --build-arg BUILDKIT_INLINE_CACHE=1 \
-                                --cache-from rutkre/fitbridge-be:latest \
-                                .
-                        '''
+                        try {
+                            // Authenticate through docker hub w/ buildkit
+                            //sh '''
+                             //   mkdir -p ~/.docker
+                              //  AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
+                               // echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
+                            //'''
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
 
-                        // Cleanup
-                        sh 'rm -f ~/.docker/config.json'
+                            // Build and push
+                            sh '''
+                                IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
+                                docker buildx build \
+                                    --push \
+                                    -t rutkre/fitbridge-be:${IMAGE_TAG} \
+                                    -t rutkre/fitbridge-be:latest \
+                                    --build-arg BUILDKIT_INLINE_CACHE=1 \
+                                    --cache-from rutkre/fitbridge-be:latest \
+                                    .
+                            '''
+                        } finally {
+                            // Cleanup
+                            sh '''
+                                docker logout
+                                // docker logout https://index.docker.io/v1/ || true
+                                sh 'rm -f ~/.docker/config.json'
+                            '''
+                        }
                     }
                 }
             }
