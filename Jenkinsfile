@@ -56,9 +56,9 @@ pipeline {
                             '''
                         } finally {
                             // Cleanup
+                                // docker logout https://index.docker.io/v1/ || true
                             sh '''
                                 docker logout
-                                // docker logout https://index.docker.io/v1/ || true
                                 if (fileExists('~/.docker/config.json')) {
                                     sh 'rm -f ~/.docker/config.json'
                                 }
