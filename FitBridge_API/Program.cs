@@ -96,6 +96,7 @@ app.MapGet("/api/cats", () =>
         "Scottish Fold",
         "Sphynx",
         "Siamese",
+        "batman",
         "Norwegian Forest Cat"
     };
 
