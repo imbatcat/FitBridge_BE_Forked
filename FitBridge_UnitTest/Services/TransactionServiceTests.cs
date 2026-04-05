@@ -12,6 +12,12 @@ namespace FitBridge_UnitTest.Services
 {
     public class TransactionServiceTests
     {
+        [Fact]
+        public async Task FailedTest()
+        {
+            Assert.Equal(1, 0);
+        }
+
         [Theory]
         [InlineData(500000, 1, 0.15, 425000)] // Base case: no coupon
         [InlineData(500000, 2, 0.15, 850000)] // Multiple quantity
@@ -25,7 +31,7 @@ namespace FitBridge_UnitTest.Services
             var mockSchedulerFactory = new Mock<ISchedulerFactory>();
             var mockScheduleJobServices = new Mock<IScheduleJobServices>();
             var mockApplicationUserService = new Mock<IApplicationUserService>();
-            
+
             // Create SystemConfigurationService with mock UnitOfWork
             var mockSystemConfigUnitOfWork = new Mock<IUnitOfWork>();
             var systemConfigurationService = new SystemConfigurationService(mockSystemConfigUnitOfWork.Object);
