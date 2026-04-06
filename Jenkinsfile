@@ -16,7 +16,6 @@ pipeline {
             steps {
                 echo "Building.."
                 sh '''
-                    dotnet nuget locals global-packages --clear
                     dotnet build --property:WarningLevel=0 --configuration Release
                 '''
             }
