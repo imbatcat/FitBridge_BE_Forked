@@ -51,7 +51,7 @@ pipeline {
                                 docker buildx build \
                                     --progress=plain \
                                     --push \
-                                    -t rutkre/fitbridge-be:${IMAGE_TAG} \
+                                    -t rutkre/fitbridge-be:${env.IMAGE_TAG} \
                                     -t rutkre/fitbridge-be:latest \
                                     --build-arg BUILDKIT_INLINE_CACHE=1 \
                                     --cache-from rutkre/fitbridge-be:latest \
@@ -79,7 +79,7 @@ pipeline {
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
-                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
+                                    IMAGE_TAG=${env.IMAGE_TAG} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
                             '''
                         }
