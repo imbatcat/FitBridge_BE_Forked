@@ -79,7 +79,7 @@ pipeline {
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
-                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans
+                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
                             '''
                         }
@@ -91,7 +91,7 @@ pipeline {
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
-                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans
+                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
                             '''
                         }
