@@ -48,7 +48,6 @@ pipeline {
                             // Build and push
                             echo 'Building and pushing...'
                             sh '''
-                                IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                                 docker buildx build \
                                     --progress=plain \
                                     --push \
