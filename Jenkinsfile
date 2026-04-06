@@ -48,14 +48,15 @@ pipeline {
                             echo 'Building and pushing...'
                             sh '''
                                 IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
-                                docker buildx build \
+                                docker build \
                                     --progress=plain \
-                                    --push \
                                     -t rutkre/fitbridge-be:${IMAGE_TAG} \
                                     -t rutkre/fitbridge-be:latest \
                                     --build-arg BUILDKIT_INLINE_CACHE=1 \
                                     --cache-from rutkre/fitbridge-be:latest \
                                     .
+                                docker push rutkre/fitbridge-be:${IMAGE_TAG}
+                                docker push rutkre/fitbridge-be:latest
                             '''
                         } catch (Exception e) {
                             error e.getMessage()
