@@ -16,8 +16,8 @@ pipeline {
             steps {
                 echo "Building.."
                 sh '''
-                    dotnet restore --no-cache && \
-                    dotnet build --no-restore --property:WarningLevel=0 --configuration Release
+                    rm -rf /home/jenkins/.nuget/packages/microsoft.codeanalysis.csharp/4.8.0
+                    dotnet build --property:WarningLevel=0 --configuration Release
                 '''
             }
         }
