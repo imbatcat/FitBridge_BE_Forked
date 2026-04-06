@@ -8,7 +8,9 @@ pipeline {
         REGISTRY = 'rutkre'
         IMAGE_NAME = 'fitbridge-be'
         DOCKER_BUILDKIT = '1' // use docker buildx
+        IMAGE_TAG=sh(script: 'git rev-parse HEAD | sha256sum | cut -d\' \' -f1', returnStdout: true).trim()
     }
+
     stages {
         stage('Build') {
             steps {
@@ -56,13 +58,42 @@ pipeline {
                                     .
                             '''
                         } catch (Exception e) {
-                            echo 'Error: ' + e.getMessage()
+                            error e.getMessage()
                         } finally {
                             // Cleanup
                             echo 'Cleaning up...'
                             sh 'docker logout https://index.docker.io/v1/ && rm -f ~/.docker/config.json'
                         }
                     }
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    def myVar = sh(script: 'docker images rutkre/fitbridge-be --format "{{.Tag}}" | head -n 1', returnStdout: true).trim()
+                    try {
+                        echo "Deploying..."
+                        sshagent(['velour-ssh']) {
+                            sh '''
+                                ssh velour@ssh.velour-pie.io.vn "
+                                    cd ~/deploy/stacks && \
+                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans
+                                "
+                            '''
+                        }
+                    } catch (Exception e) {
+                        echo 'Error during deployment: ' + e.getMessage()
+                        echo 'Reverting back to old version...'
+                        sshagent(['velour-ssh']) {
+                            sh '''
+                                ssh velour@ssh.velour-pie.io.vn "
+                                    cd ~/deploy/stacks && \
+                                    IMAGE_TAG=${myVar} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans
+                                "
+                            '''
+                        }
+                    } 
                 }
             }
         }
