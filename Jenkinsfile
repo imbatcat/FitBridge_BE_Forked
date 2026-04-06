@@ -52,8 +52,6 @@ pipeline {
                                     --progress=plain \
                                     -t rutkre/fitbridge-be:${IMAGE_TAG} \
                                     -t rutkre/fitbridge-be:latest \
-                                    --build-arg BUILDKIT_INLINE_CACHE=1 \
-                                    --cache-from rutkre/fitbridge-be:latest \
                                     .
                                 docker push rutkre/fitbridge-be:${IMAGE_TAG}
                                 docker push rutkre/fitbridge-be:latest
