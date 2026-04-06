@@ -8,7 +8,7 @@ pipeline {
         REGISTRY = 'rutkre'
         IMAGE_NAME = 'fitbridge-be'
         DOCKER_BUILDKIT = '1' // use docker buildx
-        IMAGE_TAG=sh(script: 'git rev-parse HEAD | sha256sum | cut -d\' \' -f1', returnStdout: true).trim()
+        // IMAGE_TAG=sh(script: 'git rev-parse HEAD | sha256sum | cut -d\' \' -f1', returnStdout: true).trim()
     }
 
     stages {
@@ -45,9 +45,9 @@ pipeline {
                                 echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
                             '''
                             // Build and push
-                            echo ${IMAGE_TAG}
                             echo 'Building and pushing...'
                             sh '''
+                                IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                                 docker buildx build \
                                     --progress=plain \
                                     --push \
@@ -78,6 +78,7 @@ pipeline {
                             sh '''
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
+                                    IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) && \
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
                                     IMAGE_TAG=${IMAGE_TAG} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
