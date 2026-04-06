@@ -50,6 +50,7 @@ pipeline {
                             sh '''
                                 IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                                 docker buildx build \
+                                    --progress=plain \
                                     --push \
                                     -t rutkre/fitbridge-be:${IMAGE_TAG} \
                                     -t rutkre/fitbridge-be:latest \
