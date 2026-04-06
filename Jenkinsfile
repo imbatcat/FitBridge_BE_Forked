@@ -78,7 +78,7 @@ pipeline {
                             sh '''
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
-                                    IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) && \
+                                    IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) 
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
                                     IMAGE_TAG=${IMAGE_TAG} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
