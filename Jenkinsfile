@@ -44,7 +44,6 @@ pipeline {
                                 AUTH=$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)
                                 echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"$AUTH\\"}}}" > ~/.docker/config.json
                             '''
-
                             // Build and push
                             echo ${IMAGE_TAG}
                             echo 'Building and pushing...'
