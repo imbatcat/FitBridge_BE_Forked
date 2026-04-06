@@ -16,7 +16,7 @@ pipeline {
             steps {
                 echo "Building.."
                 sh '''
-                    rm -rf /home/jenkins/.nuget/packages/microsoft.codeanalysis.csharp/4.8.0
+                    dotnet nuget locals global-packages --clear
                     dotnet build --property:WarningLevel=0 --configuration Release
                 '''
             }
