@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+RUN apt-get update && apt-get install --no-install-recommends curl
 WORKDIR /src
 
 COPY *.sln .
