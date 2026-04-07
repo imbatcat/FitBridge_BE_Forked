@@ -103,30 +103,29 @@ pipeline {
                 }
             }
         }
-        stage('Notify') {
-            steps {
-                script {
-                    echo "${env.BUILD_SUCCESS}"
-                    if (env.BUILD_SUCCESS == 'true') {
-                        echo 'Build success'
-                        sshagent(['velour-ssh']) {
-                            sh '''
-                                ssh velour@ssh.velour-pie.io.vn "
-                                    docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Success"
-                                "
-                            '''
-                        }
-                    } else {
-                        echo 'Build failed'
-                        sshagent(['velour-ssh']) {
-                            sh '''
-                                ssh velour@ssh.velour-pie.io.vn "
-                                    docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Failed"
-                                "
-                            '''
-                        }
-                    }
-                }
+    }
+    post {
+        always {
+            echo 'Notifying...'
+        }
+        success {
+            echo 'Build success'
+            sshagent(['velour-ssh']) {
+                sh '''
+                    ssh velour@ssh.velour-pie.io.vn "
+                        docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Success"
+                    "
+                '''
+            }
+        }
+        failure {
+            echo 'Build failed'
+            sshagent(['velour-ssh']) {
+                sh '''
+                    ssh velour@ssh.velour-pie.io.vn "
+                        docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Failed"
+                    "
+                '''
             }
         }
     }
