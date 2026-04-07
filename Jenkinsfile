@@ -1,3 +1,4 @@
+def BUILD_SUCCESS = 'false'
 pipeline {
     agent {
         node {
@@ -74,16 +75,18 @@ pipeline {
                     try {
                         echo "Deploying..."
                         sshagent(['velour-ssh']) {
-                            sh '''
+                            sh '''    
+                                IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1)
                                 ssh velour@ssh.velour-pie.io.vn "
                                     cd ~/deploy/stacks && \
                                     docker compose --env-file /home/velour/deploy/.voyager.env down api-fitbridge && \
-
-                                    IMAGE_TAG=$(git rev-parse HEAD | sha256sum | cut -d' ' -f1) 
-                                    docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
+                                    IMAGE_TAG=${IMAGE_TAG} docker compose --env-file /home/velour/deploy/.voyager.env up api-fitbridge --remove-orphans -d 
                                 "
                             '''
                         }
+                        
+                        echo "Deployment success"
+                        env.BUILD_SUCCESS = 'true'
                     } catch (Exception e) {
                         echo 'Error during deployment: ' + e.getMessage()
                         echo 'Reverting back to old version...'
@@ -97,6 +100,32 @@ pipeline {
                             '''
                         }
                     } 
+                }
+            }
+        }
+        stage('Notify') {
+            steps {
+                script {
+                    echo "${env.BUILD_SUCCESS}"
+                    if (env.BUILD_SUCCESS == 'true') {
+                        echo 'Build success'
+                        sshagent(['velour-ssh']) {
+                            sh '''
+                                ssh velour@ssh.velour-pie.io.vn "
+                                    docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Success"
+                                "
+                            '''
+                        }
+                    } else {
+                        echo 'Build failed'
+                        sshagent(['velour-ssh']) {
+                            sh '''
+                                ssh velour@ssh.velour-pie.io.vn "
+                                    docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Failed"
+                                "
+                            '''
+                        }
+                    }
                 }
             }
         }
