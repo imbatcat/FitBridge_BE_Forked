@@ -12,6 +12,17 @@ pipeline {
     }
 
     stages {
+        stage('Pre-Build') {
+            steps {
+                sshagent(['velour-ssh']) {
+                    sh '''
+                        ssh velour@ssh.velour-pie.io.vn "
+                            docker exec ntfy ntfy publish ntfy.velour-pie.io.vn/jenkins "FitBridge Build Starting..."
+                        "
+                    '''
+                }
+            }
+        }
         stage('Build') {
             steps {
                 echo "Building.."
