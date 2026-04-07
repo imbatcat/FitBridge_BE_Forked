@@ -12,11 +12,11 @@ namespace FitBridge_UnitTest.Services
 {
     public class TransactionServiceTests
     {
-        // [Fact]
-        // public async Task FailedTest()
-        // {
-        //     Assert.Equal(1, 0);
-        // }
+        [Fact]
+        public async Task FailedTest()
+        {
+            Assert.Equal(1, 0);
+        }
 
         [Theory]
         [InlineData(500000, 1, 0.15, 425000)] // Base case: no coupon
